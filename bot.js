@@ -1,6 +1,34 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
+//Data Management
+var info = {
+	init: function(data){
+		message.guild.channels.cache.get("728363315138658334").send(JSON.stringify(data));
+	},
+	save: function(id,data){
+		message.guild.channels.cache.get("728363315138658334").messages.cache.toJSON().forEach(m=>{
+			if(m.content.includes(id)){
+				m.edit(JSON.stringify(data));	
+			}
+		});
+	},
+	load: function(id){
+		message.guild.channels.cache.get("728363315138658334").messages.cache.toJSON().forEach(m=>{
+			if(m.content.includes(id)){
+				return JSON.parse(m.content));	
+			} else {
+				//Default data
+				return {
+					id: id,
+					level: 1,
+					last_message: 0
+				}
+			}
+		});
+	}
+}
+
 //Debug
 client.on('message',message=>{
 
