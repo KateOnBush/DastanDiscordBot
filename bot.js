@@ -22,13 +22,10 @@ var info = {
 		var exists=false;
 		client.channels.cache.get("728363315138658334").messages.cache.toJSON().forEach(m=>{
 			if(m.content.includes(id)){
-				exists=true;
-				var ms=m;
+				return JSON.parse(ms.content);	
 			} 
 		})
-		if(exists){
-			return JSON.parse(ms.content);	
-		} else {
+		if(!exists){
 			//Default data
 			var def={
 				id: id,
