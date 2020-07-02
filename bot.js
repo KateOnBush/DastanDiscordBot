@@ -8,23 +8,25 @@ var info = {
 	},
 	save: function(id,data){
 		var exists=false;
-		client.channels.cache.get("728363315138658334").messages.cache.toJSON().forEach(m=>{
-			if(m.content.includes(id)){
+		var messages = client.channels.cache.get("728363315138658334").messages.cache.toJSON();
+		for(var i=0;i<messages.length;i++){
+			if(messages[i].content.includes(id)){
 				exists=true;
-				m.edit(JSON.stringify(data));	
+				messages[i].edit(JSON.stringify(data));	
 			}
-		});
+		}
 		if(exists==false){
 			this.init(data);	
 		}
 	},
 	load: function(id){
 		var exists=false;
-		client.channels.cache.get("728363315138658334").messages.cache.toJSON().forEach(m=>{
-			if(m.content.includes(id)){
-				exists=JSON.parse(m.content);	
+		var messages = client.channels.cache.get("728363315138658334").messages.cache.toJSON();
+		for(var i=0;i<messages.length;i++){
+			if(messages[i].content.includes(id)){
+				exists=JSON.parse(messages[i].content);
 			} 
-		})
+		}
 		if(exists==false){
 			//Default data
 			var def={
