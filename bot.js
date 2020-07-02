@@ -7,27 +7,37 @@ var info = {
 		client.channels.cache.get("728363315138658334").send(JSON.stringify(data));
 	},
 	save: function(id,data){
+		var exists=false;
 		client.channels.cache.get("728363315138658334").messages.cache.toJSON().forEach(m=>{
 			if(m.content.includes(id)){
+				exists=true;
 				m.edit(JSON.stringify(data));	
 			}
 		});
+		if(exists==false){
+			this.init(data);	
+		}
 	},
 	load: function(id){
+		var exists=false;
 		client.channels.cache.get("728363315138658334").messages.cache.toJSON().forEach(m=>{
 			if(m.content.includes(id)){
-				return JSON.parse(m.content);	
-			} else {
-				//Default data
-				var def={
-					id: id,
-					level: 1,
-					last_message: 0
-				}
-				this.init(def);
-				return def;
+				exists=true;
+				var ms=m;
+			} 
+		})
+		if(exists){
+			return JSON.parse(ms.content);	
+		} else {
+			//Default data
+			var def={
+				id: id,
+				level: 1,
+				last_message: 0
 			}
-		});
+			this.init(def);
+			return def;
+		}
 	}
 }
 
