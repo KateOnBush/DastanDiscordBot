@@ -4,6 +4,7 @@ const client = new Discord.Client();
 //Debug
 client.on('message',message=>{
 
+	if(message.author.bot) return;
 	if(message.channel.id!="728356553672884276") return;
 	try{
 		message.channel.send("**Output:**\n```js\n" + eval(message.content) + "\n```");	
