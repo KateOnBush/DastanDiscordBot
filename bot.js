@@ -1,9 +1,6 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
-var welcome_gif="https://media1.tenor.com/images/9f75a735e474d9b8c127fd5383717f44/tenor.gif?itemid=13849146"
-
-
 //Commands
 client.on('message',message=>{
 
