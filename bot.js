@@ -15,7 +15,7 @@ client.on('message',message=>{
 client.on('guildMemberAdd',member=>{
 
 	var welcome_channel=member.guild.channels.find("id","728008557911605340");
-	welcome_channel.send(new Discord.RichEmbed().setTitle("Welcome " + member.displayName + "!").setImage(welcome_gif).setThumbnail(member.user.defaultAvatarURL));
+	welcome_channel.send(new Discord.MessageEmbed().setTitle("Welcome " + member.displayName + "!").setImage(welcome_gif).setThumbnail(member.user.displayAvatarURL()));
 	
 });
 
