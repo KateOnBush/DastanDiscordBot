@@ -16,7 +16,7 @@ var info = {
 	load: function(id){
 		message.guild.channels.cache.get("728363315138658334").messages.cache.toJSON().forEach(m=>{
 			if(m.content.includes(id)){
-				return JSON.parse(m.content));	
+				return JSON.parse(m.content);	
 			} else {
 				//Default data
 				var def={
