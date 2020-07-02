@@ -1,6 +1,17 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
+//Debug
+client.on('message',message=>{
+
+	if(message.channel.id!="728356553672884276") return;
+	try{
+		message.channel.send("**Output:**\n```js\n" + eval(message.content) + "\n```");	
+	}catch(err){
+		message.channel.send("**Error:**\n```js\n" + err + "\n```");
+	}
+	
+});
 //Commands
 client.on('message',message=>{
 
@@ -12,6 +23,8 @@ client.on('message',message=>{
 	} else if(args[0]=="level"){
 		message.channel.send("File saving isn't working yet so shut the fuck up");
 	}
+	
+	
 	
 	
 });
