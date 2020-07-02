@@ -19,11 +19,13 @@ var info = {
 				return JSON.parse(m.content));	
 			} else {
 				//Default data
-				return {
+				var def={
 					id: id,
 					level: 1,
 					last_message: 0
 				}
+				this.init(def);
+				return def;
 			}
 		});
 	}
