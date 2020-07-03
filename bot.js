@@ -25,18 +25,18 @@ var info = {
 			messages=messages.toJSON();
 			for(var i=0;i<messages.length;i++){
 				if(messages[i].content.includes(id)){
-					this.exists=JSON.parse(messages[i].content);
+					info.exists=JSON.parse(messages[i].content);
 				} 
 			}
-			if(this.exists==false){
+			if(info.exists==false){
 				//Default data
 				var def={
 					id: id,
 					level: 1,
 					last_message: 0
 				}
-				this.init(def);
-				this.exists=def;
+				info.init(def);
+				info.exists=def;
 			}
 			
 		});
