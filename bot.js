@@ -36,7 +36,9 @@ var info = {
 				level: 1,
 				gold: 100,
 				messageAveragePerDay: 0,
-				messagesSentToday: 0
+				messagesSentToday: 0,
+				messagesEverSent: 0,
+				firstMessage: undefined
 			}
 			this.init(def);
 			exists=def;
@@ -68,10 +70,16 @@ client.on('message',message=>{
 	if(message.author.messageCombo==20){
 		info.load(message.author.id).then(data=>{
 			var c=data;
-			if(message.member.lastMessage.createdAt.getDay()!=(new Date(Date.now()).getDay())){
-				c.messagesSentToday=0;   
+			if(c.firstMessage==undefined) c.firstMessage=Date.now();
+			if(Date.now()-c.firstMessage>86400000){
+				c.firstMessage=Date.now();
+				var t=(c.messageAveragePerDay+c.messagesSentToday)/2;
+				c.messageAveragePerDay=t;
+				c.messagesSentToday=0;
 			}
 			c.messagesSentToday+=20;
+			c.messagesEverSent+=20;
+			info.save(message.author.id,c);
 			
 		});
 	}
