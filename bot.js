@@ -8,7 +8,7 @@ var info = {
 	},
 	save: function(id,data){
 		var exists=false;
-		var messages = client.channels.cache.get("728363315138658334").messages.cache.toJSON();
+		var messages = client.channels.cache.get("728363315138658334").messages.fetch().toJSON();
 		for(var i=0;i<messages.length;i++){
 			if(messages[i].content.includes(id)){
 				exists=messages[i].edit(JSON.stringify(data));	
@@ -19,23 +19,25 @@ var info = {
 		}
 	},
 	load: function(id){
-		var exists=false;
-		var messages = client.channels.cache.get("728363315138658334").messages.cache.toJSON();
-		for(var i=0;i<messages.length;i++){
-			if(messages[i].content.includes(id)){
-				exists=JSON.parse(messages[i].content);
-			} 
-		}
-		if(exists==false){
-			//Default data
-			var def={
-				id: id,
-				level: 1,
-				last_message: 0
+		client.channels.cache.get("728363315138658334").messages.fetch().then(messages=>{
+			var exists=false;
+			for(var i=0;i<messages.length;i++){
+				if(messages[i].content.includes(id)){
+					exists=JSON.parse(messages[i].content);
+				} 
 			}
-			this.init(def);
-			return def;
-		}
+			if(exists==false){
+				//Default data
+				var def={
+					id: id,
+					level: 1,
+					last_message: 0
+				}
+				this.init(def);
+				return def;
+			}
+			return exists;
+		});
 		return exists;
 	}
 }
