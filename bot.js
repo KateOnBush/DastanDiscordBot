@@ -21,7 +21,7 @@ var info = {
 	},
 	load: function(id){
 		this.exists=false;
-		client.channels.cache.get("728363315138658334").messages.fetch().then(col=>{
+		console.log(client.channels.cache.get("728363315138658334").messages.fetch().then(col=>{
 			messages=col.toJSON();
 			for(var i=0;i<messages.length;i++){
 				if(messages[i].content.includes(id)){
@@ -38,10 +38,8 @@ var info = {
 				info.init(def);
 				info.exists=def;
 			}
-			
-		});
-		console.log(info.exists);
-		console.log(this.exists);
+			return "hey";
+		}));
 		return this.exists;
 	}
 }
