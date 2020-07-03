@@ -10,10 +10,10 @@ var info = {
 	save: async function(id,data){
 		var exists=false;
 		var col = await client.channels.cache.get("728363315138658334").messages.fetch();
-		var messages = col.toJSON();
+		var messages = col.array();
 		for(var i=0;i<messages.length;i++){
 			if(messages[i].content.includes(id)){
-				exists=messages[i].edit(JSON.stringify(data)).then().catch(console.error);	
+				exists=messages[i].edit(JSON.stringify(data));	
 			}
 		}
 		if(exists==false){
@@ -23,7 +23,7 @@ var info = {
 	load: async function(id){	
 		var exists=false;
 		var col = await client.channels.cache.get("728363315138658334").messages.fetch();
-		messages=col.toJSON();
+		messages=col.array();
 		for(var i=0;i<messages.length;i++){
 			if(messages[i].content.includes(id)){
 				exists=JSON.parse(messages[i].content);
