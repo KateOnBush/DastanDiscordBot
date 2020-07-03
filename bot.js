@@ -34,7 +34,9 @@ var info = {
 			var def={
 				id: id,
 				level: 1,
-				last_message: 0
+				gold: 100,
+				messageAveragePerDay: 0,
+				messagesSentToday: 0
 			}
 			this.init(def);
 			exists=def;
@@ -55,16 +57,33 @@ client.on('message',message=>{
 	}
 	
 });
-//Commands
+
+//User event
 client.on('message',message=>{
 
+	//Normal messages
+	
+	if(message.author.messageCombo==undefined) message.author.messageCombo=0;
+	message.author.messageCombo++;
+	if(message.author.messageCombo==20){
+		info.load(message.author.id).then(data=>{
+			var c=data;
+			if(message.member.lastMessage.createdAt.getDay()!=(new Date(Date.now()).getDay())){
+				c.messagesSentToday=0;   
+			}
+			c.messagesSentToday+=20;
+			
+		});
+	}
+	
+	//Commands
 	if(message.channel.id!="728025726556569631") return;
 	var args=message.content.toLowerCase().split(" ");
 	
 	if(args[0]=="ping"){
 		message.channel.send("**Pong!** My ping is *"+(client.ping|0)+" ms*!");
 	} else if(args[0]=="level"){
-		message.channel.send("File saving isn't working yet so shut the fuck up");
+		
 	}
 	
 	
