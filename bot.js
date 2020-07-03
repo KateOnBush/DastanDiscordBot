@@ -27,6 +27,7 @@ var info = {
 				exists=JSON.parse(messages[i].content);
 			} 
 		}
+		console.log("exists : "+exists);
 		if(exists==false){
 			//Default data
 			var def={
