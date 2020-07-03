@@ -20,7 +20,7 @@ var info = {
 		}
 	},
 	load: function(id){
-		exists=false;
+		var exists=false;
 		client.channels.cache.get("728363315138658334").messages.fetch().then(col=>{
 			messages=col.toJSON();
 			for(var i=0;i<messages.length;i++){
