@@ -19,14 +19,15 @@ var info = {
 		}
 	},
 	load: function(id){
+		this.exists=false;
 		client.channels.cache.get("728363315138658334").messages.fetch().then(messages=>{
-			var exists=false;
+			messages=messages.toJSON();
 			for(var i=0;i<messages.length;i++){
 				if(messages[i].content.includes(id)){
-					exists=JSON.parse(messages[i].content);
+					this.exists=JSON.parse(messages[i].content);
 				} 
 			}
-			if(exists==false){
+			if(this.exists==false){
 				//Default data
 				var def={
 					id: id,
@@ -34,9 +35,9 @@ var info = {
 					last_message: 0
 				}
 				this.init(def);
-				return def;
+				this.exists=def;
 			}
-			return exists;
+			
 		});
 		return exists;
 	}
