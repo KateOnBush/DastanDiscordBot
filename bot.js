@@ -96,7 +96,7 @@ client.on('message',message=>{
 			message.channel.send(new Discord.MessageEmbed().setTitle("You are level " + data.level + "!"));
 		});
 	} else if(args[0]=="uptime"){
-		message.channel.send("I've been up for **" +((client.uptime/1000)|0)+"**!")
+		message.channel.send("I've been up for **" +((client.uptime/1000)|0)+"** seconds!")
 	}
 	
 	
