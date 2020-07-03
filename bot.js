@@ -21,7 +21,7 @@ var info = {
 	},
 	load: function(id){
 		async function getMessages(){
-			return client.channels.cache.get("728363315138658334").messages.fetch();	
+			return await client.channels.cache.get("728363315138658334").messages.fetch();	
 		}
 		var exists=false;
 		var col = await getMessages();
