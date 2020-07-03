@@ -92,7 +92,9 @@ client.on('message',message=>{
 	if(args[0]=="ping"){
 		message.channel.send("**Pong!** My ping is *"+(client.ping|0)+" ms*!");
 	} else if(args[0]=="level"){
-		
+		info.load(message.author.id).then(data=>{
+			message.channel.send("You are level **" + data.level + "**!");
+		});
 	}
 	
 	
