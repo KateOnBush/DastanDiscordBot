@@ -21,27 +21,29 @@ var info = {
 	},
 	load: function(id){
 		var exists=false;
-		client.channels.cache.get("728363315138658334").messages.fetch().then(col=>{
-			messages=col.toJSON();
-			console.log(exists);
-			console.log(this.exists);
-			for(var i=0;i<messages.length;i++){
-				if(messages[i].content.includes(id)){
-					exists=JSON.parse(messages[i].content);
-				} 
+		var col = await this.getMessages();
+		messages=col.toJSON();
+		console.log(exists);
+		console.log(this.exists);
+		for(var i=0;i<messages.length;i++){
+			if(messages[i].content.includes(id)){
+				exists=JSON.parse(messages[i].content);
+			} 
+		}
+		if(exists==false){
+			//Default data
+			var def={
+				id: id,
+				level: 1,
+				last_message: 0
 			}
-			if(exists==false){
-				//Default data
-				var def={
-					id: id,
-					level: 1,
-					last_message: 0
-				}
-				this.init(def);
-				exists=def;
-			}
-		});
+			this.init(def);
+			exists=def;
+		}
 		return exists;
+	},
+	getMessages: async function(){
+		return client.channels.cache.get("728363315138658334").messages.fetch();	
 	}
 }
 
