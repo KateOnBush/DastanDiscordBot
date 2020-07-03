@@ -9,11 +9,11 @@ var info = {
 	},
 	save: async function(id,data){
 		var exists=false;
-		var messages = await client.channels.cache.get("728363315138658334").messages.fetch();
-		messages = messages.toJSON();
+		var col = await client.channels.cache.get("728363315138658334").messages.fetch();
+		var messages = col.toJSON();
 		for(var i=0;i<messages.length;i++){
 			if(messages[i].content.includes(id)){
-				exists=messages[i].edit(JSON.stringify(data));	
+				exists=messages[i].edit(JSON.stringify(data)).then().catch(console.error);	
 			}
 		}
 		if(exists==false){
