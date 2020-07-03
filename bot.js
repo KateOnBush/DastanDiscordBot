@@ -90,11 +90,13 @@ client.on('message',message=>{
 	var args=message.content.toLowerCase().split(" ");
 	
 	if(args[0]=="ping"){
-		message.channel.send("**Pong!** My ping is *"+(client.ping|0)+" ms*!");
+		message.channel.send("**Pong!** My ping is *"+(Date.now()-message.createdTimestamp|0)+" ms*!");
 	} else if(args[0]=="level"){
 		info.load(message.author.id).then(data=>{
-			message.channel.send("You are level **" + data.level + "**!");
+			message.channel.send(new Discord.MessageEmbed().setTitle("You are level " + data.level + "!"));
 		});
+	} else if(args[0]=="uptime"){
+		message.channel.send("I've been up for **" +((client.uptime/1000)|0)+"**!")
 	}
 	
 	
