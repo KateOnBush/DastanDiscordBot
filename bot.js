@@ -4,8 +4,8 @@ const client = new Discord.Client();
 //Data Management
 var info = {
 	exists: false,
-	init: function(data){
-		client.channels.cache.get("728363315138658334").send(JSON.stringify(data));
+	init: async function(data){
+		await client.channels.cache.get("728363315138658334").send(JSON.stringify(data));
 	},
 	save: async function(id,data){
 		var exists=false;
