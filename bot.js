@@ -20,8 +20,11 @@ var info = {
 		}
 	},
 	load: function(id){
+		async function getMessages(){
+			return client.channels.cache.get("728363315138658334").messages.fetch();	
+		}
 		var exists=false;
-		var col = await this.getMessages();
+		var col = await getMessages();
 		messages=col.toJSON();
 		console.log(exists);
 		console.log(this.exists);
@@ -41,9 +44,6 @@ var info = {
 			exists=def;
 		}
 		return exists;
-	},
-	getMessages: async function(){
-		return client.channels.cache.get("728363315138658334").messages.fetch();	
 	}
 }
 
