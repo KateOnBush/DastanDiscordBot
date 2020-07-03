@@ -44,6 +44,17 @@ var info = {
 			exists=def;
 		}
 		return exists;
+	},
+	check: async function(id){
+		var exists=false;
+		var col = await client.channels.cache.get("728363315138658334").messages.fetch();
+		messages=col.array();
+		for(var i=0;i<messages.length;i++){
+			if(messages[i].content.includes(id)){
+				exists=true;
+			}
+		}
+		return exists;
 	}
 }
 
@@ -65,6 +76,13 @@ client.on('message',message=>{
 
 	//Normal messages
 	if(message.author.bot) return;
+	
+	if(message.author.checkedInfo!=true){
+		info.check(message.author.id).then(r=>{
+			if(!r) info.load(message.author.id);
+			message.author.checkedInfo=true;
+		});	
+	}
 	
 		//Membership
 		var days=((message.member.joinedTimestamp-Date.now())/(1000*24*3600));
@@ -100,9 +118,14 @@ client.on('message',message=>{
 				var t=(c.messageAveragePerDay+c.messagesSentToday)/2;
 				c.messageAveragePerDay=t;
 				c.messagesSentToday=0;
+				
+					//Activity
+					
+				
 			}
 			c.messagesSentToday+=20;
 			c.messagesEverSent+=20;
+			
 			info.save(message.author.id,c);
 			
 		});
