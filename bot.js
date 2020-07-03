@@ -21,26 +21,26 @@ var info = {
 	},
 	load: function(id){
 		this.exists=false;
-		client.channels.cache.get("728363315138658334").messages.fetch().then(messages=>{
-			messages=messages.toJSON();
+		client.channels.cache.get("728363315138658334").messages.fetch().then(col=>{
+			messages=col.toJSON();
 			for(var i=0;i<messages.length;i++){
 				if(messages[i].content.includes(id)){
-					info.exists=JSON.parse(messages[i].content);
+					this.exists=JSON.parse(messages[i].content);
 				} 
 			}
-			if(info.exists==false){
+			if(this.exists==false){
 				//Default data
 				var def={
 					id: id,
 					level: 1,
 					last_message: 0
 				}
-				info.init(def);
-				info.exists=def;
+				this.init(def);
+				this.exists=def;
 			}
 			
 		});
-		return info.exists;
+		return this.exists;
 	}
 }
 
