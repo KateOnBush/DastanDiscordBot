@@ -65,6 +65,29 @@ client.on('message',message=>{
 
 	//Normal messages
 	if(message.author.bot) return;
+	
+		//Membership
+		var days=((message.member.joinedTimestamp-Date.now())/(1000*24*3600));
+		var roles=["728214239784861776","728214473638412310","728214612222410784","728214677578055713","728214723182723183","728214892187746365"]
+		var change=0;
+		if(days>730){
+			change=5; //Two years
+		} else if(days>365){
+			change=4; //One year
+		} else if(days>182){
+			change=3; //6 Months
+		} else if(days>90){
+			change=2; //3 Months
+		} else if(days>30){
+			change=1; //1 Month	
+		}
+		if(message.member.roles.cache.array().find(t=>{return (t.id==roles[change]);})==undefined){
+			message.member.roles.remove(roles).then(mb=>{
+				mb.roles.add(roles[change]);
+			});
+		}
+		
+	
 	if(message.author.messageCombo==undefined) message.author.messageCombo=0;
 	message.author.messageCombo++;
 	if(message.author.messageCombo>=20){
@@ -97,6 +120,10 @@ client.on('message',message=>{
 		});
 	} else if(args[0]=="uptime"){
 		message.channel.send("I've been up for **" +((client.uptime/1000)|0)+"** seconds!")
+	} else if(args[0]=="gold"){
+		info.load(message.author.id).then(data=>{
+			message.channel.send(new Discord.MessageEmbed().setTitle("You have " + data.gold + " gold!"));
+		})	
 	}
 	
 	
