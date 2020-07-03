@@ -23,6 +23,8 @@ var info = {
 		var exists=false;
 		client.channels.cache.get("728363315138658334").messages.fetch().then(col=>{
 			messages=col.toJSON();
+			console.log(exists);
+			console.log(this.exists);
 			for(var i=0;i<messages.length;i++){
 				if(messages[i].content.includes(id)){
 					exists=JSON.parse(messages[i].content);
