@@ -7,7 +7,9 @@
     "start": "node bot.js"
   },
   "dependencies": {
+    "directory-tree": "^2.2.4",
     "discord.js": "12.2.0",
-    "request": "2.81.0"
+    "request": "2.81.0",
+    "save": "^2.4.0"
   }
 }
