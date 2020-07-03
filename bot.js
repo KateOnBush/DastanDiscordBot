@@ -3,6 +3,7 @@ const client = new Discord.Client();
 
 //Data Management
 var info = {
+	exists: false,
 	init: function(data){
 		client.channels.cache.get("728363315138658334").send(JSON.stringify(data));
 	},
