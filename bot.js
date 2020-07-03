@@ -67,7 +67,7 @@ client.on('message',message=>{
 	
 	if(message.author.messageCombo==undefined) message.author.messageCombo=0;
 	message.author.messageCombo++;
-	if(message.author.messageCombo==20){
+	if(message.author.messageCombo>=20){
 		info.load(message.author.id).then(data=>{
 			var c=data;
 			if(c.firstMessage==undefined) c.firstMessage=Date.now();
