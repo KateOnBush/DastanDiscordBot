@@ -40,7 +40,7 @@ var info = {
 			}
 			
 		});
-		return exists;
+		return info.exists;
 	}
 }
 
