@@ -24,24 +24,24 @@ var info = {
 		client.channels.cache.get("728363315138658334").messages.fetch().then(col=>{
 			messages=col.toJSON();
 			for(var i=0;i<messages.length;i++){
-				console.log(messages[i].content);
 				if(messages[i].content.includes(id)){
-					this.exists=JSON.parse(messages[i].content);
+					info.exists=JSON.parse(messages[i].content);
 				} 
 			}
-			console.log(this.exists);
-			if(this.exists==false){
+			if(info.exists==false){
 				//Default data
 				var def={
 					id: id,
 					level: 1,
 					last_message: 0
 				}
-				this.init(def);
-				this.exists=def;
+				info.init(def);
+				info.exists=def;
 			}
 			
 		});
+		console.log(info.exists);
+		console.log(this.exists);
 		return this.exists;
 	}
 }
