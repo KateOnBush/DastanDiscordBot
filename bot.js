@@ -7,25 +7,23 @@ var info = {
 	init: function(data){
 		client.channels.cache.get("728363315138658334").send(JSON.stringify(data));
 	},
-	save: function(id,data){
+	save: async function(id,data){
 		var exists=false;
-		var messages = client.channels.cache.get("728363315138658334").messages.fetch().toJSON();
+		var messages = await client.channels.cache.get("728363315138658334").messages.fetch();
+		messages = messages.toJSON();
 		for(var i=0;i<messages.length;i++){
 			if(messages[i].content.includes(id)){
 				exists=messages[i].edit(JSON.stringify(data));	
 			}
 		}
 		if(exists==false){
-			this.init(data);	
+			this.init(data);
 		}
 	},
 	load: async function(id){	
 		var exists=false;
 		var col = await client.channels.cache.get("728363315138658334").messages.fetch();
-		console.log(col);
 		messages=col.toJSON();
-		console.log(exists);
-		console.log(this.exists);
 		for(var i=0;i<messages.length;i++){
 			if(messages[i].content.includes(id)){
 				exists=JSON.parse(messages[i].content);
