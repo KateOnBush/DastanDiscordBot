@@ -13,7 +13,7 @@ var info = {
 		var messages = col.array();
 		for(var i=0;i<messages.length;i++){
 			if(messages[i].content.includes(id)){
-				exists=messages[i].edit(JSON.stringify(data));	
+				exists=messages[i].edit(JSON.stringify(data));
 			}
 		}
 		if(exists==false){
