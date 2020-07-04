@@ -97,7 +97,7 @@ client.on('message',message=>{
 		} else if(days>90){
 			change=2; //3 Months
 		} else if(days>30){
-			change=1; //1 Month	
+			change=1; //1 Month
 		}
 		if(message.member.roles.cache.array().find(t=>{return (t.id==roles[change]);})==undefined){
 			message.member.roles.remove(roles).then(mb=>{
@@ -120,6 +120,27 @@ client.on('message',message=>{
 				c.messagesSentToday=0;
 				
 					//Activity
+					var roles=["728036419314122755","728036310513614851","728036144666771476","728035985492934750","728035734359113769","728035637810167910","728035417441697794"]
+					var change=0;
+					if(t>250){
+						change=6; //Insanely Active
+					} else if(t>200){
+						change=5; //Very Active
+					} else if(days>150){
+						change=4; //Active
+					} else if(days>100){
+						change=3; //Usually Active
+					} else if(days>50){
+						change=2; //Not very active
+					} else if(days>20){
+						change=1; //Inactive
+					}
+					if(message.member.roles.cache.array().find(t=>{return (t.id==roles[change]);})==undefined){
+						message.member.roles.remove(roles).then(mb=>{
+							mb.roles.add(roles[change]);
+						});
+					}
+					
 					
 				
 			}
@@ -136,7 +157,11 @@ client.on('message',message=>{
 	var args=message.content.toLowerCase().split(" ");
 	
 	if(args[0]=="ping"){
-		message.channel.send("**Pong!** My ping is *"+(Date.now()-message.createdTimestamp|0)+" ms*!");
+		message.channel.startTyping();
+		message.channel.send("**Pong!**").then(msg => {
+			message.channel.stopTyping();
+            		msg.edit("**Pong!** My latency is "+(msg.createdTimestamp - message.createdTimestamp)+" ms!")
+		});
 	} else if(args[0]=="level"){
 		info.load(message.author.id).then(data=>{
 			message.channel.send(new Discord.MessageEmbed().setTitle("You are level " + data.level + "!"));
@@ -148,7 +173,6 @@ client.on('message',message=>{
 			message.channel.send(new Discord.MessageEmbed().setTitle("You have " + data.gold + " gold!"));
 		})	
 	}
-	
 	
 	
 	
