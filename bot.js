@@ -115,8 +115,8 @@ client.on('message',message=>{
 			if(c.firstMessage==undefined) c.firstMessage=Date.now();
 			if((Date.now()-c.firstMessage)>86400000){
 				c.firstMessage=Date.now();
-				var t=(c.messageAveragePerDay+c.messagesSentToday)/2;
-				c.messageAveragePerDay=t;
+				var t=(c.messageAveragePerDay+c.messagesSentToday)/(1+((Date.now()-c.firstMessage)/86400000)|0));
+				c.messageAveragePerDay=t|0;
 				c.messagesSentToday=0;
 				
 					//Activity
@@ -163,13 +163,16 @@ client.on('message',message=>{
 		});
 	} else if(args[0]=="level"){
 		info.load(message.author.id).then(data=>{
-			message.channel.send(new Discord.MessageEmbed().setTitle("You are level " + data.level + "!"));
+			message.channel.send(new Discord.MessageEmbed().setTitle("You are level " + data.level + "!").setColor("GREEN"));
 		});
 	} else if(args[0]=="uptime"){
-		message.channel.send("I've been up for **" +((client.uptime/1000)|0)+"** seconds!")
+		var hours=((client.uptime/1000)/3600)|0;
+		var minutes=((client.uptime/1000)-(hours*3600))/60|0;
+		var seconds=((client.uptime/1000)-(hours*3600)-(minutes*60))|0;
+		message.channel.send("I've been up for **"+hours+"** hours, **"+minutes+"** minutes and **"+seconds+"** seconds!");
 	} else if(args[0]=="gold"){
 		info.load(message.author.id).then(data=>{
-			message.channel.send(new Discord.MessageEmbed().setTitle("You have " + data.gold + " gold!"));
+			message.channel.send(new Discord.MessageEmbed().setTitle("You have " + data.gold + " gold!").setColor("GOLD"));
 		})	
 	}
 	
