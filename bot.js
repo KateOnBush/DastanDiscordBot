@@ -108,7 +108,7 @@ client.on('message',message=>{
 	
 	if(message.author.messageCombo==undefined) message.author.messageCombo=0;
 	message.author.messageCombo++;
-	if(message.author.messageCombo>=20){
+	if(message.author.messageCombo>=10){
 		message.author.messageCombo=0;
 		info.load(message.author.id).then(data=>{
 			var c=data;
@@ -121,18 +121,18 @@ client.on('message',message=>{
 				
 					//Activity
 					var roles=["728036419314122755","728036310513614851","728036144666771476","728035985492934750","728035734359113769","728035637810167910","728035417441697794"]
-					var change=0;
+					var change=0; //Dead
 					if(t>250){
 						change=6; //Insanely Active
 					} else if(t>200){
 						change=5; //Very Active
-					} else if(days>150){
+					} else if(t>150){
 						change=4; //Active
-					} else if(days>100){
+					} else if(t>100){
 						change=3; //Usually Active
-					} else if(days>50){
+					} else if(t>50){
 						change=2; //Not very active
-					} else if(days>20){
+					} else if(t>20){
 						change=1; //Inactive
 					}
 					if(message.member.roles.cache.array().find(t=>{return (t.id==roles[change]);})==undefined){
@@ -144,8 +144,8 @@ client.on('message',message=>{
 					
 				
 			}
-			c.messagesSentToday+=20;
-			c.messagesEverSent+=20;
+			c.messagesSentToday+=10;
+			c.messagesEverSent+=10;
 			
 			info.save(message.author.id,c);
 			
