@@ -113,7 +113,7 @@ client.on('message',message=>{
 		info.load(message.author.id).then(data=>{
 			var c=data;
 			if(c.firstMessage==undefined) c.firstMessage=Date.now();
-			if(Date.now()-c.firstMessage>86400000){
+			if((Date.now()-c.firstMessage)>86400000){
 				c.firstMessage=Date.now();
 				var t=(c.messageAveragePerDay+c.messagesSentToday)/2;
 				c.messageAveragePerDay=t;
@@ -157,10 +157,9 @@ client.on('message',message=>{
 	var args=message.content.toLowerCase().split(" ");
 	
 	if(args[0]=="ping"){
-		message.channel.startTyping();
+		var d=Date.now();
 		message.channel.send("**Pong!**").then(msg => {
-			message.channel.stopTyping();
-            		msg.edit("**Pong!** My latency is "+(msg.createdTimestamp - message.createdTimestamp)+" ms!")
+            		msg.edit("**Pong!** My latency is "+(Date.now()-d)+" ms!");
 		});
 	} else if(args[0]=="level"){
 		info.load(message.author.id).then(data=>{
@@ -181,8 +180,10 @@ client.on('message',message=>{
 ///Welcoming
 client.on('guildMemberAdd',member=>{
 
-	var welcome_channel=member.guild.channels.find("id","728008557911605340");
+	var startRoles=["728018741174075412","728212856046223480","728035160448041021","728018742965174382","728031955685343312","728214239784861776"];
+	var welcome_channel=member.guild.channels.cache.get("728008557911605340");
 	welcome_channel.send(new Discord.MessageEmbed().addField("Hey hey hey!","We've been waiting for you!").setTitle("Welcome " + member.displayName + "!").setThumbnail(member.user.displayAvatarURL()));
+	member.roles.add(startRoles);
 	
 });
 
