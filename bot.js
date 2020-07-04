@@ -13,11 +13,11 @@ var info = {
 		var messages = col.array();
 		for(var i=0;i<messages.length;i++){
 			if(messages[i].content.includes(id)){
-				exists=messages[i].edit(JSON.stringify(data));
+				exists=await messages[i].edit(JSON.stringify(data));
 			}
 		}
 		if(exists==false){
-			this.init(data);
+			await this.init(data);
 		}
 	},
 	load: async function(id){	
@@ -40,7 +40,7 @@ var info = {
 				messagesEverSent: 0,
 				firstMessage: undefined
 			}
-			this.init(def);
+			await this.init(def);
 			exists=def;
 		}
 		return exists;
