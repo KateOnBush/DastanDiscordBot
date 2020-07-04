@@ -115,7 +115,7 @@ client.on('message',message=>{
 			if(c.firstMessage==undefined) c.firstMessage=Date.now();
 			if((Date.now()-c.firstMessage)>86400000){
 				c.firstMessage=Date.now();
-				var t=(c.messageAveragePerDay+c.messagesSentToday)/(1+((Date.now()-c.firstMessage)/86400000)|0)));
+				var t=(c.messageAveragePerDay+c.messagesSentToday)/(1+((Date.now()-c.firstMessage)/86400000)|0);
 				c.messageAveragePerDay=t|0;
 				c.messagesSentToday=0;
 				
