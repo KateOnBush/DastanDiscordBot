@@ -95,11 +95,10 @@ client.on('raw',event=>{
 			react.remove();
 
 			if(react.emoji.name=="0️⃣"){
-				message.mentions.roles.fetch().then(rm=>{
-					member.roles.remove(rm.cache).then(m=>{
-						m.roles.add(rm.cache.array()[0]);
-					})
-				});
+				member.roles.remove(message.mentions.roles.cache).then(m=>{
+					m.roles.add(message.mentions.roles.cache.array()[0]);
+				}).catch(err=>{log(err);})
+			
 			} else {
 				var roleToAdd=react.message.mentions.roles.cache.array().find(e=>{return message.content.includes(react.emoji.name + " - <@&" + e.id + ">")});
 				if(!react.message.content.includes("!multiple")){
