@@ -87,6 +87,7 @@ client.on('raw',event=>{
 		const data=event.d;
 		const channel = client.channels.resolve(data.channel_id);
 		channel.messages.fetch(data.message_id).then(message=>{
+			if(message.author.bot) return;
 			const emojiKey = (data.emoji.id) ? `${data.emoji.id}` : data.emoji.name;
 			const react = message.reactions.cache.get(emojiKey);
 			const member = message.guild.members.resolve(data.user_id);
