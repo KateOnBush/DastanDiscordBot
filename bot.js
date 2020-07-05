@@ -78,7 +78,7 @@ client.on('message',message=>{
 
 client.on('messageReactionAdd',(react,user)=>{
 	
-	log(user.username + " `ID: " + user.id + "` reacted with " + react.name + " on a message `ID : " + react.message.id + "` in channel '" + react.message.channel.name + "' `ID: " + react.message.channel.id + "`");
+	log(user.username + " `ID: " + user.id + "` reacted with " + react.emoji.name + " on a message `ID : " + react.message.id + "` in channel '" + react.message.channel.name + "' `ID: " + react.message.channel.id + "`");
 	
 	if(react.message.channel.id!="729298706188468234") return;
 	
