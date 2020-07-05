@@ -74,8 +74,27 @@ client.on('message',message=>{
 //User event
 client.on('message',message=>{
 
+	
 	//Normal messages
 	if(message.author.bot) return;
+	
+	//Anti-Spam
+	if(message.author.antiSpamCount==undefined) message.author.antiSpamCount=0;
+	if(message.author.antiSpamCount==0) message.author.antiSpamFirst=Date.now();
+	message.author.antiSpamCount+=1;
+	
+	if(Date.now()-message.author.antiSpamFirst<4000){
+		if(message.author.antiSpamCount>8){
+			message.member.roles.add("728216095835815976");
+			message.channel.send("<@!"+message.author.id+">, you have been muted for 1 hour.\n**Reason:** Spam.");
+		}else if(message.author.antiSpamCount>5){
+			message.delete().then(m=>{
+				message.channel.send("<@!"+message.author.id+">, please don't spam!");
+			});
+		}
+	} else {
+		message.author.antiSpamCount=0;
+	}
 	
 	if(message.author.checkedInfo!=true){
 		info.check(message.author.id).then(r=>{
