@@ -94,12 +94,14 @@ client.on('raw',event=>{
 			if(react.message.channel.id!="729298706188468234") return;
 			react.remove();
 			const roleToAdd=react.message.mentions.roles.array().find(e=>{return message.content.includes(react.emoji.name + " - <@&" + e.id + ">")});
-			if(react.emoji.name=="0️⃣"){
+			const first=react.message.mentions.roles.array().find(e=>{return message.content.includes("0️⃣ - <@&" + e.id + ">")});
+			if((react.emoji.name=="0️⃣")&&(first!=undefined)){
 				member.roles.remove(message.mentions.roles).then(m=>{
 					member.roles.add(roleToAdd);
 				});
 			
 			} else {
+				if(first!=undefined) member.roles.remove(first);
 				if(!react.message.content.includes("!multiple")){
 					member.roles.remove(react.message.mentions.roles).then(m=>{
 					m.roles.add(roleToAdd);
@@ -123,8 +125,8 @@ client.on('message',message=>{
 		//Role Self-Assign
 		if(message.channel.id=="729298706188468234"){
 		
-			message.content.replaceAll("\n"," ").split(" ").forEach(r=>{
-				message.react(r).then().catch();
+			message.content.split("").forEach(r=>{
+				if(!"azertyuiopqsdfghjklmwxcvbn<>@&/\123456789".includes(r.toLowerCase())) message.react(r).then().catch();
 			});
 			
 		}
