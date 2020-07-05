@@ -174,6 +174,16 @@ client.on('message',message=>{
 		info.load(message.author.id).then(data=>{
 			message.channel.send(new Discord.MessageEmbed().setTitle("You have " + data.gold + " gold!").setColor("GOLD"));
 		})	
+	} else if(args[0]=="profile"){
+		
+		var userToFind=message.member;
+		if(message.mentions.members.array().length!=0){
+			userToFind=message.mentions.members.array()[0];
+		}
+		info.load(userToFind.id).then(data=>{
+			message.channel.send(new Discord.MessageEmbed().setTitle(userToFind.displayName+"'s profile").addField("Level",data.level).addField("Gold",data.gold).addField("Joined at",new Date(userToFind.joinedTimestamp)).setColor("RANDOM").setThumbnail(userToFind.user.displayAvatarURL()));
+		})
+		
 	}
 	
 	
