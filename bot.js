@@ -94,8 +94,8 @@ client.on('raw',event=>{
 			if(react.message.channel.id!="729298706188468234") return;
 			react.remove();
 
-			log("`"+react.emoji.name+"`");
-			if(react.emoji.name==":zero:"){
+			log("`"+react.emoji.identifier+"`");
+			if(react.emoji.name=="0️⃣"){
 				member.roles.remove(react.message.mentions.roles.cache).then(m=>{
 					m.roles.add(react.message.mentions.roles.cache.array()[0]);
 				})
