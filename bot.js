@@ -95,14 +95,14 @@ client.on('raw',event=>{
 			react.remove();
 
 			if(react.emoji.name=="0️⃣"){
-				member.roles.remove(message.mentions.roles.cache).then(m=>{
-					member.roles.add(message.mentions.roles.cache.array()[0]);
+				member.roles.remove(message.mentions.roles).then(m=>{
+					member.roles.add(message.mentions.roles.array()[0]);
 				});
 			
 			} else {
-				var roleToAdd=react.message.mentions.roles.cache.array().find(e=>{return message.content.includes(react.emoji.name + " - <@&" + e.id + ">")});
+				var roleToAdd=react.message.mentions.roles.array().find(e=>{return message.content.includes(react.emoji.name + " - <@&" + e.id + ">")});
 				if(!react.message.content.includes("!multiple")){
-					member.roles.remove(react.message.mentions.roles.cache).then(m=>{
+					member.roles.remove(react.message.mentions.roles).then(m=>{
 					m.roles.add(roleToAdd);
 				});
 				} else {
