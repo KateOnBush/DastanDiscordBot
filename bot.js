@@ -83,7 +83,9 @@ client.on('ready',()=>{
 })
 
 client.on('raw',event=>{
-	console.log(event);
+	if(event.t=="MESSAGE_REACTION_ADD"){
+		console.log(event.toString());
+	}
 })
 
 client.on('messageReactionAdd',(react,user)=>{
