@@ -93,7 +93,7 @@ client.on('raw',event=>{
 			if(member.user.bot==true) return;
 			log(member.displayName + " `ID: " + member.id + "` reacted with " + react.emoji.name + " on a message `ID : " + react.message.id + "` in channel '" + react.message.channel.name + "' `ID: " + react.message.channel.id + "`");
 			if(react.message.channel.id!="729298706188468234") return;
-			react.remove();
+			react.users.remove(member.id);
 			const roleToAdd=react.message.mentions.roles.array().find(e=>{return message.content.includes(react.emoji.name + " - <@&" + e.id + ">")});
 			const first=react.message.mentions.roles.array().find(e=>{return message.content.includes("0️⃣ - <@&" + e.id + ">")});
 			const hasClickedRole=member.roles.cache.array().includes(roleToAdd);
