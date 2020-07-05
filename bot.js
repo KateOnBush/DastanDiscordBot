@@ -87,10 +87,10 @@ client.on('raw',event=>{
 		const data=event.d;
 		const channel = client.channels.resolve(data.channel_id);
 		channel.messages.fetch(data.message_id).then(message=>{
-			if(message.member.user.bot) return;
 			const emojiKey = (data.emoji.id) ? `${data.emoji.id}` : data.emoji.name;
 			const react = message.reactions.cache.get(emojiKey);
 			const member = message.guild.members.resolve(data.user_id);
+			if(member.user.bot==true) return;
 			log(member.displayName + " `ID: " + member.id + "` reacted with " + react.emoji.name + " on a message `ID : " + react.message.id + "` in channel '" + react.message.channel.name + "' `ID: " + react.message.channel.id + "`");
 			if(react.message.channel.id!="729298706188468234") return;
 			react.remove();
