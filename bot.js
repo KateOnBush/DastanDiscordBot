@@ -95,7 +95,10 @@ client.on('raw',event=>{
 			react.remove();
 			const roleToAdd=react.message.mentions.roles.array().find(e=>{return message.content.includes(react.emoji.name + " - <@&" + e.id + ">")});
 			const first=react.message.mentions.roles.array().find(e=>{return message.content.includes("0️⃣ - <@&" + e.id + ">")});
-			if((react.emoji.name=="0️⃣")&&(first!=undefined)){
+			const hasClickedRole=member.roles.cache.array().includes(roleToAdd);
+			if(hasClickedRole){
+				member.roles.remove(roleToAdd);
+			} else if((react.emoji.name=="0️⃣")&&(first!=undefined)){
 				member.roles.remove(message.mentions.roles).then(m=>{
 					member.roles.add(roleToAdd);
 				});
@@ -121,15 +124,6 @@ client.on('message',message=>{
 	
 	//Normal messages
 	if(message.author.bot) return;
-	
-		//Role Self-Assign
-		if(message.channel.id=="729298706188468234"){
-		
-			message.content.split("").forEach(r=>{
-				if(!"azertyuiopqsdfghjklmwxcvbn<>@&/\123456789".includes(r.toLowerCase())) message.react(r).then().catch();
-			});
-			
-		}
 	
 	log(message.author.username + " `ID: " + message.member.id + "` sent message `ID : " + message.id + "` in channel '" + message.channel.name + "' `ID: " + message.channel.id + "`\n```"+message.content+"```");
 	
