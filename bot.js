@@ -84,11 +84,18 @@ client.on('ready',()=>{
 
 client.on('raw',event=>{
 	if(event.t=="MESSAGE_REACTION_ADD"){
-		console.log(event.toString());
+		const data=event.d;
+		const channel = client.channels.resolve(data.channel_id);
+		channel.messages.fetch(data.message_id).then(message=>{
+			const emojiKey = (data.emoji.id) ? `${data.emoji.name}:${data.emoji.id}` : data.emoji.name;
+			const react = message.reactions.cache.get(emojiKey);
+			const member = message.guild.members.resolve(data.user_id);
+			react.remove();
+		});
 	}
 })
 
-client.on('messageReactionAdd',(react,user)=>{
+/*client.on('messageReactionAdd',(react,user)=>{
 	
 	react.remove();
 	
@@ -112,7 +119,7 @@ client.on('messageReactionAdd',(react,user)=>{
 	}
 	
 	
-});
+});*/
 
 //User event
 client.on('message',message=>{
