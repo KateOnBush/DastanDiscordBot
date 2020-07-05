@@ -82,6 +82,10 @@ client.on('ready',()=>{
 	log("Ready!");
 })
 
+client.on('raw',event=>{
+	console.log(event);
+})
+
 client.on('messageReactionAdd',(react,user)=>{
 	
 	react.remove();
