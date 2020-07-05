@@ -87,10 +87,27 @@ client.on('raw',event=>{
 		const data=event.d;
 		const channel = client.channels.resolve(data.channel_id);
 		channel.messages.fetch(data.message_id).then(message=>{
-			const emojiKey = (data.emoji.id) ? `${data.emoji.name}:${data.emoji.id}` : data.emoji.name;
+			const emojiKey = (data.emoji.id) ? `${data.emoji.id}` : data.emoji.name;
 			const react = message.reactions.cache.get(emojiKey);
 			const member = message.guild.members.resolve(data.user_id);
+			log(member.displayName + " `ID: " + member.id + "` reacted with " + react.emoji.name + " on a message `ID : " + react.message.id + "` in channel '" + react.message.channel.name + "' `ID: " + react.message.channel.id + "`");
+			if(react.message.channel.id!="729298706188468234") return;
 			react.remove();
+
+			if(react.emoji.name==":zero:"){
+				member.roles.remove(react.message.mentions.roles.cache).then(m=>{
+					m.roles.add(react.message.mentions.roles.cache.array()[0]);
+				})
+			} else {
+				var roleToAdd=react.message.mentions.roles.cache.array().find(e=>{return react.message.content.includes(react.name + " - <@&" + e.id + ">")});
+				if(!react.message.content.includes("!multiple")){
+					member.roles.remove(react.message.mentions.roles.cache).then(m=>{
+					m.roles.add(roleToAdd);
+				});
+				} else {
+					member.roles.add(roleToAdd);
+				}
+			}
 		});
 	}
 })
@@ -128,7 +145,7 @@ client.on('message',message=>{
 	//Normal messages
 	if(message.author.bot) return;
 	
-	log(message.author.username + " `ID: " + message.member.id + "` sent a message `ID : " + message.id + "` in channel '" + message.channel.name + "' `ID: " + message.channel.id + "`");
+	log(message.author.username + " `ID: " + message.member.id + "` sent message `ID : " + message.id + "` in channel '" + message.channel.name + "' `ID: " + message.channel.id + "`\n```"+message.content+"```");
 	
 	//Anti-Spam
 	if(message.author.antiSpamCount==undefined) message.author.antiSpamCount=0;
