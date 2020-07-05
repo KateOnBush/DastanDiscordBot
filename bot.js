@@ -93,14 +93,13 @@ client.on('raw',event=>{
 			log(member.displayName + " `ID: " + member.id + "` reacted with " + react.emoji.name + " on a message `ID : " + react.message.id + "` in channel '" + react.message.channel.name + "' `ID: " + react.message.channel.id + "`");
 			if(react.message.channel.id!="729298706188468234") return;
 			react.remove();
-
+			const roleToAdd=react.message.mentions.roles.array().find(e=>{return message.content.includes(react.emoji.name + " - <@&" + e.id + ">")});
 			if(react.emoji.name=="0️⃣"){
 				member.roles.remove(message.mentions.roles).then(m=>{
-					member.roles.add(message.mentions.roles.array()[0]);
+					member.roles.add(message.mentions.roles.array());
 				});
 			
 			} else {
-				var roleToAdd=react.message.mentions.roles.array().find(e=>{return message.content.includes(react.emoji.name + " - <@&" + e.id + ">")});
 				if(!react.message.content.includes("!multiple")){
 					member.roles.remove(react.message.mentions.roles).then(m=>{
 					m.roles.add(roleToAdd);
@@ -120,6 +119,15 @@ client.on('message',message=>{
 	
 	//Normal messages
 	if(message.author.bot) return;
+	
+		//Role Self-Assign
+		if(message.channel.id=="729298706188468234"){
+		
+			message.content.split(" ").forEach(r=>{
+				message.react(r).then().catch();
+			});
+			
+		}
 	
 	log(message.author.username + " `ID: " + message.member.id + "` sent message `ID : " + message.id + "` in channel '" + message.channel.name + "' `ID: " + message.channel.id + "`\n```"+message.content+"```");
 	
