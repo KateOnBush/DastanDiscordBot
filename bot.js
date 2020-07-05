@@ -3,7 +3,7 @@ const client = new Discord.Client();
 
 //Logs
 function log(info){
-	client.channels.cache.get("729155101746528286").send(info);
+	client.channels.resolve("729155101746528286").send(info);
 }
 
 //Data Management
@@ -107,7 +107,7 @@ client.on('message',message=>{
 	//Normal messages
 	if(message.author.bot) return;
 	
-	log(message.author.username + " `ID: " + message.member.id + "` sent a message `ID : " + essage.id + "` in channel '" + message.channel.name + "' `ID: " + message.channel.id + "`");
+	log(message.author.username + " `ID: " + message.member.id + "` sent a message `ID : " + message.id + "` in channel '" + message.channel.name + "' `ID: " + message.channel.id + "`");
 	
 	//Anti-Spam
 	if(message.author.antiSpamCount==undefined) message.author.antiSpamCount=0;
