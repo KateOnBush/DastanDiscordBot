@@ -197,11 +197,11 @@ client.on('message',message=>{
 						change=5; //Very Active
 					} else if(t>150){
 						change=4; //Active
-					} else if(t>100){
+					} else if(t>90){
 						change=3; //Usually Active
-					} else if(t>50){
+					} else if(t>30){
 						change=2; //Not very active
-					} else if(t>20){
+					} else if(t>5){
 						change=1; //Inactive
 					}
 					if(message.member.roles.cache.array().find(t=>{return (t.id==roles[change]);})==undefined){
