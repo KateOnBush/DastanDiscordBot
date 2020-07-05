@@ -95,6 +95,7 @@ client.on('raw',event=>{
 			react.remove();
 
 			if(react.emoji.name==":zero:"){
+				log("It is zero!");
 				member.roles.remove(react.message.mentions.roles.cache).then(m=>{
 					m.roles.add(react.message.mentions.roles.cache.array()[0]);
 				})
@@ -112,31 +113,6 @@ client.on('raw',event=>{
 	}
 })
 
-/*client.on('messageReactionAdd',(react,user)=>{
-	
-	react.remove();
-	
-	log(user.username + " `ID: " + user.id + "` reacted with " + react.emoji.name + " on a message `ID : " + react.message.id + "` in channel '" + react.message.channel.name + "' `ID: " + react.message.channel.id + "`");
-	
-	if(react.message.channel.id!="729298706188468234") return;
-	
-	if(react.emoji.name==":zero:"){
-		react.message.guild.members.resolve(user.id).roles.remove(react.message.mentions.roles).then(m=>{
-			m.roles.add(react.message.mentions.roles.cache.array()[0]);
-		})
-	} else {
-		var roleToAdd=react.message.mentions.roles.array().find(e=>{return react.message.content.includes(react.name + " - <@&" + e.id + ">")});
-		if(!react.message.content.includes("!multiple")){
-			react.message.guild.members.resolve(user.id).roles.remove(react.message.mentions.roles).then(m=>{
-			m.roles.add(roleToAdd);
-		});
-		} else {
-			react.message.guild.members.resolve(user.id).roles.add(roleToAdd);
-		}
-	}
-	
-	
-});*/
 
 //User event
 client.on('message',message=>{
