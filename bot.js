@@ -94,12 +94,12 @@ client.on('raw',event=>{
 			if(react.message.channel.id!="729298706188468234") return;
 			react.remove();
 
-			log("`"+react.emoji.id+"`");
 			if(react.emoji.name=="0️⃣"){
-				member.send("IT IS WHAT IT IS")
-				member.roles.remove(react.message.mentions.roles.cache).then(m=>{
-					m.roles.add(react.message.mentions.roles.cache.array()[0]);
-				})
+				message.mentions.roles.fetch().then(rm=>{
+					member.roles.remove(rm.cache).then(m=>{
+						m.roles.add(rm.cache.array()[0]);
+					})
+				});
 			} else {
 				var roleToAdd=react.message.mentions.roles.cache.array().find(e=>{return message.content.includes(react.emoji.name + " - <@&" + e.id + ">")});
 				if(!react.message.content.includes("!multiple")){
