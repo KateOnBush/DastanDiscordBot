@@ -96,7 +96,7 @@ client.on('raw',event=>{
 			const roleToAdd=react.message.mentions.roles.array().find(e=>{return message.content.includes(react.emoji.name + " - <@&" + e.id + ">")});
 			if(react.emoji.name=="0️⃣"){
 				member.roles.remove(message.mentions.roles).then(m=>{
-					member.roles.add(message.mentions.roles.array());
+					member.roles.add(roleToAdd);
 				});
 			
 			} else {
@@ -123,7 +123,7 @@ client.on('message',message=>{
 		//Role Self-Assign
 		if(message.channel.id=="729298706188468234"){
 		
-			message.content.split(" ").forEach(r=>{
+			message.content.replaceAll("\n"," ").split(" ").forEach(r=>{
 				message.react(r).then().catch();
 			});
 			
