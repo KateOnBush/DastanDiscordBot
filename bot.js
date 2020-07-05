@@ -96,8 +96,8 @@ client.on('raw',event=>{
 
 			if(react.emoji.name=="0️⃣"){
 				member.roles.remove(message.mentions.roles.cache).then(m=>{
-					m.roles.add(message.mentions.roles.cache.array()[0]);
-				}).catch(err=>{log(err);})
+					member.roles.add(message.mentions.roles.cache.array()[0]);
+				});
 			
 			} else {
 				var roleToAdd=react.message.mentions.roles.cache.array().find(e=>{return message.content.includes(react.emoji.name + " - <@&" + e.id + ">")});
