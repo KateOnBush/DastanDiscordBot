@@ -1,6 +1,11 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
+//Logs
+function log(info){
+	client.channels.cache.get("729155101746528286").send(info);
+}
+
 //Data Management
 var info = {
 	exists: false,
@@ -73,6 +78,8 @@ client.on('message',message=>{
 
 client.on('messageReactionAdd',(react,user)=>{
 	
+	log(user.username + " `ID: " + user.id + "` reacted with " + react.name + " on a message `ID : " + react.message.id + "` in channel '" + react.message.channel.name + "' `ID: " + react.message.channel.id + "`");
+	
 	if(react.message.channel.id!="729298706188468234") return;
 	
 	if(react.emoji.name=="zero"){
@@ -99,6 +106,8 @@ client.on('message',message=>{
 	
 	//Normal messages
 	if(message.author.bot) return;
+	
+	log(message.author.username + " `ID: " + message.member.id + "` sent a message `ID : " + essage.id + "` in channel '" + message.channel.name + "' `ID: " + message.channel.id + "`");
 	
 	//Anti-Spam
 	if(message.author.antiSpamCount==undefined) message.author.antiSpamCount=0;
