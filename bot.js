@@ -71,6 +71,28 @@ client.on('message',message=>{
 	
 });
 
+client.on('messageReactionAdd',(react,user)=>{
+	
+	if(react.message.channel.id!="729298706188468234") return;
+	
+	if(react.emoji.name=="zero"){
+		react.message.guild.members.resolve(user.id).roles.remove(react.message.mentions.roles).then(m=>{
+			m.roles.add(react.message.mentions.roles.cache.array()[0]);
+		})
+	} else {
+		var roleToAdd=react.message.mentions.roles.array().find(e=>{return react.message.content.includes(":"+react.name + ": - <@&" + e.id + ">")});
+		if(!react.message.content.includes("!multiple")){
+			react.message.guild.members.resolve(user.id).roles.remove(react.message.mentions.roles).then(m=>{
+			m.roles.add(roleToAdd);
+		});
+		} else {
+			react.message.guild.members.resolve(user.id).roles.add(roleToAdd);
+		}
+	}
+	react.remove();
+	
+});
+
 //User event
 client.on('message',message=>{
 
