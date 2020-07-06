@@ -468,8 +468,6 @@ client.on('message',message=>{
 			}
 			
 		}
-		
-	}
 	
 	
 });
