@@ -6,6 +6,17 @@ function log(info){
 	client.channels.resolve("729155101746528286").send(info);
 }
 
+async function mute(member,seconds){
+	var data = await info.load(member.id);
+	data.mutedTo=Date.now()+seconds*1000;
+	await member.roles.add("728216095835815976");
+	await info.save(member.id,data);
+	setTimeout(seconds*1000,function(){
+		member.roles.remove("728216095835815976");
+	});
+	return true;
+}
+
 //Data Management
 var info = {
 	exists: false,
@@ -80,6 +91,19 @@ client.on('error',err=>{
 });
 client.on('ready',()=>{
 	log("Ready!");
+	client.guilds.cache.array()[0].roles.resolve("728216095835815976").members.array().forEach(member=>{
+		info.load(member.id).then(data=>{
+			if(![0,undefined].includes(data.mutedTo)) {
+				if(Date.now()>data.mutedTo) {
+					member.roles.remove("728216095835815976");
+				} else {
+					setTimeout(data.mutedTo-Date.now(),function(){
+						member.roles.remove("728216095835815976");
+					});
+				}
+			}
+		});
+	});
 })
 
 client.on('raw',event=>{
