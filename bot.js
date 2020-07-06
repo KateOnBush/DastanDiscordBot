@@ -101,7 +101,7 @@ client.on('raw',event=>{
 				member.roles.remove(roleToAdd);
 			} else if((react.emoji.name=="0️⃣")&&(first!=undefined)){
 				member.roles.remove(message.mentions.roles).then(m=>{
-					member.roles.add(roleToAdd);
+					member.roles.add(roleToAdd);	
 				});
 			
 			} else {
@@ -262,7 +262,7 @@ client.on('message',message=>{
 			})
 			message.channel.send(new Discord.MessageEmbed().setColor("RANDOM").addField("Available colors:",cnt));
 		} else if(args[1]=="set"){
-			const chosenRole = message.guild.roles.cache.find(t=>(t.name==args[0]));
+			const chosenRole = message.guild.roles.cache.find(t=>(t.name==args[2]));
 			if(chosenRole==undefined){
 				message.channel.send(new Discord.MessageEmbed().setDescription("That color doesn't exist :(").setColor("RED"))
 			} else {
