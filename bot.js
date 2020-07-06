@@ -382,7 +382,7 @@ client.on('message',message=>{
 	} else if(message.member.roles.cache.get("728034751780356096")||message.member.roles.cache.get("728034436997709834")){
 	
 		if(args[0]=="mute"){
-			try{
+			/*try{*/
 			const muted=message.mentions.members.array()[0];
 			const time=eval(args[2].replace("m","*60").replace("h","*3600"));
 			
@@ -393,9 +393,9 @@ client.on('message',message=>{
 					adminlog("<@!"+muted.id+"> was muted by <@!"+message.author.id+"> for "+msToString(time*1000)+".\n**Reason:** "+(reason||"Unspecified."))
 				});
 			}
-			}catch(err){
+			/*}catch(err){
 				message.channel.send(new Discord.MessageEmbed().setDescription("**Syntax:** mute <user> <time> [reason]").setColor("GRAY"))
-			}
+			}*/
 			} else {
 				message.channel.send(new Discord.MessageEmbed().setDescription("**Syntax:** mute <user> <time> [reason]").setColor("GRAY"))
 			}
