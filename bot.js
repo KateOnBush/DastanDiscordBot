@@ -6,7 +6,15 @@ const client = new Discord.Client();
 function log(info){
 	client.channels.resolve("729155101746528286").send(info);
 }
-
+function adminlog(info){
+	client.channels.resolve("729744865776107550").send(info);
+}
+function msToString(ms){
+	var hours=((ms/1000)/3600)|0;
+	var minutes=((ms/1000)-(hours*3600))/60|0;
+	var seconds=((ms/1000)-(hours*3600)-(minutes*60))|0;
+	return "**"+hours+"** hours, **"+minutes+"** minutes and **"+seconds+"** seconds";
+}
 async function mute(member,seconds){
 	var data = await info.load(member.id);
 	data.mutedTo=Date.now()+seconds*1000;
@@ -149,6 +157,7 @@ client.on('message',message=>{
 	
 	//Normal messages
 	if(message.author.bot) return;
+	if(message.channel.type=="dm") return;
 	
 	log(message.author.username + " `ID: " + message.member.id + "` sent message `ID : " + message.id + "` in channel '" + message.channel.name + "' `ID: " + message.channel.id + "`\n```"+message.content+"```");
 	
@@ -159,8 +168,10 @@ client.on('message',message=>{
 	
 	if(Date.now()-message.author.antiSpamFirst<4000){
 		if(message.author.antiSpamCount>8){
-			message.member.roles.add("728216095835815976");
-			message.channel.send("<@!"+message.author.id+">, you have been muted for 1 hour.\n**Reason:** Spam.");
+			mute(message.member,3600).then(()=>{
+					message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+message.member.id+"> was muted for **1** hour.\n**Reason:** Spam.").setColor("RED"))
+					adminlog("<@!"+message.member.id+"> was automatically muted for **1** hour.\n**Reason:** Spam.")
+			});
 		}else if(message.author.antiSpamCount>5){
 			message.delete().then(m=>{
 				message.channel.send("<@!"+message.author.id+">, please don't spam!");
@@ -246,8 +257,9 @@ client.on('message',message=>{
 	}
 	
 	//Commands
-	if(message.channel.id!="728025726556569631") return;
+	if((message.channel.id!="728025726556569631")||((message.member.hasPermission("MANAGE_MESSAGES"))&&(message.content.startsWith("!")))) return;
 	var args=message.content.toLowerCase().split(" ");
+	if(args[0].startsWith("!")) args[0].replace("!","");
 	
 	if(args[0]=="ping"){
 		var d=Date.now();
@@ -263,10 +275,7 @@ client.on('message',message=>{
 			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").setColor("GREEN"));
 		});
 	} else if(args[0]=="uptime"){
-		var hours=((client.uptime/1000)/3600)|0;
-		var minutes=((client.uptime/1000)-(hours*3600))/60|0;
-		var seconds=((client.uptime/1000)-(hours*3600)-(minutes*60))|0;
-		message.channel.send(new Discord.MessageEmbed().setDescription("I've been up for **"+hours+"** hours, **"+minutes+"** minutes and **"+seconds+"** seconds!").setColor("YELLOW"));
+		message.channel.send(new Discord.MessageEmbed().setDescription("I've been up for "+msToString(client.uptime)+"!").setColor("YELLOW"));
 	} else if(args[0]=="gold"){
 		var userToFind=message.member;
 		if(message.mentions.members.array().length!=0){
@@ -360,13 +369,97 @@ client.on('message',message=>{
 		} else if(commands.find(t=>(t.name==args[1]))!=undefined){
 			
 			const cmd=commands.find(t=>(t.name==args[1]));
-			var embed= new Discord.MessageEmbed().setColor("WHITE").setTitle("Command help: " + args[1]);
+			var embed= new Discord.MessageEmbed().setColor("fafafa").setTitle("Command help: " + args[1]);
 			embed.addField("Description",cmd.longDescription||cmd.description);
 			embed.addField("Sub-commands",cmd.subcommands||"None.");
 			message.channel.send(embed);
 			
 		} else {
 			message.channel.send(new Discord.MessageEmbed().setDescription("This command doesn't exist :(").setColor("RED"));
+		}
+		
+	} else if(message.member.roles.cache.get("728034751780356096")||message.member.roles.cache.get("728034436997709834")){
+	
+		if(args[0]=="mute"){
+			const muted=message.mentions.members.array()[0];
+			const time=eval(args[2].replace("m","*60").replace("h","*3600"));
+			const reason=args.join(" ").replace(args[0]+" ","").replace(args[1]+" ","").replace(args[2]+" ","");
+			if(![muted,time].includes(undefined)){
+				mute(muted,time).then(()=>{
+					message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+muted.id+"> was muted by <@!"+message.author.id+"> for "+msToString(time*1000)+".\n**Reason:** "+(reason||"Unspecified.")).setColor("RED"));
+					adminlog("<@!"+muted.id+"> was muted by <@!"+message.author.id+"> for "+msToString(time*1000)+".\n**Reason:** "+(reason||"Unspecified."))
+				});
+			} else {
+				message.channel.send(new Discord.MessageEmbed().setDescription("**Syntax:** mute <user> <time> [reason]").setColor("GRAY"))
+			}
+		} else if(args[0]=="event"){
+		
+			if(args[1]=="create"){
+				if(["",undefined].includes(args[2])){
+					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify an identifier for the event.").setColor("GRAY"));
+				} else {
+					if (message.guild.events==undefined) message.guild.events = [];
+					message.guild.events.push({
+						id: args[2],
+						host: message.member
+					});
+					message.channel.send(new Discord.MessageEmbed().setDescription("Event created with identifier: **"+args[2]+"**.").setColor("GREEN"))
+					adminlog("<@!"+message.author.id+"> created event with identifier: " + args[2]);
+				}
+			} else if(args[1]=="name"){
+				if((["",undefined].includes(args[2]))&&(message.guild.events.find(e=>(e.id==args[2]))!=undefined)){
+					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify an existing event identifier.").setColor("GRAY"));
+				} else if(["",undefined].includes(args[3])) {
+					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct name for the event.").setColor("GRAY"));
+				} else {
+					const name=args.join(" ").replace(args[0]+" "+args[1]+" "+args[2]+" ","");
+					message.guild.events.find(e=>(e.id==args[2])).name==name;
+					message.channel.send(new Discord.MessageEmbed().setDescription("Event **"+args[2]+"** named: **"+name+"**.").setColor("GREEN"))
+					adminlog("<@!"+message.author.id+"> named event with identifier: " + args[2] + " to **"+name+"**");
+				}
+			} else if(args[1]=="description"){
+				if((["",undefined].includes(args[2]))&&(message.guild.events.find(e=>(e.id==args[2]))!=undefined)){
+					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify an existing event identifier.").setColor("GRAY"));
+				} else if(["",undefined].includes(args[3])) {
+					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct description for the event.").setColor("GRAY"));
+				} else {
+					const desc=args.join(" ").replace(args[0]+" "+args[1]+" "+args[2]+" ","");
+					message.guild.events.find(e=>(e.id==args[2])).desc==desc;
+					message.channel.send(new Discord.MessageEmbed().setDescription("Event **"+args[2]+"**'s description updated: **"+desc+"**.").setColor("GREEN"))
+					adminlog("<@!"+message.author.id+"> updated description of event with identifier: " + args[2] + " to **"+desc+"**");
+				}
+			} else if(args[1]=="startsin"){
+				if((["",undefined].includes(args[2]))&&(message.guild.events.find(e=>(e.id==args[2]))!=undefined)){
+					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify an existing event identifier.").setColor("GRAY"));
+				} else if(["",undefined].includes(args[3])) {
+					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct time for the event.").setColor("GRAY"));
+					adminlog("<@!"+message.author.id+"> updated date of event with identifier: " + args[2] + " to **"+(new Date(Date.now()+time))+"**");
+				} else {
+					
+					try{const time=eval(args[2].replace("m","*60").replace("h","*3600"));
+					message.guild.events.find(e=>(e.id==args[2])).time==Date.now()+time;
+					message.channel.send(new Discord.MessageEmbed().setDescription("Event **"+args[2]+"** starts in: "+msToString(time*1000)+".").setColor("GREEN"))
+					adminlog("<@!"+message.author.id+"> updated date of event with identifier: " + args[2] + " to **"+(new Date(Date.now()+time))+"**");
+					   
+					   }catch(err){
+					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct time for the event.").setColor("GRAY"));
+					}
+					
+				}
+			} else if(args[1]=="announce"){
+				if((["",undefined].includes(args[2]))&&(message.guild.events.find(e=>(e.id==args[2]))!=undefined)){
+					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify an existing event identifier.").setColor("GRAY"));
+				} else {
+				
+					const event=message.guild.events.find(e=>(e.id==args[2]));
+					const embed= new Didcord.RichEmbed().setTitle(event.name).setDescription(event.desc).setColor("AQUA").addField("Host","<@!"+event.host.id+">").addField("Date",new Date(Date.now()+event.time*1000)).addField("Starts in",msToString(event.time*1000));
+					message.guild.channels.cache.get("728022865622073446").send("<@&728223648942653451> <@&728224459487576134> **New Event!**",embed);
+					adminlog("<@!"+message.author.id+"> announced event with identifier: " + args[2]);
+					
+				}
+				
+			}
+			
 		}
 		
 	}
@@ -380,6 +473,7 @@ client.on("voiceStateUpdate",(o,n)=>{
 	const vcs=["728008557911605341","728027365820727407","728027460515659838","728027677344268337","728027756906020865","728027832747556892","728027908127457370"];
 	const mvcs=["728030297911853176","728029167286878240"];
 	if(n.channel!=null){
+		log(n.member.displayName + " `ID: " + n.member.id + "` joined voice channel **"+n.channel.name+"** `ID : " + n.channel.id + "`");
 		if(vcs.includes(n.channel.id)){
 			n.member.roles.add("729502041122013195");
 			n.member.guild.channels.cache.get("729354613064728636").send(new Discord.MessageEmbed().setDescription("<@!"+n.member.id+"> joined **" + n.channel.name + "**").setColor("GREEN"));
@@ -388,6 +482,7 @@ client.on("voiceStateUpdate",(o,n)=>{
 			n.member.guild.channels.cache.get("728029565607346227").send(new Discord.MessageEmbed().setDescription("<@!"+n.member.id+"> joined **" + n.channel.name + "**").setColor("GREEN"));
 		} 
 	} else if(o.channel!=null){
+		log(o.member.displayName + " `ID: " + o.member.id + "` left voice channel **"+n.channel.name+"** `ID : " + o.channel.id + "`");
 		if(vcs.includes(o.channel.id)){
 			n.member.guild.channels.cache.get("729354613064728636").send(new Discord.MessageEmbed().setDescription("<@!"+n.member.id+"> left **" + o.channel.name + "**").setColor("RED"));
 			n.member.roles.remove("729502041122013195");
@@ -402,6 +497,7 @@ client.on("voiceStateUpdate",(o,n)=>{
 ///Welcoming
 client.on('guildMemberAdd',member=>{
 
+	log("Member " + member.displayName + " `ID: "+member.id+"` joined the guild.")
 	var startRoles=["728018741174075412","728212856046223480","728035160448041021","728018742965174382","728031955685343312","728214239784861776","728032333671825479","729438972161556610"];
 	var welcome_channel=member.guild.channels.cache.get("728008557911605340");
 	welcome_channel.send(new Discord.MessageEmbed().addField("Hey hey hey!","We've been waiting for you!").setTitle("Welcome " + member.displayName + "!").setThumbnail(member.user.displayAvatarURL()));
@@ -409,6 +505,10 @@ client.on('guildMemberAdd',member=>{
 	member.send(new Discord.MessageEmbed().setTitle("Welcome " + member.displayName + " to " + member.guild.name + "!").setDescription("Make sure to read rules! Then you can customize your profile by choosing a color in #color and picking some roles in #role-self-assign, have fun <3!").setColor("fafafa"));
 	
 });
+
+client.on('guildMemberRemove',member=>{
+	log("Member " + member.displayName + " `ID: "+member.id+"` left the guild.");
+}
 
 // THIS  MUST  BE  THIS  WAY
 client.login(process.env.BOT_TOKEN);
