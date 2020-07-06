@@ -508,7 +508,7 @@ client.on('guildMemberAdd',member=>{
 
 client.on('guildMemberRemove',member=>{
 	log("Member " + member.displayName + " `ID: "+member.id+"` left the guild.");
-}
+});
 
 // THIS  MUST  BE  THIS  WAY
 client.login(process.env.BOT_TOKEN);
