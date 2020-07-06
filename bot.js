@@ -464,6 +464,12 @@ client.on('message',message=>{
 					
 				}
 				
+			} else if(args[1]=="end"){
+			
+					const embed= new Discord.MessageEmbed().setDescription("Event ended! :(").setColor("RED");
+					message.guild.channels.cache.get("728022865622073446").send(embed);
+					adminlog(message.member.displayName+" `ID: "+message.author.id+"` ended last event.");
+				
 			}
 			
 		}
