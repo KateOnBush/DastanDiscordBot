@@ -458,7 +458,7 @@ client.on('message',message=>{
 				} else {
 				
 					const event=message.guild.events.find(e=>(e.id==args[2]));
-					const embed= new Discord.RichEmbed().setTitle(event.name).setDescription(event.desc).setColor("AQUA").addField("Host","<@!"+event.host.id+">").addField("Date",new Date(Date.now()+event.time*1000)).addField("Starts in",msToString(event.time*1000));
+					const embed= new Discord.MessageEmbed().setTitle(event.name).setDescription(event.desc).setColor("AQUA").addField("Host","<@!"+event.host.id+">").addField("Date",new Date(Date.now()+event.time*1000)).addField("Starts in",msToString(event.time*1000));
 					message.guild.channels.cache.get("728022865622073446").send("<@&728223648942653451> <@&728224459487576134> **New Event!**",embed);
 					adminlog(message.member.displayName+" `ID: "+message.author.id+"` announced event with identifier: " + args[2]);
 					
