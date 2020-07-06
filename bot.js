@@ -227,21 +227,21 @@ client.on('message',message=>{
 	
 	if(args[0]=="ping"){
 		var d=Date.now();
-		message.channel.send("**Pong!**").then(msg => {
-            		msg.edit("**Pong!** My latency is "+(Date.now()-d)+" ms!");
+		message.channel.send(new Discord.MessageEmbed().setDescription("**Pong!**").setColor("RED")).then(msg => {
+            		msg.edit(new Discord.MessageEmbed().setDescription("**Pong!** My latency is "+(Date.now()-d)+" ms!").setColor("GREEN"));
 		});
 	} else if(args[0]=="level"){
 		info.load(message.author.id).then(data=>{
-			message.channel.send(new Discord.MessageEmbed().setTitle("You are level " + data.level + "!").setColor("GREEN"));
+			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+message.member.id+"> You are level " + data.level + "!").setColor("GREEN"));
 		});
 	} else if(args[0]=="uptime"){
 		var hours=((client.uptime/1000)/3600)|0;
 		var minutes=((client.uptime/1000)-(hours*3600))/60|0;
 		var seconds=((client.uptime/1000)-(hours*3600)-(minutes*60))|0;
-		message.channel.send("I've been up for **"+hours+"** hours, **"+minutes+"** minutes and **"+seconds+"** seconds!");
+		message.channel.send(new Discord.MessageEmbed().setDescription("I've been up for **"+hours+"** hours, **"+minutes+"** minutes and **"+seconds+"** seconds!").setColor("YELLOW"));
 	} else if(args[0]=="gold"){
 		info.load(message.author.id).then(data=>{
-			message.channel.send(new Discord.MessageEmbed().setTitle("You have " + data.gold + " gold!").setColor("GOLD"));
+			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+message.member.id+"> You have " + data.gold + " gold!").setColor("GOLD"));
 		})	
 	} else if(args[0]=="profile"){
 		
@@ -253,6 +253,45 @@ client.on('message',message=>{
 			message.channel.send(new Discord.MessageEmbed().setTitle(userToFind.displayName+"'s profile").addField("Level",data.level).addField("Gold",data.gold).addField("Joined at",new Date(userToFind.joinedTimestamp)).setColor("RANDOM").setThumbnail(userToFind.user.displayAvatarURL()));
 		})
 		
+	} else if(args[0]=="color"){
+		const roles=["729438971456651394","729438974854168636","729438972161556610","729437918078435358","729421506328657950","729437914542505985","729437921802846239","729421500137865261","729421492835844207","729421510804242492","729421484560482379","729421479846084648","729421473810219079","729421468752150689","729421463614128238","729395073904672860","729392489617948783"]
+		if(args[1]=="list"){
+			var cnt="";
+			roles.forEach(t=>{
+				cnt=cnt+"<@&"+t+">";	
+			})
+			message.channel.send(new Discord.MessageEmbed().setColor("RANDOM").addField("Available colors:",cnt));
+		} else if(args[1]=="set"){
+			const chosenRole = message.guild.roles.cache.find(t=>(t.name==args[0]));
+			if(chosenRole==undefined){
+				message.channel.send(new Discord.MessageEmbed().setDescription("That color doesn't exist :(").setColor("RED"))
+			} else {
+				if(message.member.roles.cache.get(chosenRole.id)==undefined){
+					message.channel.startTyping();
+					message.member.roles.remove(roles).then(m=>{
+						message.member.roles.add(chosenRole).then(mm=>{
+							message.channel.send(new Discord.MessageEmbed().setDescription("Your color is now **"+args[2]+"**").setColor(chosenRole.color)).then(mmm=>{
+							message.channel.stopTyping();
+							});
+							
+						});
+					})
+					
+				} else {
+					message.channel.send(new Discord.MessageEmbed().setDescription("Your color is already **"+args[2]+"**").setColor("RED"));
+				}
+			}
+		} else {
+			var member=message.mentions.users.array()[0];
+			if(member==undefined){
+				member=message.member;	
+			}
+			var role=undefined;
+			roles.forEach(t=>{
+				if(message.roles.cache.get(t)!=undefined) role=message.roles.cache.get(t);
+			})
+			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+member.id+">'s color is **"+role.name+"**").setColor(role.color))
+		}
 	}
 	
 	
