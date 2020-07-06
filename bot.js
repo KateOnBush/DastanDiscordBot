@@ -382,21 +382,20 @@ client.on('message',message=>{
 	} else if(message.member.roles.cache.get("728034751780356096")||message.member.roles.cache.get("728034436997709834")){
 	
 		if(args[0]=="mute"){
-			/*try{*/
-			const muted=message.mentions.members.array()[0];
-			const time=eval(args[2].replace("m","*60").replace("h","*3600"));
-			
-			const reason=args.join(" ").replace(args[0]+" ","").replace(args[1]+" ","").replace(args[2]+" ","");
-			if(![muted,time].includes(undefined)){
-				mute(muted,time).then(()=>{
-					message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+muted.id+"> was muted by <@!"+message.author.id+"> for "+msToString(time*1000)+".\n**Reason:** "+(reason||"Unspecified.")).setColor("RED"));
-					adminlog("<@!"+muted.id+"> was muted by <@!"+message.author.id+"> for "+msToString(time*1000)+".\n**Reason:** "+(reason||"Unspecified."))
-				});
-			}
-			/*}catch(err){
-				message.channel.send(new Discord.MessageEmbed().setDescription("**Syntax:** mute <user> <time> [reason]").setColor("GRAY"))
-			}*/
-			} else {
+			try{
+				const muted=message.mentions.members.array()[0];
+				const time=eval(args[2].replace("m","*60").replace("h","*3600"));
+
+				const reason=args.join(" ").replace(args[0]+" ","").replace(args[1]+" ","").replace(args[2]+" ","");
+				if(![muted,time].includes(undefined)){
+					mute(muted,time).then(()=>{
+						message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+muted.id+"> was muted by <@!"+message.author.id+"> for "+msToString(time*1000)+".\n**Reason:** "+(reason||"Unspecified.")).setColor("RED"));
+						adminlog("<@!"+muted.id+"> was muted by <@!"+message.author.id+"> for "+msToString(time*1000)+".\n**Reason:** "+(reason||"Unspecified."))
+					});
+				} else {
+					message.channel.send(new Discord.MessageEmbed().setDescription("**Syntax:** mute <user> <time> [reason]").setColor("GRAY"))
+				}
+			}catch(err){
 				message.channel.send(new Discord.MessageEmbed().setDescription("**Syntax:** mute <user> <time> [reason]").setColor("GRAY"))
 			}
 		} else if(args[0]=="event"){
