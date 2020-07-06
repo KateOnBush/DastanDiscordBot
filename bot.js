@@ -407,7 +407,7 @@ client.on('message',message=>{
 					adminlog("<@!"+message.author.id+"> created event with identifier: " + args[2]);
 				}
 			} else if(args[1]=="name"){
-				if((["",undefined].includes(args[2]))&&(message.guild.events.find(e=>(e.id==args[2]))!=undefined)){
+				if((["",undefined].includes(args[2]))||(message.guild.events.find(e=>(e.id==args[2]))!==undefined)){
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify an existing event identifier.").setColor("GRAY"));
 				} else if(["",undefined].includes(args[3])) {
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct name for the event.").setColor("GRAY"));
@@ -418,7 +418,7 @@ client.on('message',message=>{
 					adminlog("<@!"+message.author.id+"> named event with identifier: " + args[2] + " to **"+name+"**");
 				}
 			} else if(args[1]=="description"){
-				if((["",undefined].includes(args[2]))&&(message.guild.events.find(e=>(e.id==args[2]))!=undefined)){
+				if((["",undefined].includes(args[2]))||(message.guild.events.find(e=>(e.id==args[2]))!==undefined)){
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify an existing event identifier.").setColor("GRAY"));
 				} else if(["",undefined].includes(args[3])) {
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct description for the event.").setColor("GRAY"));
@@ -429,7 +429,7 @@ client.on('message',message=>{
 					adminlog("<@!"+message.author.id+"> updated description of event with identifier: " + args[2] + " to **"+desc+"**");
 				}
 			} else if(args[1]=="startsin"){
-				if((["",undefined].includes(args[2]))&&(message.guild.events.find(e=>(e.id==args[2]))!=undefined)){
+				if((["",undefined].includes(args[2]))||(message.guild.events.find(e=>(e.id==args[2]))!==undefined)){
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify an existing event identifier.").setColor("GRAY"));
 				} else if(["",undefined].includes(args[3])) {
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct time for the event.").setColor("GRAY"));
@@ -447,7 +447,7 @@ client.on('message',message=>{
 					
 				}
 			} else if(args[1]=="announce"){
-				if((["",undefined].includes(args[2]))&&(message.guild.events.find(e=>(e.id==args[2]))!=undefined)){
+				if((["",undefined].includes(args[2]))||(message.guild.events.find(e=>(e.id==args[2]))!==undefined)){
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify an existing event identifier.").setColor("GRAY"));
 				} else {
 				
