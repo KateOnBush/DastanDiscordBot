@@ -464,11 +464,17 @@ client.on('message',message=>{
 					
 				}
 				
+			} else if(args[1]=="start"){
+			
+					const embed= new Discord.MessageEmbed().setTitle("Event Started!").setColor("GREEN");
+					message.guild.channels.cache.get("728022865622073446").send(embed);
+					adminlog(message.member.displayName+" `ID: "+message.author.id+"` started the event.");
+				
 			} else if(args[1]=="end"){
 			
-					const embed= new Discord.MessageEmbed().setDescription("Event ended! :(").setColor("RED");
+					const embed= new Discord.MessageEmbed().setEnded("Event ended! :(").setColor("RED");
 					message.guild.channels.cache.get("728022865622073446").send(embed);
-					adminlog(message.member.displayName+" `ID: "+message.author.id+"` ended last event.");
+					adminlog(message.member.displayName+" `ID: "+message.author.id+"` ended the event.");
 				
 			}
 			
