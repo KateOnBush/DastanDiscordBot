@@ -282,7 +282,7 @@ client.on('message',message=>{
 				}
 			}
 		} else {
-			var member=message.mentions.users.array()[0];
+			var member=message.mentions.members.array()[0];
 			if(member==undefined){
 				member=message.member;	
 			}
