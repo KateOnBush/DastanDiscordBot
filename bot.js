@@ -257,7 +257,7 @@ client.on('message',message=>{
 	}
 	
 	//Commands
-	if((message.channel.id!="728025726556569631")||((!message.member.hasPermission("MANAGE_MESSAGES"))&&(!message.content.startsWith("!")))) return;
+	if(message.channel.id!="728025726556569631") return;
 	var args=message.content.toLowerCase().split(" ");
 	var args_case=message.content.split(" ");
 	if(args[0].startsWith("!")) args[0].replace("!","");
@@ -341,24 +341,30 @@ client.on('message',message=>{
 		const commands = [{
 			name: "ping",
 			description: "Shows the bot's latency.",
+			usage: "ping"
 		},{
 			name: "uptime",
 			description: "Shows the bot's uptime.",
 			longDescription: "This command shows for how much time the bot was up.",
+			usage: "uptime"
 		},{
 			name: "profile",
-			description: "Displays your/someone's full profile."
+			description: "Displays your/someone's full profile.",
+			usage: "profile [<user>]"
 		},{
 			name: "level",
-			description: "Displays your/someone's level."
+			description: "Displays your/someone's level.",
+			usage: "level [<user>]"
 		},{
 			name: "gold",
-			description: "Displays your/someone's gold."
+			description: "Displays your/someone's gold.",
+			usage: "gold [<user>]"
 		},{
 			name: "color",
 			description: "Name color commands.",
 			longDescription: "This commands is used to change your name color, or to see your/someone's color.",
-			subcommands: "set, list"
+			subcommands: "set, list",
+			usage: "color <set/list> (color name)"
 		}];
 		
 		if(["",undefined].includes(args[1])){
@@ -373,6 +379,7 @@ client.on('message',message=>{
 			var embed= new Discord.MessageEmbed().setColor("fafafa").setTitle("Command help: " + args[1]);
 			embed.addField("Description",cmd.longDescription||cmd.description);
 			embed.addField("Sub-commands",cmd.subcommands||"None.");
+			embed.addField("Usage","*"+cmd.usage+"*")
 			message.channel.send(embed);
 			
 		} else {
