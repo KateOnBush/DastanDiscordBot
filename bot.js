@@ -170,7 +170,7 @@ client.on('message',message=>{
 		if(message.author.antiSpamCount>8){
 			mute(message.member,3600).then(()=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+message.member.id+"> was muted for **1** hour.\n**Reason:** Spam.").setColor("RED"))
-					adminlog("<@!"+message.member.id+"> was automatically muted for **1** hour.\n**Reason:** Spam.")
+					adminlog(message.member.displayName+" `ID: "+message.member.id+"` was automatically muted for **1** hour.\n**Reason:** Spam.")
 			});
 		}else if(message.author.antiSpamCount>5){
 			message.delete().then(m=>{
@@ -390,7 +390,7 @@ client.on('message',message=>{
 				if(![muted,time].includes(undefined)){
 					mute(muted,time).then(()=>{
 						message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+muted.id+"> was muted by <@!"+message.author.id+"> for "+msToString(time*1000)+".\n**Reason:** "+(reason||"Unspecified.")).setColor("RED"));
-						adminlog("<@!"+muted.id+"> was muted by <@!"+message.author.id+"> for "+msToString(time*1000)+".\n**Reason:** "+(reason||"Unspecified."))
+						adminlog(muted.displayName+" `ID: "+muted.id+"` was muted by "+message.member.displayName+""+" `ID: "+message.author.id+"` for "+msToString(time*1000)+".\n**Reason:** "+(reason||"Unspecified."))
 					});
 				} else {
 					message.channel.send(new Discord.MessageEmbed().setDescription("**Syntax:** mute <user> <time> [reason]").setColor("GRAY"))
@@ -432,20 +432,20 @@ client.on('message',message=>{
 					const desc=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
 					message.guild.events.find(e=>(e.id==args[2])).desc==desc;
 					message.channel.send(new Discord.MessageEmbed().setDescription("Event **"+args[2]+"**'s description updated: **"+desc+"**.").setColor("GREEN"))
-					adminlog("<@!"+message.author.id+"> updated description of event with identifier: " + args[2] + " to **"+desc+"**");
+					adminlog(message.member.displayName+" `ID: "+message.author.id+"` updated description of event with identifier: " + args[2] + " to **"+desc+"**");
 				}
 			} else if(args[1]=="startsin"){
 				if((["",undefined].includes(args[2]))||(message.guild.events.find(e=>(e.id==args[2]))==undefined)){
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify an existing event identifier.").setColor("GRAY"));
 				} else if(["",undefined].includes(args[3])) {
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct time for the event.").setColor("GRAY"));
-					adminlog("<@!"+message.author.id+"> updated date of event with identifier: " + args[2] + " to **"+(new Date(Date.now()+time))+"**");
+					adminlog(message.member.displayName+" `ID: "+message.author.id+"` updated date of event with identifier: " + args[2] + " to **"+(new Date(Date.now()+time))+"**");
 				} else {
 					
-					try{const time=eval(args[2].replace("m","*60").replace("h","*3600"));
+					try{const time=eval(args[3].replace("m","*60").replace("h","*3600"));
 					message.guild.events.find(e=>(e.id==args[2])).time==Date.now()+time;
 					message.channel.send(new Discord.MessageEmbed().setDescription("Event **"+args[2]+"** starts in: "+msToString(time*1000)+".").setColor("GREEN"))
-					adminlog("<@!"+message.author.id+"> updated date of event with identifier: " + args[2] + " to **"+(new Date(Date.now()+time))+"**");
+					adminlog(message.member.displayName+" `ID: "+message.author.id+"` updated date of event with identifier: " + args[2] + " to **"+(new Date(Date.now()+time))+"**");
 					   
 					   }catch(err){
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct time for the event.").setColor("GRAY"));
@@ -460,7 +460,7 @@ client.on('message',message=>{
 					const event=message.guild.events.find(e=>(e.id==args[2]));
 					const embed= new Didcord.RichEmbed().setTitle(event.name).setDescription(event.desc).setColor("AQUA").addField("Host","<@!"+event.host.id+">").addField("Date",new Date(Date.now()+event.time*1000)).addField("Starts in",msToString(event.time*1000));
 					message.guild.channels.cache.get("728022865622073446").send("<@&728223648942653451> <@&728224459487576134> **New Event!**",embed);
-					adminlog("<@!"+message.author.id+"> announced event with identifier: " + args[2]);
+					adminlog(message.member.displayName+" `ID: "+message.author.id+"` announced event with identifier: " + args[2]);
 					
 				}
 				
