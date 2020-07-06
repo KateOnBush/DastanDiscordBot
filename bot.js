@@ -326,7 +326,7 @@ client.on('message',message=>{
 			subcommands: "set, list"
 		}];
 		
-		if(!["",undefined].includes(args[1])){
+		if(["",undefined].includes(args[1])){
 			var embed= new Discord.MessageEmbed().setColor("AQUA").setTitle("Command list").setDescription("Use `help <command>` for specific command help");
 			commands.forEach(cmd=>{
 				embed.addField(cmd.name,cmd.description);
