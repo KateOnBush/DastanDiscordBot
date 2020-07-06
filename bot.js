@@ -118,7 +118,6 @@ client.on('raw',event=>{
 	}
 })
 
-
 //User event
 client.on('message',message=>{
 
@@ -231,8 +230,12 @@ client.on('message',message=>{
             		msg.edit(new Discord.MessageEmbed().setDescription("**Pong!** My latency is "+(Date.now()-d)+" ms!").setColor("GREEN"));
 		});
 	} else if(args[0]=="level"){
-		info.load(message.author.id).then(data=>{
-			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+message.member.id+"> You are level " + data.level + "!").setColor("GREEN"));
+		var userToFind=message.member;
+		if(message.mentions.members.array().length!=0){
+			userToFind=message.mentions.members.array()[0];
+		}
+		info.load(userToFind.id).then(data=>{
+			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").setColor("GREEN"));
 		});
 	} else if(args[0]=="uptime"){
 		var hours=((client.uptime/1000)/3600)|0;
@@ -240,8 +243,12 @@ client.on('message',message=>{
 		var seconds=((client.uptime/1000)-(hours*3600)-(minutes*60))|0;
 		message.channel.send(new Discord.MessageEmbed().setDescription("I've been up for **"+hours+"** hours, **"+minutes+"** minutes and **"+seconds+"** seconds!").setColor("YELLOW"));
 	} else if(args[0]=="gold"){
-		info.load(message.author.id).then(data=>{
-			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+message.member.id+"> You have " + data.gold + " gold!").setColor("GOLD"));
+		var userToFind=message.member;
+		if(message.mentions.members.array().length!=0){
+			userToFind=message.mentions.members.array()[0];
+		}
+		info.load(userToFind.id).then(data=>{
+			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+"> has " + data.gold + " gold!").setColor("GOLD"));
 		})	
 	} else if(args[0]=="profile"){
 		
@@ -294,8 +301,50 @@ client.on('message',message=>{
 			member.roles.add(role);
 			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+member.id+">'s color is **"+role.name+"**").setColor(role.color))
 		}
-	}
+	} else if(args[0]=="help"){
 	
+		const commands == [{
+			name: "ping",
+			description: "Shows the bot's latency.",
+		},{
+			name: "uptime",
+			description: "Shows the bot's uptime.",
+			longDescription: "This command shows for how much time the bot was up.",
+		},{
+			name: "profile",
+			description: "Displays your/someone's full profile."
+		},{
+			name: "level",
+			description: "Displays your/someone's level."
+		},{
+			name: "gold",
+			description: "Displays your/someone's gold."
+		},{
+			name: "color",
+			description: "Name color commands.",
+			longDescription: "This commands is used to change your name color, or to see your/someone's color.",
+			subcommands: "set, list"
+		}]
+		
+		if(!["",undefined].includes(args[1])){
+			var embed= new Discord.MessageEmbed().setColor("AQUA").setTitle("Command list").setDescription("Use `help <command>` for specific command help");
+			commands.forEach(cmd=>{
+				embed.addField(cmd.name,cmd.description);
+			})
+			message.channel.send(embed);
+		} else if(commands.find(t=>(t.name==args[1]))!=undefined){
+			
+			const cmd=commands.find(t=>(t.name==args[1]));
+			var embed= new Discord.MessageEmbed().setColor("WHITE").setTitle("Command help: " + args[1]);
+			embed.addField("Description",cmd.longDescription||cmd.description);
+			embed.addField("Sub-commands",cmd.subcommands||"None.");
+			message.channel.send(embed);
+			
+		} else {
+			message.channel.send(new Discord.MessageEmbed().setDescription("This command doesn't exist :(").setColor("RED"));
+		}
+		
+	}
 	
 	
 });
