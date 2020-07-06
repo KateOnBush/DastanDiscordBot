@@ -288,7 +288,7 @@ client.on('message',message=>{
 			}
 			var role=undefined;
 			roles.forEach(t=>{
-				if(message.roles.cache.get(t)!=undefined) role=message.roles.cache.get(t);
+				if(member.roles.cache.get(t)!=undefined) role=member.roles.cache.get(t);
 			})
 			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+member.id+">'s color is **"+role.name+"**").setColor(role.color))
 		}
