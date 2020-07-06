@@ -259,6 +259,7 @@ client.on('message',message=>{
 	//Commands
 	if((message.channel.id!="728025726556569631")||((!message.member.hasPermission("MANAGE_MESSAGES"))&&(!message.content.startsWith("!")))) return;
 	var args=message.content.toLowerCase().split(" ");
+	var args_case=message.content.split(" ");
 	if(args[0].startsWith("!")) args[0].replace("!","");
 	
 	if(args[0]=="ping"){
@@ -381,14 +382,19 @@ client.on('message',message=>{
 	} else if(message.member.roles.cache.get("728034751780356096")||message.member.roles.cache.get("728034436997709834")){
 	
 		if(args[0]=="mute"){
+			try{
 			const muted=message.mentions.members.array()[0];
 			const time=eval(args[2].replace("m","*60").replace("h","*3600"));
+			
 			const reason=args.join(" ").replace(args[0]+" ","").replace(args[1]+" ","").replace(args[2]+" ","");
 			if(![muted,time].includes(undefined)){
 				mute(muted,time).then(()=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+muted.id+"> was muted by <@!"+message.author.id+"> for "+msToString(time*1000)+".\n**Reason:** "+(reason||"Unspecified.")).setColor("RED"));
 					adminlog("<@!"+muted.id+"> was muted by <@!"+message.author.id+"> for "+msToString(time*1000)+".\n**Reason:** "+(reason||"Unspecified."))
 				});
+			}catch(err){
+				message.channel.send(new Discord.MessageEmbed().setDescription("**Syntax:** mute <user> <time> [reason]").setColor("GRAY"))
+			}
 			} else {
 				message.channel.send(new Discord.MessageEmbed().setDescription("**Syntax:** mute <user> <time> [reason]").setColor("GRAY"))
 			}
@@ -412,7 +418,7 @@ client.on('message',message=>{
 				} else if(["",undefined].includes(args[3])) {
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct name for the event.").setColor("GRAY"));
 				} else {
-					const name=args.join(" ").replace(args[0]+" "+args[1]+" "+args[2]+" ","");
+					const name=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
 					message.guild.events.find(e=>(e.id==args[2])).name==name;
 					message.channel.send(new Discord.MessageEmbed().setDescription("Event **"+args[2]+"** named: **"+name+"**.").setColor("GREEN"))
 					adminlog("<@!"+message.author.id+"> named event with identifier: " + args[2] + " to **"+name+"**");
@@ -423,7 +429,7 @@ client.on('message',message=>{
 				} else if(["",undefined].includes(args[3])) {
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct description for the event.").setColor("GRAY"));
 				} else {
-					const desc=args.join(" ").replace(args[0]+" "+args[1]+" "+args[2]+" ","");
+					const desc=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
 					message.guild.events.find(e=>(e.id==args[2])).desc==desc;
 					message.channel.send(new Discord.MessageEmbed().setDescription("Event **"+args[2]+"**'s description updated: **"+desc+"**.").setColor("GREEN"))
 					adminlog("<@!"+message.author.id+"> updated description of event with identifier: " + args[2] + " to **"+desc+"**");
