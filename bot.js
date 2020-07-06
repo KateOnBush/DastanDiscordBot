@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
+
 //Logs
 function log(info){
 	client.channels.resolve("729155101746528286").send(info);
