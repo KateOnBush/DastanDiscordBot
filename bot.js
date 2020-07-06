@@ -303,7 +303,7 @@ client.on('message',message=>{
 		}
 	} else if(args[0]=="help"){
 	
-		const commands == [{
+		const commands = [{
 			name: "ping",
 			description: "Shows the bot's latency.",
 		},{
