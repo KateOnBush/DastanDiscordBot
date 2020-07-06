@@ -410,7 +410,7 @@ client.on('message',message=>{
 						host: message.member
 					});
 					message.channel.send(new Discord.MessageEmbed().setDescription("Event created with identifier: **"+args[2]+"**.").setColor("GREEN"))
-					adminlog("<@!"+message.author.id+"> created event with identifier: " + args[2]);
+					adminlog(message.member.displayName+" `ID: "+message.author.id+"` created event with identifier: " + args[2]);
 				}
 			} else if(args[1]=="name"){
 				if((["",undefined].includes(args[2]))||(message.guild.events.find(e=>(e.id==args[2]))==undefined)){
@@ -421,7 +421,7 @@ client.on('message',message=>{
 					const name=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
 					message.guild.events.find(e=>(e.id==args[2])).name==name;
 					message.channel.send(new Discord.MessageEmbed().setDescription("Event **"+args[2]+"** named: **"+name+"**.").setColor("GREEN"))
-					adminlog("<@!"+message.author.id+"> named event with identifier: " + args[2] + " to **"+name+"**");
+					adminlog(message.member.displayName+" `ID: "+message.author.id+"` named event with identifier: " + args[2] + " to **"+name+"**");
 				}
 			} else if(args[1]=="description"){
 				if((["",undefined].includes(args[2]))||(message.guild.events.find(e=>(e.id==args[2]))==undefined)){
@@ -445,7 +445,7 @@ client.on('message',message=>{
 					try{const time=eval(args[3].replace("m","*60").replace("h","*3600"));
 					message.guild.events.find(e=>(e.id==args[2])).time==Date.now()+time;
 					message.channel.send(new Discord.MessageEmbed().setDescription("Event **"+args[2]+"** starts in: "+msToString(time*1000)+".").setColor("GREEN"))
-					adminlog(message.member.displayName+" `ID: "+message.author.id+"` updated date of event with identifier: " + args[2] + " to **"+(new Date(Date.now()+time))+"**");
+					adminlog(message.member.displayName+" `ID: "+message.author.id+"` updated date of event with identifier: " + args[2] + " to **"+(new Date(Date.now()+time*1000))+"**");
 					   
 					   }catch(err){
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct time for the event.").setColor("GRAY"));
@@ -458,7 +458,7 @@ client.on('message',message=>{
 				} else {
 				
 					const event=message.guild.events.find(e=>(e.id==args[2]));
-					const embed= new Didcord.RichEmbed().setTitle(event.name).setDescription(event.desc).setColor("AQUA").addField("Host","<@!"+event.host.id+">").addField("Date",new Date(Date.now()+event.time*1000)).addField("Starts in",msToString(event.time*1000));
+					const embed= new Discord.RichEmbed().setTitle(event.name).setDescription(event.desc).setColor("AQUA").addField("Host","<@!"+event.host.id+">").addField("Date",new Date(Date.now()+event.time*1000)).addField("Starts in",msToString(event.time*1000));
 					message.guild.channels.cache.get("728022865622073446").send("<@&728223648942653451> <@&728224459487576134> **New Event!**",embed);
 					adminlog(message.member.displayName+" `ID: "+message.author.id+"` announced event with identifier: " + args[2]);
 					
