@@ -324,7 +324,7 @@ client.on('message',message=>{
 			description: "Name color commands.",
 			longDescription: "This commands is used to change your name color, or to see your/someone's color.",
 			subcommands: "set, list"
-		}]
+		}];
 		
 		if(!["",undefined].includes(args[1])){
 			var embed= new Discord.MessageEmbed().setColor("AQUA").setTitle("Command list").setDescription("Use `help <command>` for specific command help");
