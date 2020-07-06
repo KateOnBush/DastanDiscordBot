@@ -419,7 +419,7 @@ client.on('message',message=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct name for the event.").setColor("GRAY"));
 				} else {
 					const name=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
-					message.guild.events.find(e=>(e.id==args[2])).name==name;
+					message.guild.events.find(e=>(e.id==args[2])).name=name;
 					message.channel.send(new Discord.MessageEmbed().setDescription("Event **"+args[2]+"** named: **"+name+"**.").setColor("GREEN"))
 					adminlog(message.member.displayName+" `ID: "+message.author.id+"` named event with identifier: " + args[2] + " to **"+name+"**");
 				}
@@ -430,7 +430,7 @@ client.on('message',message=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct description for the event.").setColor("GRAY"));
 				} else {
 					const desc=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
-					message.guild.events.find(e=>(e.id==args[2])).desc==desc;
+					message.guild.events.find(e=>(e.id==args[2])).desc=desc;
 					message.channel.send(new Discord.MessageEmbed().setDescription("Event **"+args[2]+"**'s description updated: **"+desc+"**.").setColor("GREEN"))
 					adminlog(message.member.displayName+" `ID: "+message.author.id+"` updated description of event with identifier: " + args[2] + " to **"+desc+"**");
 				}
@@ -443,7 +443,7 @@ client.on('message',message=>{
 				} else {
 					
 					try{const time=eval(args[3].replace("m","*60").replace("h","*3600"));
-					message.guild.events.find(e=>(e.id==args[2])).time==Date.now()+time;
+					message.guild.events.find(e=>(e.id==args[2])).time=Date.now()+time;
 					message.channel.send(new Discord.MessageEmbed().setDescription("Event **"+args[2]+"** starts in: "+msToString(time*1000)+".").setColor("GREEN"))
 					adminlog(message.member.displayName+" `ID: "+message.author.id+"` updated date of event with identifier: " + args[2] + " to **"+(new Date(Date.now()+time*1000))+"**");
 					   
