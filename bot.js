@@ -349,6 +349,27 @@ client.on('message',message=>{
 	
 });
 
+//VC
+client.on("voiceStateUpdate",(o,n)=>{
+
+	const vcs=["728008557911605341","728027365820727407","728027460515659838","728027677344268337","728027756906020865","728027832747556892","728027908127457370"];
+	const mvcs=["728030297911853176","728029167286878240"];
+	if(vcs.includes(n.channel.id)){
+		n.member.roles.add("729502041122013195");
+		n.member.guild.channels.cache.get("729354613064728636").send(new Discord.MessageEmbed().setDescription("<@!"+n.member.id+"> joined **" + n.channel.name + "**").setColor("GREEN"))
+	} else if(mvcs.includes(n.channel.id)){
+		n.member.roles.add("729502308634853456");
+		n.member.guild.channels.cache.get("728029565607346227").send(new Discord.MessageEmbed().setDescription("<@!"+n.member.id+"> joined **" + n.channel.name + "**").setColor("GREEN"))
+	} else if(vcs.includes(o.channel.id)){
+		n.member.guild.channels.cache.get("729354613064728636").send(new Discord.MessageEmbed().setDescription("<@!"+n.member.id+"> left **" + o.channel.name + "**").setColor("RED"))
+		n.member.roles.remove("729502041122013195");
+	} else if(mvcs.includes(o.channel.id)){
+		n.member.guild.channels.cache.get("728029565607346227").send(new Discord.MessageEmbed().setDescription("<@!"+n.member.id+"> left **" + o.channel.name + "**").setColor("RED"))
+		n.member.roles.remove("729502308634853456");
+	}
+	
+});
+
 ///Welcoming
 client.on('guildMemberAdd',member=>{
 
@@ -356,6 +377,7 @@ client.on('guildMemberAdd',member=>{
 	var welcome_channel=member.guild.channels.cache.get("728008557911605340");
 	welcome_channel.send(new Discord.MessageEmbed().addField("Hey hey hey!","We've been waiting for you!").setTitle("Welcome " + member.displayName + "!").setThumbnail(member.user.displayAvatarURL()));
 	member.roles.add(startRoles);
+	member.send(new Discord.MessageEmbed().setTitle("Welcome " + member.displayName + " to " + member.guild.name + "!").setDescription("Make sure to read rules! Then you can customize your profile by choosing a color in #color and picking some roles in #role-self-assign, have fun <3!").setColor("fafafa"));
 	
 });
 
