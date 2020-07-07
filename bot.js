@@ -505,7 +505,7 @@ client.on("voiceStateUpdate",(o,n)=>{
 			n.member.guild.channels.cache.get("728029565607346227").send(new Discord.MessageEmbed().setDescription("<@!"+n.member.id+"> joined **" + n.channel.name + "**").setColor("GREEN"));
 		} 
 	} else if(o.channel!=null){
-		log(o.member.displayName + " `ID: " + o.member.id + "` left voice channel **"+n.channel.name+"** `ID : " + o.channel.id + "`");
+		log(o.member.displayName + " `ID: " + o.member.id + "` left voice channel **"+o.channel.name+"** `ID : " + o.channel.id + "`");
 		if(vcs.includes(o.channel.id)){
 			n.member.guild.channels.cache.get("729354613064728636").send(new Discord.MessageEmbed().setDescription("<@!"+o.member.id+"> left **" + o.channel.name + "**").setColor("RED"));
 			n.member.roles.remove("729502041122013195");
