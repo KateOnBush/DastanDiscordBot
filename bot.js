@@ -581,7 +581,7 @@ client.on('guildMemberRemove',member=>{
 const music = require("discord.js-musicbot-v2");
 music.start(client,{
 	youtubeKey: "AIzaSyA2WXr8bHDvK2bD0Llt9qeA29wtwR13HBI",
-	botPrefix: "",
+	botPrefix: "music ",
 	maxQueueSize: 0,
 	musicPresence: true,
 	clearPresence: true,
