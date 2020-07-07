@@ -590,7 +590,7 @@ client.on('message', async message => {
 	if(message.member.voice.channel!=undefined){
 		if(args[0]=="play"){
 			let song = await client.player.play(message.member.voice.channel,message.content.replace(args_case[0],""));
-			message.channel.send(new Discord.MessageEmbed().setDescription("Playing : **"+song.song+"**!").setColor("GREEN"))
+			message.channel.send(new Discord.MessageEmbed().setDescription("Playing : **"+song.song.name+"**!").setColor("GREEN"))
 		}
 	} else {
 		message.channel.send(new Discord.MessageEmbed().setDescription("You're not in a voice channel").setColor("RED"))
