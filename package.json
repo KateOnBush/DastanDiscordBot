@@ -9,8 +9,6 @@
   "dependencies": {
     "discord.js": "12.2.0",
     "request": "2.81.0",
-    "discord.js-musicbot-v2": "13.9.1",
-    "ffmpeg": "0.0.4",
-    "node-opus": "0.3.3"
+    "dqq-music": "2.0.0"
   }
 }
