@@ -59,7 +59,7 @@ function updateProfile(member,points){
 			else { member.guild.channels.cache.get("728025726556569631").send(message) }
 		}
 		c.level=level;
-		await info.save(member.id,c);
+		info.save(member.id,c);
 	});
 }
 
