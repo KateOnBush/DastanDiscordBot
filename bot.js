@@ -294,10 +294,12 @@ client.on('message',message=>{
 		}
 		updateProfile(userToFind,0).then(()=>{
 			info.load(userToFind.id).then(data=>{
-				const all=data.messagesEverSent-(30*Math.pow(1.6,data.level-2));
-				const next=(30*Math.pow(1.6,data.level-1))-(30*Math.pow(1.6,data.level-2));
+				var last=(30*Math.pow(1.6,data.level-2));
+				if(data.level=1) last=0;
+				const all=data.messagesEverSent-last;
+				const next=(30*Math.pow(1.6,data.level-1))-last;
 				const prog=all/next;
-				message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").addField("Progress","█".repeat(prog*10|0)+"▒".repeat(Math.max(1-prog,0)*10|0)+" "+(prog*100|0)+"%").setColor("GREEN"));
+				message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").addField("Progress","█".repeat(Math.max(prog*10,0)|0)+"▒".repeat(Math.max(1-prog,0)*10|0)+" "+(prog*100|0)+"%").setColor("GREEN"));
 			});
 		});
 	} else if(args[0]=="uptime"){
