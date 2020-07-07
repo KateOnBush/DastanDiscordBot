@@ -580,7 +580,7 @@ client.on('guildMemberRemove',member=>{
 // -------------------------------------------
 
 const music = require("djs-channel-player");
-const player = new music(client, "AIzaSyAT-lCRVKfYrprwdKqk69TszCfoh1jqqjM", client.guilds.cache.array()[0].channels.cache.get("728030297911853176"), "https://www.youtube.com/playlist?list=PLd5YlA5F8FpU5lHh_5UJ4ljMLQFCFFuOW");
+const player = new music(client, "AIzaSyAT-lCRVKfYrprwdKqk69TszCfoh1jqqjM", "728030297911853176", "https://www.youtube.com/playlist?list=PLd5YlA5F8FpU5lHh_5UJ4ljMLQFCFFuOW");
 client.on('ready', () => {
 	player.play(); // This will play once the bot is started!
 });
