@@ -529,6 +529,7 @@ client.on("voiceStateUpdate",(o,n)=>{
 
 	const vcs=["728008557911605341","728027365820727407","728027460515659838","728027677344268337","728027756906020865","728027832747556892","728027908127457370"];
 	const mvcs=["728030297911853176","728029167286878240"];
+	if(n.channel==o.channel) return;
 	if(n.channel!=null){
 		log(n.member.displayName + " `ID: " + n.member.id + "` joined voice channel **"+n.channel.name+"** `ID : " + n.channel.id + "`");
 		if(vcs.includes(n.channel.id)){
