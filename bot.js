@@ -571,6 +571,24 @@ client.on('guildMemberRemove',member=>{
 	log("Member " + member.displayName + " `ID: "+member.id+"` left the guild.");
 });
 
+
+// -------------------------------------------
+//
+//                   Music Bot
+//
+// -------------------------------------------
+
+const music = require("discord.js-musicbot-v2");
+music.start(client,{
+	youtubeKey: "AIzaSyA2WXr8bHDvK2bD0Llt9qeA29wtwR13HBI",
+	botPrefix: "",
+	maxQueueSize: 0,
+	musicPresence: true,
+	clearPresence: true,
+	channelWhitelist: ["728029565607346227"]
+});
+
+
 // THIS  MUST  BE  THIS  WAY
 client.login(process.env.BOT_TOKEN);
 
