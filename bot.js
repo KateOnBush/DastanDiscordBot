@@ -292,8 +292,8 @@ client.on('message',message=>{
 		if(message.mentions.members.array().length!=0){
 			userToFind=message.mentions.members.array()[0];
 		}
-		updateProfile(userToFind).then(()=>{
-			info.load().then(data=>{
+		updateProfile(userToFind,0).then(()=>{
+			info.load(userToFind.id).then(data=>{
 				const all=data.messagesEverSent-(30*Math.pow(1.6,data.level-2));
 				const next=(30*Math.pow(1.6,data.level-1))-(30*Math.pow(1.6,data.level-2));
 				const prog=all/next;
