@@ -584,6 +584,7 @@ client.player = new Player(client, "AIzaSyAT-lCRVKfYrprwdKqk69TszCfoh1jqqjM");
 client.on('message', async message => {
 	//Music Commands
 	if(message.channel.id!="728029565607346227") return;
+	if(message.author.bot) return;
 	var args=message.content.toLowerCase().split(" ");
 	var args_case=message.content.split(" ");
 	if(message.member.voice.channel!=undefined){
