@@ -15,8 +15,8 @@ function msToString(ms){
 	var seconds=((ms/1000)-(hours*3600)-(minutes*60))|0;
 	return "**"+hours+"** hours, **"+minutes+"** minutes and **"+seconds+"** seconds";
 }
-function updateProfile(member,points){
-	info.load(member.id).then(data=>{
+async function updateProfile(member,points){
+	const data = await info.load(member.id);
 		var c=data;
 		if(c.firstMessage==undefined) c.firstMessage=Date.now();
 		if((Date.now()-c.firstMessage)>=86400000){
@@ -59,8 +59,7 @@ function updateProfile(member,points){
 			else { member.guild.channels.cache.get("728025726556569631").send(message) }
 		}
 		c.level=level;
-		info.save(member.id,c);
-	});
+		return await info.save(member.id,c);
 }
 
 async function mute(member,seconds){
@@ -293,11 +292,13 @@ client.on('message',message=>{
 		if(message.mentions.members.array().length!=0){
 			userToFind=message.mentions.members.array()[0];
 		}
-		info.load(userToFind.id).then(data=>{
-			const all=data.messagesEverSent-(30*Math.pow(1.6,data.level-2));
-			const next=(30*Math.pow(1.6,data.level-1))-(30*Math.pow(1.6,data.level-2));
-			const prog=all/next;
-			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").addField("Progress","█".repeat(prog*10|0)+"▒".repeat(Math.max(1-prog,0)*10|0)+" "+(prog*100)|0+"%").setColor("GREEN"));
+		updateProfile(userToFind).then(()=>{
+			info.load().then(data=>{
+				const all=data.messagesEverSent-(30*Math.pow(1.6,data.level-2));
+				const next=(30*Math.pow(1.6,data.level-1))-(30*Math.pow(1.6,data.level-2));
+				const prog=all/next;
+				message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").addField("Progress","█".repeat(prog*10|0)+"▒".repeat(Math.max(1-prog,0)*10|0)+" "+(prog*100|0)+"%").setColor("GREEN"));
+			});
 		});
 	} else if(args[0]=="uptime"){
 		message.channel.send(new Discord.MessageEmbed().setDescription("I've been up for "+msToString(client.uptime)+"!").setColor("YELLOW"));
