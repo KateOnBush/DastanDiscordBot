@@ -581,7 +581,7 @@ client.on('guildMemberRemove',member=>{
 
 const music = require("dqq-music");
 music.start(client,{
-	youtubeKey: "AIzaSyA2WXr8bHDvK2bD0Llt9qeA29wtwR13HBI",
+	youtubeKey: "AIzaSyAT-lCRVKfYrprwdKqk69TszCfoh1jqqjM",
 	botPrefix: "music ",
 	maxQueueSize: 0,
 	musicPresence: true,
