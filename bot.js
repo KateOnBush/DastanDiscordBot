@@ -295,7 +295,7 @@ client.on('message',message=>{
 		updateProfile(userToFind,0).then(()=>{
 			info.load(userToFind.id).then(data=>{
 				var last=(30*Math.pow(1.6,data.level-2));
-				if(data.level=1) last=0;
+				if(data.level==1) last=0;
 				const all=data.messagesEverSent-last;
 				const next=(30*Math.pow(1.6,data.level-1))-last;
 				const prog=all/next;
@@ -318,9 +318,16 @@ client.on('message',message=>{
 		if(message.mentions.members.array().length!=0){
 			userToFind=message.mentions.members.array()[0];
 		}
-		info.load(userToFind.id).then(data=>{
-			message.channel.send(new Discord.MessageEmbed().setTitle(userToFind.displayName+"'s profile").addField("Level",data.level).addField("Gold",data.gold).addField("Joined at",new Date(userToFind.joinedTimestamp)).setColor("RANDOM").setThumbnail(userToFind.user.displayAvatarURL()));
-		})
+		updateProfile(userToFind,0).then(()=>{
+			info.load(userToFind.id).then(data=>{
+				var last=(30*Math.pow(1.6,data.level-2));
+				if(data.level==1) last=0;
+				const all=data.messagesEverSent-last;
+				const next=(30*Math.pow(1.6,data.level-1))-last;
+				const prog=all/next;
+				message.channel.send(new Discord.MessageEmbed().setTitle(userToFind.displayName+"'s profile").addField("Level",data.level).addField("Progress","█".repeat(Math.max(prog*10,0)|0)+"▒".repeat(Math.max(1-prog,0)*10|0)+" "+(prog*100|0)+"%").addField("Gold",data.gold).addField("Joined at",new Date(userToFind.joinedTimestamp)).setColor("RANDOM").setThumbnail(userToFind.user.displayAvatarURL()));
+			})
+		});
 		
 	} else if(args[0]=="color"){
 		const roles=["729438971456651394","729438974854168636","729438972161556610","729437918078435358","729421506328657950","729437914542505985","729437921802846239","729421500137865261","729421492835844207","729421510804242492","729421484560482379","729421488431562752","729421479846084648","729421473810219079","729421468752150689","729421463614128238","729395073904672860","729392489617948783"]
