@@ -579,16 +579,18 @@ client.on('guildMemberRemove',member=>{
 //
 // -------------------------------------------
 
-const music = require("dqq-music");
-music.start(client,{
-	youtubeKey: "AIzaSyAT-lCRVKfYrprwdKqk69TszCfoh1jqqjM",
-	botPrefix: "music ",
-	maxQueueSize: 0,
-	musicPresence: true,
-	clearPresence: true,
-	channelWhitelist: ["728029565607346227"]
-});
-
+const MusicClient = require("discord-music-core");
+const music = new MusicClient("AIzaSyAT-lCRVKfYrprwdKqk69TszCfoh1jqqjM");
+client.on("message",message=>{
+	
+	if(message.channel.id!="728029565607346227") return;
+	var args=message.content.toLowerCase().split(" ");
+	var args_case=message.content.split(" ");
+	if(args[0]=="play"){
+		music.play(message,[message.content.replace(args_case[0],"")]);	
+	}
+	
+})
 
 // THIS  MUST  BE  THIS  WAY
 client.login(process.env.BOT_TOKEN);
