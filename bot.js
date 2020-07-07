@@ -294,7 +294,7 @@ client.on('message',message=>{
 		}
 		info.load(userToFind.id).then(data=>{
 			const all=data.messagesEverSent-(30*Math.pow(1.6,data.level-1));
-			const next=(30*Math.pow(1.6,data.level-1))-(30*Math.pow(1.6,data.level));
+			const next=(30*Math.pow(1.6,data.level))-(30*Math.pow(1.6,data.level-1));
 			const prog=all/next;
 			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").addField("Progress","█".repeat(prog*10|0)+"▒".repeat((1-prog)*10|0)+" "+(prog*100)|0+"%").setColor("GREEN"));
 		});
@@ -421,7 +421,7 @@ client.on('message',message=>{
 					mute(muted,time).then(()=>{
 						message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+muted.id+"> was muted by <@!"+message.author.id+"> for "+msToString(time*1000)+".\n**Reason:** "+(reason||"Unspecified.")).setColor("RED"));
 						adminlog(muted.displayName+" `ID: "+muted.id+"` was muted by "+message.member.displayName+""+" `ID: "+message.author.id+"` for "+msToString(time*1000)+".\n**Reason:** "+(reason||"Unspecified."))
-					});
+					});	
 				} else {
 					message.channel.send(new Discord.MessageEmbed().setDescription("**Syntax:** mute <user> <time> [reason]").setColor("GRAY"))
 				}
