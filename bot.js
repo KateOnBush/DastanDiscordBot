@@ -579,7 +579,7 @@ client.on('guildMemberRemove',member=>{
 //
 // -------------------------------------------
 
-const music = require("discord-musicbot-addon")
+const music = require("discordjs.musicbot.fix")
 music.start(client, {
 	youtubeKey: "AIzaSyAT-lCRVKfYrprwdKqk69TszCfoh1jqqjM",
 	botPrefix: "music ",
