@@ -579,10 +579,21 @@ client.on('guildMemberRemove',member=>{
 //
 // -------------------------------------------
 
-const music = require("djs-channel-player");
-const player = new music(client, "AIzaSyAT-lCRVKfYrprwdKqk69TszCfoh1jqqjM", "728030297911853176", "https://www.youtube.com/playlist?list=PLd5YlA5F8FpU5lHh_5UJ4ljMLQFCFFuOW");
-client.on('ready', () => {
-	player.play(); // This will play once the bot is started!
+const { Player } = require("discord-music-player");
+client.player = new Player(client, "AIzaSyAT-lCRVKfYrprwdKqk69TszCfoh1jqqjM");
+client.on('message', async message => {
+	//Music Commands
+	if(message.channel.id!="728029565607346227") return;
+	var args=message.content.toLowerCase().split(" ");
+	var args_case=message.content.split(" ");
+	if(message.member.voice.channel!=undefined){
+		if(args[0]=="play"){
+			let song = await client.player.play(message.voice.channel,message.content.replace(args_case[0],""));
+			message.channel.send(new Discord.MessageEmbed().setDescription("Playing : **"+song.song+"**!").setColor("GREEN"))
+		}
+	} else {
+		message.channel.send(new Discord.MessageEmbed().setDescription("You're not in a voice channel").setColor("RED"))
+	}
 });
 
 // THIS  MUST  BE  THIS  WAY
