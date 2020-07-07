@@ -15,8 +15,8 @@ function msToString(ms){
 	var seconds=((ms/1000)-(hours*3600)-(minutes*60))|0;
 	return "**"+hours+"** hours, **"+minutes+"** minutes and **"+seconds+"** seconds";
 }
-function updateProfile(member,points){
-	info.load(member.id).then(data=>{
+async function updateProfile(member,points){
+	await info.load(member.id).then(data=>{
 		var c=data;
 		if(c.firstMessage==undefined) c.firstMessage=Date.now();
 		if((Date.now()-c.firstMessage)>=86400000){
@@ -58,7 +58,8 @@ function updateProfile(member,points){
 			if(member.lastMessage!=null) member.lastMessage.channel.send(message);
 			else { member.guild.channels.cache.get("728025726556569631").send(message) }
 		}
-		info.save(member.id,c);	
+		c.level=level;
+		await info.save(member.id,c);	
 	});
 }
 
@@ -211,7 +212,7 @@ client.on('raw',event=>{
 })
 
 //User event
-client.on('message',message=>{
+client.on('message',async message=>{
 
 	
 	//Normal messages
@@ -273,7 +274,7 @@ client.on('message',message=>{
 	message.member.messageCombo++;
 	if(message.member.messageCombo>=10){
 		message.member.messageCombo=0;
-		updateProfile(message.member,10);
+		await updateProfile(message.member,10);
 	}
 	
 	//Commands
