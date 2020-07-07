@@ -15,8 +15,8 @@ function msToString(ms){
 	var seconds=((ms/1000)-(hours*3600)-(minutes*60))|0;
 	return "**"+hours+"** hours, **"+minutes+"** minutes and **"+seconds+"** seconds";
 }
-async function updateProfile(member,points){
-	const data = await info.load(member.id);
+function updateProfile(member,points){
+	info.load(member.id).then(data=>{
 		var c=data;
 		if(c.firstMessage==undefined) c.firstMessage=Date.now();
 		if((Date.now()-c.firstMessage)>=86400000){
@@ -60,6 +60,7 @@ async function updateProfile(member,points){
 		}
 		c.level=level;
 		await info.save(member.id,c);
+	});
 }
 
 async function mute(member,seconds){
@@ -211,7 +212,7 @@ client.on('raw',event=>{
 })
 
 //User event
-client.on('message',async message=>{
+client.on('message',message=>{
 
 	
 	//Normal messages
@@ -273,7 +274,7 @@ client.on('message',async message=>{
 	message.member.messageCombo++;
 	if(message.member.messageCombo>=10){
 		message.member.messageCombo=0;
-		await updateProfile(message.member,10);
+		updateProfile(message.member,10);
 	}
 	
 	//Commands
@@ -296,7 +297,7 @@ client.on('message',async message=>{
 			const all=data.messagesEverSent-(30*Math.pow(1.6,data.level-1));
 			const next=(30*Math.pow(1.6,data.level))-(30*Math.pow(1.6,data.level-1));
 			const prog=all/next;
-			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").addField("Progress","█".repeat(prog*10|0)+"▒".repeat((1-prog)*10|0)+" "+(prog*100)|0+"%").setColor("GREEN"));
+			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").addField("Progress","█".repeat(prog*10|0)+"▒".repeat(Math.max(1-prog,0)*10|0)+" "+(prog*100)|0+"%").setColor("GREEN"));
 		});
 	} else if(args[0]=="uptime"){
 		message.channel.send(new Discord.MessageEmbed().setDescription("I've been up for "+msToString(client.uptime)+"!").setColor("YELLOW"));
