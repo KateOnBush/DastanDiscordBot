@@ -15,6 +15,53 @@ function msToString(ms){
 	var seconds=((ms/1000)-(hours*3600)-(minutes*60))|0;
 	return "**"+hours+"** hours, **"+minutes+"** minutes and **"+seconds+"** seconds";
 }
+function updateProfile(member,points){
+	info.load(member.id).then(data=>{
+		var c=data;
+		if(c.firstMessage==undefined) c.firstMessage=Date.now();
+		if((Date.now()-c.firstMessage)>=86400000){
+			c.firstMessage=Date.now();
+			var t=(c.messageAveragePerDay*0.7+c.messagesSentToday*0.3);
+			c.messageAveragePerDay=t|0;
+			c.messagesSentToday=0;
+				
+				//Activity
+				var roles=["728036419314122755","728036310513614851","728036144666771476","728035985492934750","728035734359113769","728035637810167910","728035417441697794"]
+				var change=0; //Dead
+				if(t>125){
+					change=6; //Insanely Active
+				} else if(t>100){
+					change=5; //Very Active
+				} else if(t>70){
+					change=4; //Active
+				} else if(t>40){
+					change=3; //Usually Active
+				} else if(t>10){
+					change=2; //Not very active
+				} else if(t>2){
+					change=1; //Inactive
+				}
+				if(member.roles.cache.array().find(t=>{return (t.id==roles[change]);})==undefined){
+					member.roles.remove(roles).then(mb=>{
+						mb.roles.add(roles[change]);
+					});
+				}	
+			}
+		c.messagesSentToday+=points;
+		c.messagesEverSent+=points;
+		var level=c.level;
+		while(c.messagesEverSent>(30*Math.pow(1.6,level-1))){
+		      level+=1;
+		}
+		if(level>c.level){
+			const message=new Discord.MessageEmbed().setDescription("🎊 **Congratulations <@!"+member.id+">!** You reached level **"+level+"**!").setColor("GREEN");
+			if(member.lastMessage!=null) member.lastMessage.channel.send(message);
+			else { member.guild.channels.cache.get("728025726556569631").send(message) }
+		}
+		info.save(member.id,c);	
+	});
+}
+
 async function mute(member,seconds){
 	var data = await info.load(member.id);
 	data.mutedTo=Date.now()+seconds*1000;
@@ -110,6 +157,18 @@ client.on('ready',()=>{
 						member.roles.remove("728216095835815976");
 					},data.mutedTo-Date.now());
 				}
+			}
+		});
+	});
+	client.guilds.cache.array()[0].members.cache.array().forEach(member=>{
+		info.load(member.id,data=>{
+			var remTime=data.firstMessage+86405000-Date.now();
+			if(remTime>0){
+				setTimeout(function(){
+					updateProfile(member,0);
+				},remTime);
+			} else {
+				updateProfile(member,0);	
 			}
 		});
 	});
@@ -210,50 +269,11 @@ client.on('message',message=>{
 		}
 		
 	
-	if(message.author.messageCombo==undefined) message.author.messageCombo=0;
-	message.author.messageCombo++;
-	if(message.author.messageCombo>=10){
-		message.author.messageCombo=0;
-		info.load(message.author.id).then(data=>{
-			var c=data;
-			if(c.firstMessage==undefined) c.firstMessage=Date.now();
-			if((Date.now()-c.firstMessage)>86400000){
-				c.firstMessage=Date.now();
-				var t=(c.messageAveragePerDay+c.messagesSentToday)/(1+((Date.now()-c.firstMessage)/86400000)|0);
-				c.messageAveragePerDay=t|0;
-				c.messagesSentToday=0;
-				
-					//Activity
-					var roles=["728036419314122755","728036310513614851","728036144666771476","728035985492934750","728035734359113769","728035637810167910","728035417441697794"]
-					var change=0; //Dead
-					if(t>250){
-						change=6; //Insanely Active
-					} else if(t>200){
-						change=5; //Very Active
-					} else if(t>150){
-						change=4; //Active
-					} else if(t>90){
-						change=3; //Usually Active
-					} else if(t>30){
-						change=2; //Not very active
-					} else if(t>5){
-						change=1; //Inactive
-					}
-					if(message.member.roles.cache.array().find(t=>{return (t.id==roles[change]);})==undefined){
-						message.member.roles.remove(roles).then(mb=>{
-							mb.roles.add(roles[change]);
-						});
-					}
-					
-					
-				
-			}
-			c.messagesSentToday+=10;
-			c.messagesEverSent+=10;
-			
-			info.save(message.author.id,c);
-			
-		});
+	if(message.member.messageCombo==undefined) message.member.messageCombo=0;
+	message.member.messageCombo++;
+	if(message.member.messageCombo>=10){
+		message.member.messageCombo=0;
+		updateProfile(message.member,10);
 	}
 	
 	//Commands
@@ -273,7 +293,10 @@ client.on('message',message=>{
 			userToFind=message.mentions.members.array()[0];
 		}
 		info.load(userToFind.id).then(data=>{
-			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").setColor("GREEN"));
+			const all=data.messagesEverSent-(30*Math.pow(1.6,data.level-1));
+			const next=(30*Math.pow(1.6,data.level-1))-(30*Math.pow(1.6,data.level));
+			const prog=all/next;
+			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").addField("Progress","█".repeat(prog*10|0)+"▒".repeat((1-prog)*10|0)+" "+(prog*100)|0+"%").setColor("GREEN"));
 		});
 	} else if(args[0]=="uptime"){
 		message.channel.send(new Discord.MessageEmbed().setDescription("I've been up for "+msToString(client.uptime)+"!").setColor("YELLOW"));
