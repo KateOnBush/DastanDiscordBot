@@ -16,7 +16,7 @@ function msToString(ms){
 	return "**"+hours+"** hours, **"+minutes+"** minutes and **"+seconds+"** seconds";
 }
 async function updateProfile(member,points){
-	await info.load(member.id).then(data=>{
+	const data = await info.load(member.id);
 		var c=data;
 		if(c.firstMessage==undefined) c.firstMessage=Date.now();
 		if((Date.now()-c.firstMessage)>=86400000){
@@ -59,8 +59,7 @@ async function updateProfile(member,points){
 			else { member.guild.channels.cache.get("728025726556569631").send(message) }
 		}
 		c.level=level;
-		await info.save(member.id,c);	
-	});
+		await info.save(member.id,c);
 }
 
 async function mute(member,seconds){
