@@ -589,7 +589,7 @@ client.on('message', async message => {
 	var args_case=message.content.split(" ");
 	if(message.member.voice.channel!=undefined){
 		if(args[0]=="play"){
-			let song = await client.player.play(message.voice.channel,message.content.replace(args_case[0],""));
+			let song = await client.player.play(message.member.voice.channel,message.content.replace(args_case[0],""));
 			message.channel.send(new Discord.MessageEmbed().setDescription("Playing : **"+song.song+"**!").setColor("GREEN"))
 		}
 	} else {
