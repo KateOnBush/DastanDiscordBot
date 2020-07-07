@@ -578,7 +578,7 @@ client.on('guildMemberRemove',member=>{
 //
 // -------------------------------------------
 
-const music = require("discord.js-musicbot-v2");
+const music = require("dqq-music");
 music.start(client,{
 	youtubeKey: "AIzaSyA2WXr8bHDvK2bD0Llt9qeA29wtwR13HBI",
 	botPrefix: "music ",
