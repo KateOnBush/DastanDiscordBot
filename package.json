@@ -9,6 +9,6 @@
   "dependencies": {
     "discord.js": "12.2.0",
     "request": "2.81.0",
-    "dqq-music": "2.0.0"
+    "discord-music-core": "1.0.2"
   }
 }
