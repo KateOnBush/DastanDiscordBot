@@ -546,9 +546,9 @@ client.on("voiceStateUpdate",(o,n)=>{
 		}
 		if(n.member.timer!=undefined) clearInterval(n.member.timer);
 		n.member.timer = setInterval(function(){
-		if(n.member.id==null) clearInterval(n.member.timer); 
+		if((n.member.guild.members.cache.get(n.member.id).channel==null)||(n.member.guild.members.cache.get(n.member.id).channel.id=="728037836774703235")) clearInterval(n.member.timer); 
 		info.load(n.member.id).then(data=>{
-			updateProfile(n.member,10+Math.random()*10|0);
+			updateProfile(n.member,Math.random()*10|0);
 		});
 		},60000)
 	} else if(o.channel!=null){
