@@ -28,9 +28,9 @@ async function updateProfile(member,points){
 				//Activity
 				var roles=["728036419314122755","728036310513614851","728036144666771476","728035985492934750","728035734359113769","728035637810167910","728035417441697794"]
 				var change=0; //Dead
-				if(t>125){
+				if(t>350){
 					change=6; //Insanely Active
-				} else if(t>100){
+				} else if(t>175){
 					change=5; //Very Active
 				} else if(t>70){
 					change=4; //Active
