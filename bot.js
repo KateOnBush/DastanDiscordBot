@@ -603,7 +603,7 @@ client.on('message', async message => {
 			})
 		} else if(args[0]=="queue"){
 			let queue = await client.player.getQueue(message.guild.id);
-			if(queue.length==0){
+			if(queue.songs.length!=0){
 				message.channel.send(new Discord.MessageEmbed().setColor("GOLD").addField("Now playing",queue.songs[0].name + " (Requested by " + queue.songs[0].requestedBy+")").addField("Queue",queue.map((song,i)=>{
 						return song.name + " (Requested by " + song.requestedBy+")";
 				}).join("\n")))
