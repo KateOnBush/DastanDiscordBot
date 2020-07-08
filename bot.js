@@ -631,7 +631,7 @@ async function musicMessage(message){
 							name: songPlayer.ong.name,
 							type: "PLAYING",
 							url: songPlayer.song.url
-						});
+						}});
 			} else {
 				let song = await chosenclient.player.play(message.member.voice.channel,message.content.replace(args_case[0],""),"<@!"+message.member.id+">");
 				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.song.name + " (Requested by " + song.song.requestedBy+")"))
@@ -644,7 +644,7 @@ async function musicMessage(message){
 							name: song.name,
 							type: "PLAYING",
 							url: song.url
-						});
+						}});
 				}).on("end",()=>{
 					chosenclient.user.setPresence(null);
 				});
