@@ -600,10 +600,10 @@ treble.player = new Player(treble, "AIzaSyAT-lCRVKfYrprwdKqk69TszCfoh1jqqjM", op
 pitch.player = new Player(pitch, "AIzaSyAT-lCRVKfYrprwdKqk69TszCfoh1jqqjM", options);
 
 treble.on("ready",()=>{
-	treble.guilds.cache.array()[0].channels.cache.get("728029167286878240").join();
+	treble.guilds.cache.array()[0].channels.cache.get("728030297911853176").join();
 });
 pitch.on("ready",()=>{
-	pitch.guilds.cache.array()[0].channels.cache.get("728030297911853176").join();
+	pitch.guilds.cache.array()[0].channels.cache.get("728029167286878240").join();
 });
 
 treble.on("message",(message)=>{musicMessage(message)});
@@ -628,7 +628,7 @@ async function musicMessage(message){
 						status: "online",
 						afk: false,
 						activity: {
-							name: songPlayer.ong.name,
+							name: songPlayer.song.name,
 							type: "PLAYING",
 							url: songPlayer.song.url
 						}});
@@ -646,7 +646,14 @@ async function musicMessage(message){
 							url: song.url
 						}});
 				}).on("end",()=>{
-					chosenclient.user.setPresence(null);
+					chosenclient.user.setPresence({
+						status: "online",
+						afk: false,
+						activity: {
+							name: null,
+							type: "PLAYING",
+							url: null
+						}});
 				});
 			}
 		} else if(args[0]=="queue"){
