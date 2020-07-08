@@ -25,7 +25,7 @@ async function updateProfile(member,points){
 			c.messageAveragePerDay=t|0;
 			c.messagesSentToday=0;
 				
-				//Activity
+				//Activity 
 				var roles=["728036419314122755","728036310513614851","728036144666771476","728035985492934750","728035734359113769","728035637810167910","728035417441697794"]
 				var change=0; //Dead
 				if(t>350){
