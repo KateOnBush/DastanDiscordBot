@@ -531,6 +531,12 @@ client.on("voiceStateUpdate",(o,n)=>{
 	const mvcs=["728030297911853176","728029167286878240"];
 	if(n.member.user.bot) return;
 	if(n.channel==o.channel) return;
+	let timer = setInterval(function(){
+		if(n.member.id==null) clearInterval(timer); 
+		info.load(n.member.id).then(data=>{
+			updateProfile(n.member,15+Math.random()*10|0);
+		});
+	},30000)
 	if(n.channel!=null){
 		log(n.member.displayName + " `ID: " + n.member.id + "` joined voice channel **"+n.channel.name+"** `ID : " + n.channel.id + "`");
 		if(vcs.includes(n.channel.id)){
@@ -594,12 +600,12 @@ client.on('message', async message => {
 			if(isPlaying){
 				let songPlayer = await client.player.addToQueue(message.guild.id,message.content.replace(args_case[0],""),"<@!"+message.member.id+">");
 				message.channel.send(new Discord.MessageEmbed().setDescription("**Added to queue:** "+songPlayer.song.name+" (Requested by "+songPlayer.song.requestedBy+")").setColor("AQUA"))
-				client.player.getQueue(message.guild.id).on('songChanged', (oldSong, song) => {
-			    		message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.name + " (Requested by " + song.requestedBy+")"))
-				})
 			} else {
 				let song = await client.player.play(message.member.voice.channel,message.content.replace(args_case[0],""),"<@!"+message.member.id+">");
 				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.song.name + " (Requested by " + song.song.requestedBy+")"))
+				client.player.getQueue(message.guild.id).on('songChanged', (oldSong, song) => {
+			    		message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.name + " (Requested by " + song.requestedBy+")"))
+				});
 			}
 		} else if(args[0]=="queue"){
 			let queue = await client.player.getQueue(message.guild.id);
