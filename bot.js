@@ -547,7 +547,7 @@ client.on("voiceStateUpdate",(o,n)=>{
 		}
 		if(n.member.timer!=undefined) clearInterval(n.member.timer);
 		n.member.timer = setInterval(function(){
-		if((n.member.guild.members.cache.get(n.member.id).channel==null)||(n.member.guild.members.cache.get(n.member.id).channel.id=="728037836774703235")) clearInterval(n.member.timer); 
+		if((n.member.guild.members.cache.get(n.member.id).voice.channel==null)||(n.member.guild.members.cache.get(n.member.id).voice.channel.id=="728037836774703235")) clearInterval(n.member.timer); 
 		info.load(n.member.id).then(data=>{
 			updateProfile(n.member,Math.random()*10|0);
 		});
