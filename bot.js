@@ -619,10 +619,12 @@ async function musicMessage(message){
 		var chosenclient = pitch;
 		if(message.member.voice.channel.id=="728030297911853176") chosenclient = treble;
 		if(chosenclient.user.id!=message.client.user.id) return;
+		let tqueue = await chosenclient.player.getQueue(message.guild.id);
+		let isEmpty = (tqueue==undefined);
 		if(["p","search","s","play","add"].includes(args[0])){
 			let isPlaying = chosenclient.player.isPlaying(message.guild.id);
 			if(isPlaying){
-				let songPlayer = await chosenclient.player.addToQueue(message.guild.id,message.content.replace(args_case[0],""),"<@!"+message.member.id+">");
+				chosenclient.player.addToQueue(message.guild.id,message.content.replace(args_case[0],""),"<@!"+message.member.id+">").then(songPlayer=>{
 				message.channel.send(new Discord.MessageEmbed().setDescription("**Added to queue:** "+songPlayer.song.name+" (Requested by "+songPlayer.song.requestedBy+")").setColor("AQUA"))
 				chosenclient.user.setPresence({
 						status: "online",
@@ -632,9 +634,18 @@ async function musicMessage(message){
 							type: "PLAYING",
 							url: songPlayer.song.url
 						}});
+				});
 			} else {
-				let song = await chosenclient.player.play(message.member.voice.channel,message.content.replace(args_case[0],""),"<@!"+message.member.id+">");
+				chosenclient.player.play(message.member.voice.channel,message.content.replace(args_case[0],""),"<@!"+message.member.id+">").then(song=>{
 				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.song.name + " (Requested by " + song.song.requestedBy+")"))
+				chosenclient.user.setPresence({
+						status: "online",
+						afk: false,
+						activity: {
+							name: song.song.name,
+							type: "PLAYING",
+							url: song.song.url
+						}});
 				chosenclient.player.getQueue(message.guild.id).on('songChanged', (oldSong, song) => {
 			    		message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.name + " (Requested by " + song.requestedBy+")"))
 					chosenclient.user.setPresence({
@@ -650,10 +661,11 @@ async function musicMessage(message){
 						status: "online",
 						afk: false,
 						activity: {
-							name: null,
+							name: "",
 							type: "PLAYING",
 							url: null
 						}});
+				});
 				});
 			}
 		} else if(args[0]=="queue"){
@@ -665,7 +677,7 @@ async function musicMessage(message){
 			} else {
 				message.channel.send(new Discord.MessageEmbed().setDescription("Queue is empty :(").setColor("RED"))	
 			}
-		} else if(args[0]=="stop"){
+		} else if((args[0]=="stop")&&(!isEmpty)){
 			let queue = await chosenclient.player.getQueue(message.guild.id);
 			let r = queue.songs[0].requestedBy;
 			if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){
@@ -675,7 +687,7 @@ async function musicMessage(message){
 				message.channel.send(new Discord.MessageEmbed().setDescription("You can't stop the music.").setColor("RED"))	
 			}
 			
-		} else if(args[0]=="skip") {
+		} else if((args[0]=="skip")&&(!isEmpty)){
 			let queue = await chosenclient.player.getQueue(message.guild.id);
 			let r = queue.songs[0].requestedBy;
 			if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){
@@ -685,7 +697,7 @@ async function musicMessage(message){
 				message.channel.send(new Discord.MessageEmbed().setDescription("You can't skip this song.").setColor("RED"))	
 			}
 			
-		} else if(["np","nowplaying"].includes(args[0])){
+		} else if((["np","nowplaying"].includes(args[0]))&&(!isEmpty)){
 			let song = await chosenclient.player.nowPlaying(message.guild.id);
 			message.channel.send(new Discord.MessageEmbed().setColor("GOLD").setDescription("**Now playing: **" +song.name + " (Requested by " + song.requestedBy+")"));
 		} else if(args[0]=="clear"){
@@ -697,7 +709,7 @@ async function musicMessage(message){
 			} else {
 				message.channel.send(new Discord.MessageEmbed().setDescription("You can't clear the queue.").setColor("RED"))	
 			}
-		} else if(args[0]=="pause"){
+		} else if((args[0]=="pause")&&(!isEmpty)){
 			let queue = await chosenclient.player.getQueue(message.guild.id);
 			let r = queue.songs[0].requestedBy;
 			if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){
@@ -706,7 +718,7 @@ async function musicMessage(message){
 			} else {
 				message.channel.send(new Discord.MessageEmbed().setDescription("You can't pause this song.").setColor("RED"))	
 			}
-		} else if(args[0]=="resume"){
+		} else if((args[0]=="resume")&&(!isEmpty)){
 			let queue = await chosenclient.player.getQueue(message.guild.id);
 			let r = queue.songs[0].requestedBy;
 			if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){
@@ -716,9 +728,8 @@ async function musicMessage(message){
 				message.channel.send(new Discord.MessageEmbed().setDescription("You can't resume this song.").setColor("RED"))	
 			}
 		} else if(args[0]=="repeat"){
-			let queue = await chosenclient.player.getQueue(message.guild.id);
-			if(queue==undefined){
-				message.channel.send(new Discord.MessageEmbed().setDescription("Nothing is playing.").setColor("RED"))
+			if(isEmpty){
+				message.channel.send(new Discord.MessageEmbed().setDescription("Queue is empty").setColor("RED"))
 			} else if(["true","enable","yes","on","activate"].includes(args[1])){
 				let r = queue.songs[0].requestedBy;
 				if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){	
