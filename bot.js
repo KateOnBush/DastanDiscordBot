@@ -162,6 +162,7 @@ client.on('ready',()=>{
 	});
 	client.guilds.cache.array()[0].members.cache.array().forEach(member=>{
 		info.load(member.id,data=>{
+			if(data.firstMessage==null) data.firstMessage=Date.now();
 			var remTime=data.firstMessage+86405000-Date.now();
 			if(remTime>0){
 				setTimeout(function(){
@@ -639,7 +640,7 @@ client.on('message', async message => {
 			
 		} else if(["np","nowplaying"].includes(args[0])){
 			let song = await client.player.nowPlaying(message.guild.id);
-			message.channel.send(new Discord.MessageEmbed().setColor("GOLD").setDescription("**Now playing: **" +song.song.name + " (Requested by " + song.song.requestedBy+")"));
+			message.channel.send(new Discord.MessageEmbed().setColor("GOLD").setDescription("**Now playing: **" +song.name + " (Requested by " + song.requestedBy+")"));
 		} else if(args[0]=="clear"){
 			let queue = await client.player.getQueue(message.guild.id);
 			let r = queue.songs[0].requestedBy;
