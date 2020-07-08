@@ -606,7 +606,10 @@ pitch.on("ready",()=>{
 	pitch.guilds.cache.array()[0].channels.cache.get("728030297911853176").join();
 });
 
-client.on('message', async message => {
+treble.on("message",(message)=>{musicMessage(message)});
+pitch.on("message",(message)=>{musicMessage(message)});
+
+async function musicMessage(message){
 	//Music Commands
 	if(message.channel.id!="728029565607346227") return;
 	if(message.author.bot) return;
@@ -672,7 +675,7 @@ client.on('message', async message => {
 	} else {
 		message.channel.send(new Discord.MessageEmbed().setDescription("You're not in a voice channel").setColor("RED"))
 	}
-});
+}
 
 // THIS  MUST  BE  THIS  WAY
 treble.login(process.env.MUSIC2);
