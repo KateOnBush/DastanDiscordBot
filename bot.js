@@ -643,7 +643,10 @@ async function musicMessage(message){
 			let isPlaying = chosenclient.player.isPlaying(message.guild.id);
 			if(isPlaying){
 				chosenclient.player.addToQueue(message.guild.id,message.content.replace(args_case[0],""),"<@!"+message.member.id+">").then(songPlayer=>{
-				message.channel.send(new Discord.MessageEmbed().setDescription("**Added to queue:** "+songPlayer.song.name+" (Requested by "+songPlayer.song.requestedBy+")").setColor("AQUA"))
+					message.channel.send(new Discord.MessageEmbed().setDescription("**Added to queue:** "+songPlayer.song.name+" (Requested by "+songPlayer.song.requestedBy+")").setColor("AQUA"))
+				}).catch(err=>{
+					message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't find the song, maybe try with more details?").setColor("RED"))
+				});
 			} else {
 				chosenclient.player.play(message.member.voice.channel,message.content.replace(args_case[0],""),"<@!"+message.member.id+">").then(song=>{
 				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.song.name + " (Requested by " + song.song.requestedBy+")"))
@@ -675,7 +678,9 @@ async function musicMessage(message){
 							url: null
 						}});
 				});
-				});
+				}).catch(err=>{
+					message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't find the song, maybe try with more details?").setColor("RED"))
+				});;
 			}
 		} else if(args[0]=="queue"){
 			let queue = await chosenclient.player.getQueue(message.guild.id);
