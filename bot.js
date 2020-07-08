@@ -618,7 +618,7 @@ async function musicMessage(message){
 	if(message.member.voice.channel!=undefined){
 		var chosenclient = pitch;
 		if(message.member.voice.channel.id=="728030297911853176") chosenclient = treble;
-		if(chosenclient.id!=message.client.id) return;
+		if(chosenclient.id!=message.client.user.id) return;
 		if(["p","search","s","play","add"].includes(args[0])){
 			let isPlaying = chosenclient.player.isPlaying(message.guild.id);
 			if(isPlaying){
