@@ -531,12 +531,6 @@ client.on("voiceStateUpdate",(o,n)=>{
 	const mvcs=["728030297911853176","728029167286878240"];
 	if(n.member.user.bot) return;
 	if(n.channel==o.channel) return;
-	let timer = setInterval(function(){
-		if(n.member.id==null) clearInterval(timer); 
-		info.load(n.member.id).then(data=>{
-			updateProfile(n.member,15+Math.random()*10|0);
-		});
-	},30000)
 	if(n.channel!=null){
 		log(n.member.displayName + " `ID: " + n.member.id + "` joined voice channel **"+n.channel.name+"** `ID : " + n.channel.id + "`");
 		if(vcs.includes(n.channel.id)){
@@ -549,7 +543,14 @@ client.on("voiceStateUpdate",(o,n)=>{
 			m.roles.add("729502308634853456");
 			});
 			n.member.guild.channels.cache.get("728029565607346227").send(new Discord.MessageEmbed().setDescription("<@!"+n.member.id+"> joined **" + n.channel.name + "**").setColor("GREEN"));
-		} 
+		}
+		if(n.member.timer!=undefined) clearInterval(n.member.timer);
+		n.member.timer = setInterval(function(){
+		if(n.member.id==null) clearInterval(n.member.timer); 
+		info.load(n.member.id).then(data=>{
+			updateProfile(n.member,10+Math.random()*10|0);
+		});
+		},60000)
 	} else if(o.channel!=null){
 		log(o.member.displayName + " `ID: " + o.member.id + "` left voice channel **"+o.channel.name+"** `ID : " + o.channel.id + "`");
 		if(vcs.includes(o.channel.id)){
