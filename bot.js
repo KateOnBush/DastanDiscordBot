@@ -618,6 +618,7 @@ async function musicMessage(message){
 	if(message.member.voice.channel!=undefined){
 		var chosenclient = pitch;
 		if(message.member.voice.channel.id=="728030297911853176") chosenclient = treble;
+		if(chosenclient.id!=message.client.id) return;
 		if(["p","search","s","play","add"].includes(args[0])){
 			let isPlaying = chosenclient.player.isPlaying(message.guild.id);
 			if(isPlaying){
@@ -672,8 +673,6 @@ async function musicMessage(message){
 				message.channel.send(new Discord.MessageEmbed().setDescription("You can't clear the queue.").setColor("RED"))	
 			}
 		}
-	} else {
-		message.channel.send(new Discord.MessageEmbed().setDescription("You're not in a voice channel").setColor("RED"))
 	}
 }
 
