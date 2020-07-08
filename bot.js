@@ -588,8 +588,24 @@ client.on('guildMemberRemove',member=>{
 //
 // -------------------------------------------
 
+const treble = new Discord.Client();
+const pitch = new Discord.Client();
 const { Player } = require("discord-music-player");
-client.player = new Player(client, "AIzaSyAT-lCRVKfYrprwdKqk69TszCfoh1jqqjM");
+const options = {
+	leaveOnEnd: false,
+	leaveOnEmpty: false,
+	leaveOnStop: false
+}
+treble.player = new Player(treble, "AIzaSyAT-lCRVKfYrprwdKqk69TszCfoh1jqqjM", options);
+pitch.player = new Player(pitch, "AIzaSyAT-lCRVKfYrprwdKqk69TszCfoh1jqqjM", options);
+
+treble.on("ready",()=>{
+	treble.guilds.cache.array()[0].channels.cache.get("728029167286878240").join();
+});
+pitch.on("ready",()=>{
+	pitch.guilds.cache.array()[0].channels.cache.get("728030297911853176").join();
+});
+
 client.on('message', async message => {
 	//Music Commands
 	if(message.channel.id!="728029565607346227") return;
@@ -597,20 +613,22 @@ client.on('message', async message => {
 	var args=message.content.toLowerCase().split(" ");
 	var args_case=message.content.split(" ");
 	if(message.member.voice.channel!=undefined){
+		var chosenclient = pitch;
+		if(message.member.voice.channel.id=="728030297911853176") chosenclient = treble;
 		if(["p","search","s","play","add"].includes(args[0])){
-			let isPlaying = client.player.isPlaying(message.guild.id);
+			let isPlaying = chosenclient.player.isPlaying(message.guild.id);
 			if(isPlaying){
-				let songPlayer = await client.player.addToQueue(message.guild.id,message.content.replace(args_case[0],""),"<@!"+message.member.id+">");
+				let songPlayer = await chosenclient.player.addToQueue(message.guild.id,message.content.replace(args_case[0],""),"<@!"+message.member.id+">");
 				message.channel.send(new Discord.MessageEmbed().setDescription("**Added to queue:** "+songPlayer.song.name+" (Requested by "+songPlayer.song.requestedBy+")").setColor("AQUA"))
 			} else {
-				let song = await client.player.play(message.member.voice.channel,message.content.replace(args_case[0],""),"<@!"+message.member.id+">");
+				let song = await chosenclient.player.play(message.member.voice.channel,message.content.replace(args_case[0],""),"<@!"+message.member.id+">");
 				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.song.name + " (Requested by " + song.song.requestedBy+")"))
-				client.player.getQueue(message.guild.id).on('songChanged', (oldSong, song) => {
+				chosenclient.player.getQueue(message.guild.id).on('songChanged', (oldSong, song) => {
 			    		message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.name + " (Requested by " + song.requestedBy+")"))
 				});
 			}
 		} else if(args[0]=="queue"){
-			let queue = await client.player.getQueue(message.guild.id);
+			let queue = await chosenclient.player.getQueue(message.guild.id);
 			if(queue.songs.length!=0){
 				message.channel.send(new Discord.MessageEmbed().setColor("GOLD").addField("Now playing",queue.songs[0].name + " (Requested by " + queue.songs[0].requestedBy+")").addField("Queue",queue.songs.map((song,i)=>{
 						return song.name + " (Requested by " + song.requestedBy+")";
@@ -619,33 +637,33 @@ client.on('message', async message => {
 				message.channel.send(new Discord.MessageEmbed().setDescription("Queue is empty :(").setColor("RED"))	
 			}
 		} else if(args[0]=="stop"){
-			let queue = await client.player.getQueue(message.guild.id);
+			let queue = await chosenclient.player.getQueue(message.guild.id);
 			let r = queue.songs[0].requestedBy;
 			if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){
-				client.player.stop(message.guild.id);
+				chosenclient.player.stop(message.guild.id);
 				message.channel.send(new Discord.MessageEmbed().setDescription("Music stopped!").setColor("RED"))
 			} else {
 				message.channel.send(new Discord.MessageEmbed().setDescription("You can't stop the music.").setColor("RED"))	
 			}
 			
 		} else if(args[0]=="skip") {
-			let queue = await client.player.getQueue(message.guild.id);
+			let queue = await chosenclient.player.getQueue(message.guild.id);
 			let r = queue.songs[0].requestedBy;
 			if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){
-				client.player.skip(message.guild.id);
+				chosenclient.player.skip(message.guild.id);
 				message.channel.send(new Discord.MessageEmbed().setDescription("Song skipped!").setColor("YELLOW"))
 			} else {
 				message.channel.send(new Discord.MessageEmbed().setDescription("You can't skip this song.").setColor("RED"))	
 			}
 			
 		} else if(["np","nowplaying"].includes(args[0])){
-			let song = await client.player.nowPlaying(message.guild.id);
+			let song = await chosenclient.player.nowPlaying(message.guild.id);
 			message.channel.send(new Discord.MessageEmbed().setColor("GOLD").setDescription("**Now playing: **" +song.name + " (Requested by " + song.requestedBy+")"));
 		} else if(args[0]=="clear"){
-			let queue = await client.player.getQueue(message.guild.id);
+			let queue = await chosenclient.player.getQueue(message.guild.id);
 			let r = queue.songs[0].requestedBy;
 			if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){
-				client.player.clearQueue(message.guild.id);
+				chosenclient.player.clearQueue(message.guild.id);
 				message.channel.send(new Discord.MessageEmbed().setDescription("Queue cleared!").setColor("YELLOW"))
 			} else {
 				message.channel.send(new Discord.MessageEmbed().setDescription("You can't clear the queue.").setColor("RED"))	
@@ -657,6 +675,8 @@ client.on('message', async message => {
 });
 
 // THIS  MUST  BE  THIS  WAY
+treble.login(process.env.MUSIC2);
+pitch.login(process.env.MUSIC1);
 client.login(process.env.BOT_TOKEN);
 
 
