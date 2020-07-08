@@ -600,10 +600,28 @@ treble.player = new Player(treble, "AIzaSyAT-lCRVKfYrprwdKqk69TszCfoh1jqqjM", op
 pitch.player = new Player(pitch, "AIzaSyAT-lCRVKfYrprwdKqk69TszCfoh1jqqjM", options);
 
 treble.on("ready",()=>{
+	treble.channels.resolve("729155101746528286").send("Ready!");
 	treble.guilds.cache.array()[0].channels.cache.get("728030297911853176").join();
+	treble.user.setPresence({
+						status: "online",
+						afk: false,
+						activity: {
+							name: "",
+							type: "PLAYING",
+							url: null
+						}});
 });
 pitch.on("ready",()=>{
+	pitch.channels.resolve("729155101746528286").send("Ready!");
 	pitch.guilds.cache.array()[0].channels.cache.get("728029167286878240").join();
+	pitch.user.setPresence({
+						status: "online",
+						afk: false,
+						activity: {
+							name: "",
+							type: "PLAYING",
+							url: null
+						}});
 });
 
 treble.on("message",(message)=>{musicMessage(message)});
@@ -626,15 +644,6 @@ async function musicMessage(message){
 			if(isPlaying){
 				chosenclient.player.addToQueue(message.guild.id,message.content.replace(args_case[0],""),"<@!"+message.member.id+">").then(songPlayer=>{
 				message.channel.send(new Discord.MessageEmbed().setDescription("**Added to queue:** "+songPlayer.song.name+" (Requested by "+songPlayer.song.requestedBy+")").setColor("AQUA"))
-				chosenclient.user.setPresence({
-						status: "online",
-						afk: false,
-						activity: {
-							name: songPlayer.song.name,
-							type: "PLAYING",
-							url: songPlayer.song.url
-						}});
-				});
 			} else {
 				chosenclient.player.play(message.member.voice.channel,message.content.replace(args_case[0],""),"<@!"+message.member.id+">").then(song=>{
 				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.song.name + " (Requested by " + song.song.requestedBy+")"))
