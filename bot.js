@@ -624,16 +624,27 @@ async function musicMessage(message){
 			if(isPlaying){
 				let songPlayer = await chosenclient.player.addToQueue(message.guild.id,message.content.replace(args_case[0],""),"<@!"+message.member.id+">");
 				message.channel.send(new Discord.MessageEmbed().setDescription("**Added to queue:** "+songPlayer.song.name+" (Requested by "+songPlayer.song.requestedBy+")").setColor("AQUA"))
+				chosenclient.user.setPresence({
+						status: "online",
+						afk: false,
+						activity: {
+							name: songPlayer.ong.name,
+							type: "PLAYING",
+							url: songPlayer.song.url
+						});
 			} else {
 				let song = await chosenclient.player.play(message.member.voice.channel,message.content.replace(args_case[0],""),"<@!"+message.member.id+">");
 				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.song.name + " (Requested by " + song.song.requestedBy+")"))
 				chosenclient.player.getQueue(message.guild.id).on('songChanged', (oldSong, song) => {
 			    		message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.name + " (Requested by " + song.requestedBy+")"))
-					chosenclient.user.setPresence("online",false,{
-						name: song.name,
-						type: "PLAYING",
-						url: song.url
-					});
+					chosenclient.user.setPresence({
+						status: "online",
+						afk: false,
+						activity: {
+							name: song.name,
+							type: "PLAYING",
+							url: song.url
+						});
 				}).on("end",()=>{
 					chosenclient.user.setPresence(null);
 				});
