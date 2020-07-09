@@ -239,7 +239,7 @@ client.on('ready',()=>{
 		info.load(member.id,data=>{
 			if(data.firstMessage==null) data.firstMessage=Date.now();
 			var remTime=data.firstMessage+86405000-Date.now();
-			info.save(member.id,data=>{
+			info.save(member.id,data).then(data=>{
 				if(remTime>0){
 					setTimeout(function(){
 						updateProfile(member,0);
