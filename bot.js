@@ -22,7 +22,7 @@ function timeformatToSeconds(f){
 }
 function eventReminder(){
 
-	client.guilds.cache.array()[0].channels.cache.get("728022865622073446").fetch({limit:1}).then(ms=>{
+	client.guilds.cache.array()[0].channels.cache.get("728022865622073446").messages.fetch({limit:1}).then(ms=>{
 		let message=ms.array()[0];
 		let em=message.embeds[0];
 		if(em!=undefined){
@@ -821,7 +821,7 @@ async function musicMessage(message){
 							url: song.url
 						}});
 					if(message.guild.repeatqueue=true){
-						chosenclient.player.addQueue(message.guild.id,oldSong.url);
+						chosenclient.player.addToQueue(message.guild.id,oldSong.url);
 					}
 				}).on("end",()=>{
 					chosenclient.user.setPresence({
