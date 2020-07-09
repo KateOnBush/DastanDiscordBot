@@ -18,7 +18,7 @@ function msToString(ms){
 	return `${weeks>0 ? `**${weeks}** weeks, ` : '' }` + `${days>0 ? `**${days}** days, ` : '' }` + `${hours>0 ? `**${hours}** hours,` : '' }` + `${minutes>0 ? `**${minutes}** minutes and ` : '' }` + `**${seconds}** seconds`;
 }
 function timeformatToSeconds(f){
-	return eval(f.replace("m","*60+").replace("h","*3600+").replace("d","*3600*24+").replace("w","*3600*24*7+")+"0");	
+	return eval(f.replace("s","+")replace("m","*60+").replace("h","*3600+").replace("d","*3600*24+").replace("w","*3600*24*7+").replace("mo","*3600*24*30+").replace("y","*3600*24*365+")+"0");	
 }
 function eventReminder(){
 
@@ -363,17 +363,19 @@ client.on('message',message=>{
 	
 		//Membership
 		var days=((message.member.joinedTimestamp-Date.now())/(1000*24*3600));
-		var roles=["728214239784861776","728214473638412310","728214612222410784","728214677578055713","728214723182723183","728214892187746365"]
+		var roles=["728214239784861776","730628941429342208","728214473638412310","728214612222410784","728214677578055713","728214723182723183","728214892187746365"]
 		var change=0;
 		if(days>730){
-			change=5; //Two years
+			change=6; //Two years
 		} else if(days>365){
-			change=4; //One year
+			change=5; //One year
 		} else if(days>182){
-			change=3; //6 Months
+			change=4; //6 Months
 		} else if(days>90){
-			change=2; //3 Months
+			change=3; //3 Months
 		} else if(days>30){
+			change=2; //1 Month
+		} else if(days>7){
 			change=1; //1 Month
 		}
 		if(message.member.roles.cache.array().find(t=>{return (t.id==roles[change]);})==undefined){
@@ -401,9 +403,9 @@ client.on('message',message=>{
 			const st=parseInt((embed.footer.text||"").replace("!eventannounce ",""));
 			if(embed==undefined){
 				message.channel.send(new Discord.MessageEmbed().setDescription("No event planned/in progress!").setColor("RED"));	
-			} else if(embed.footer=="!eventstart"){
+			} else if(embed.footer.text=="!eventstart"){
 				message.channel.send(new Discord.MessageEmbed().setDescription("Event has already started!").setColor("AQUA"));
-			} else if(embed.footer=="!eventend"){
+			} else if(embed.footer.text=="!eventend"){
 				message.channel.send(new Discord.MessageEmbed().setDescription("Event has already started!").setColor("AQUA"));	
 			} else if(st!=NaN){
 				if(st-Date.now()>0){
@@ -658,14 +660,15 @@ client.on('message',message=>{
 					adminlog(message.member.displayName+" `ID: "+message.author.id+"` started the event.");
 					message.guild.roles.cache.get("730598527654297771").members.array().forEach(m=>{
 						m.send(new Discord.MessageEmbed().setDescription("Event has started!").setColor("GREEN"))
+						m.roles.remove("730598527654297771");
 					});
 			} else if(args[1]=="end"){
 			
 					const embed= new Discord.MessageEmbed().setTitle("Event ended! :(").setColor("RED").setFooter("!eventend");
 					message.guild.channels.cache.get("728022865622073446").send(embed);
 					adminlog(message.member.displayName+" `ID: "+message.author.id+"` ended the event.");
-					if(message.guild.roles.cache.get("730598527654297771").members.cache!= undefined) message.guild.roles.cache.get("730598527654297771").members.cache.array()[0].forEach(m=>{
-						m.roles.remove("730598527654297771");
+					message.guild.roles.cache.get("730598527654297771").members.array()[0].forEach(m=>{
+						m.roles.remove("730056362029219911");
 					});
 					
 				
