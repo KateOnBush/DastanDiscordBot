@@ -26,7 +26,7 @@ function eventReminder(){
 		let message=ms.array()[0];
 		let em=message.embeds[0];
 		if((em!=undefined)&&(em.footer!=undefined)){
-			let time=parseInt(em.footer.replace("!eventannounce ",""));
+			let time=parseInt(em.footer.text.replace("!eventannounce ",""));
 			if((time!=NaN)&&(time-Date.now()>0)){
 				if(time-Date.now()>0) setTimeout(function(){
 					let mmm=message.guild.roles.cache.get("730598527654297771").members.cache;
@@ -256,7 +256,7 @@ client.on('raw',event=>{
 			if(react.message.channel.id=="728022865622073446"){
 				react.message.channel.messages.fetch({limit: 2}).then(messages=>{
 					if(messages.array()[1].embeds[0]==undefined) return;
-					if(!(messages.array()[1].embeds[0].footer||"").includes("!eventend")){
+					if(!(messages.array()[1].embeds[0].footer.text||"").includes("!eventend")){
 						if(messages.array().includes(message)){
 							if(react.emoji.name=="🎉") {
 								member.roles.add("730056362029219911");
@@ -305,7 +305,7 @@ client.on('raw',event=>{
 			if(react.message.channel.id=="728022865622073446"){
 				react.message.channel.messages.fetch({limit: 2}).then(messages=>{
 					if(messages.array()[1].embeds[0]==undefined) return;
-					if(!(messages.array()[1].embeds[0].footer||"").includes("!eventend")){
+					if(!(messages.array()[1].embeds[0].footer.text||"").includes("!eventend")){
 						if(messages.array().includes(message)){
 							if(react.emoji.name=="🎉") {
 								member.roles.remove("730056362029219911");
@@ -397,7 +397,7 @@ client.on('message',message=>{
 		limit: 1
 		}).then(messages=>{
 			const embed = messages.array()[0].embeds[0];
-			const st=parseInt((embed.footer||"").replace("!eventannounce ",""));
+			const st=parseInt((embed.footer.text||"").replace("!eventannounce ",""));
 			if(embed==undefined){
 				message.channel.send(new Discord.MessageEmbed().setDescription("No event planned/in progress!").setColor("RED"));	
 			} else if(embed.footer=="!eventstart"){
@@ -642,10 +642,10 @@ client.on('message',message=>{
 				
 					const event=message.guild.events.find(e=>(e.id==args[2]));
 					const embed= new Discord.MessageEmbed().setTitle(event.name).setDescription(event.desc).setColor("AQUA").addField("Host","<@!"+event.host.id+">").addField("Date",new Date(event.time)).addField("Starts in",msToString(event.time-Date.now())).setFooter("!eventannounce " + event.time).addField("Join","React with 🎉 to join the event.\nReact with 🔔 to activate reminders.");
-					eventReminder();
 					message.guild.channels.cache.get("728022865622073446").send("<@&728223648942653451> <@&728224459487576134> **New Event!**",embed).then(m=>{
 					m.react("🎉")
 					m.react("🔔")
+					eventReminder();
 					});;
 					adminlog(message.member.displayName+" `ID: "+message.author.id+"` announced event with identifier: " + args[2]);
 					
