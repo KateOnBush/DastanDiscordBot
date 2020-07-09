@@ -25,7 +25,7 @@ function eventReminder(){
 	client.guilds.cache.array()[0].channels.cache.get("728022865622073446").messages.fetch({limit:1}).then(ms=>{
 		let message=ms.array()[0];
 		let em=message.embeds[0];
-		if(em!=undefined){
+		if((em!=undefined)&&(em.footer!=undefined)){
 			let time=parseInt(em.footer.replace("!eventannounce ",""));
 			if((time!=NaN)&&(time-Date.now()>0)){
 				if(time-Date.now()-3600*1000>0) setTimeout(function(){
@@ -148,7 +148,7 @@ var info = {
 	},
 	save: async function(id,data){
 		var exists=false;
-		var col = await client.channels.cache.get("728363315138658334").messages.fetch({limit: 0});
+		var col = await client.channels.cache.get("728363315138658334").messages.fetch({limit: (client.guilds.cache.array()[0].memberCount+5)});
 		var messages = col.array();
 		for(var i=0;i<messages.length;i++){
 			if(messages[i].content.includes(id)){
@@ -820,8 +820,8 @@ async function musicMessage(message){
 							type: "PLAYING",
 							url: song.url
 						}});
-					if(message.guild.repeatqueue=true){
-						chosenclient.player.addToQueue(message.guild.id,oldSong.url);
+					if(message.guild.repeatqueue==true){
+						chosenclient.player.addToQueue(message.guild.id,oldSong.url,oldSong.requestedBy);
 					}
 				}).on("end",()=>{
 					chosenclient.user.setPresence({
@@ -935,7 +935,7 @@ async function musicMessage(message){
 			let n=parseInt(args[1]);
 			if((n!=NaN)&&(n<tqueue.songs.length)){
 				let r = tqueue.songs[n-1].requestedBy;
-				if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){
+				if((message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id))&&(n!=1)){
 					chosenclient.player.remove(message.guild.id,n-1).then(()=>{
 						message.channel.send(new Discord.MessageEmbed().setDescription("Song removed from queue.").setColor("ORANGE"))	
 					}).catch(err=>{
@@ -990,7 +990,7 @@ async function musicMessage(message){
 				usage: "clear"
 			}];
 			if(["",undefined].includes(args[1])){
-				var embed= new Discord.MessageEmbed().setColor("PURPLE").setTitle("Music ommand list").setDescription("Use `help <command>` for specific command help");
+				var embed= new Discord.MessageEmbed().setColor("PURPLE").setTitle("Music command list").setDescription("Use `help <command>` for specific command help");
 				commands.forEach(cmd=>{
 					embed.addField(cmd.name,cmd.description);
 				})
