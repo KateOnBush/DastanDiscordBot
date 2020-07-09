@@ -36,30 +36,34 @@ function eventReminder(){
 				},time-Date.now());
 				
 				if(time-Date.now()-3600*1000>0) setTimeout(function(){
-					let mmm=message.guild.roles.cache.get("730598527654297771").members.cache;
-					mmm.array().forEach(member=>{
-						member.send(new Discord.MessageEmbed().setDescription("Event is starting in **1** hour").setColor("PURPLE"));
+					message.guild.roles.fetch("730598527654297771").then(role=>{
+						role.members.array().forEach(member=>{
+							member.send(new Discord.MessageEmbed().setDescription("Event is starting in **1** hour!").setColor("PURPLE"));
+						});
 					});
 				},time-Date.now()-3600*1000);
 				
 				if(time-Date.now()-1800*1000>0) setTimeout(function(){
-					let mmm=message.guild.roles.cache.get("730598527654297771").members;
-					mmm.array().forEach(member=>{
-						member.send(new Discord.MessageEmbed().setDescription("Event is starting in **30** minutes").setColor("PURPLE"));
+					message.guild.roles.fetch("730598527654297771").then(role=>{
+						role.members.array().forEach(member=>{
+							member.send(new Discord.MessageEmbed().setDescription("Event is starting in **30** minutes!").setColor("PURPLE"));
+						});
 					});
 				},time-Date.now()-1800*1000);
 				
 				if(time-Date.now()-900*1000>0) setTimeout(function(){
-					let mmm=message.guild.roles.cache.get("730598527654297771").members.cache;
-					mmm.array().forEach(member=>{
-						member.send(new Discord.MessageEmbed().setDescription("Event is starting in **15** minutes").setColor("PURPLE"));
+					message.guild.roles.fetch("730598527654297771").then(role=>{
+						role.members.array().forEach(member=>{
+							member.send(new Discord.MessageEmbed().setDescription("Event is starting in **15** minutes!").setColor("PURPLE"));
+						});
 					});
 				},time-Date.now()-900*1000);
 				
 				if(time-Date.now()-300*1000>0) setTimeout(function(){
-					let mmm=message.guild.roles.cache.get("730598527654297771").members.cache;
-					mmm.array().forEach(member=>{
-						member.send(new Discord.MessageEmbed().setDescription("Event is starting in **5** minutes").setColor("PURPLE"));
+					message.guild.roles.fetch("730598527654297771").then(role=>{
+						role.members.array().forEach(member=>{
+							member.send(new Discord.MessageEmbed().setDescription("Event is starting in **5** minutes!").setColor("PURPLE"));
+						});
 					});
 				},time-Date.now()-300*1000);
 			}
@@ -393,7 +397,7 @@ client.on('message',message=>{
 		limit: 1
 		}).then(messages=>{
 			const embed = messages.array()[0].embeds[0];
-			const st=parseInt(embed.footer.replace("!eventannounce ",""));
+			const st=parseInt((embed.footer||"").replace("!eventannounce ",""));
 			if(embed==undefined){
 				message.channel.send(new Discord.MessageEmbed().setDescription("No event planned/in progress!").setColor("RED"));	
 			} else if(embed.footer=="!eventstart"){
