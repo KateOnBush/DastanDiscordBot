@@ -256,7 +256,7 @@ client.on('raw',event=>{
 			if(member.user.bot==true) return;
 			log(member.displayName + " `ID: " + member.id + "` reacted with " + react.emoji.name + " on a message `ID : " + react.message.id + "` in channel '" + react.message.channel.name + "' `ID: " + react.message.channel.id + "`");
 			if(react.message.channel.id=="728022865622073446"){
-				react.message.channel.fetch({limit: 2}).then(messages=>{
+				react.message.channel.messages.fetch({limit: 2}).then(messages=>{
 					if(messages.array()[0].embeds[0]==undefined) return;
 					if(!messages.array()[0].embeds[0].footer.includes("!eventend")){
 						if(message.array().includes(message)){
@@ -305,7 +305,7 @@ client.on('raw',event=>{
 			if(member.user.bot==true) return;
 			log(member.displayName + " `ID: " + member.id + "` unreacted with " + react.emoji.name + " on a message `ID : " + react.message.id + "` in channel '" + react.message.channel.name + "' `ID: " + react.message.channel.id + "`");
 			if(react.message.channel.id=="728022865622073446"){
-				react.message.channel.fetch({limit: 2}).then(messages=>{
+				react.message.channel.messages.fetch({limit: 2}).then(messages=>{
 					if(messages.array()[0].embeds[0]==undefined) return;
 					if(!messages.array()[0].embeds[0].footer.includes("!eventend")){
 						if(message.array().includes(message)){
