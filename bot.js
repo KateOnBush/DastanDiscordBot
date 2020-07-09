@@ -29,9 +29,10 @@ function eventReminder(){
 			let time=parseInt(em.footer.text.replace("!eventannounce ",""));
 			if((time!=NaN)&&(time-Date.now()>0)){
 				if(time-Date.now()>0) setTimeout(function(){
-					let mmm=message.guild.roles.cache.get("730598527654297771").members.cache;
-					mmm.array().forEach(member=>{
-						member.send(new Discord.MessageEmbed().setDescription("Event is starting shortly...").setColor("ORANGE"));
+					message.guild.roles.fetch("730598527654297771").then(role=>{
+						role.members.array().forEach(member=>{
+							member.send(new Discord.MessageEmbed().setDescription("Event is starting shortly...").setColor("PURPLE"));
+						});
 					});
 				},time-Date.now());
 				
@@ -401,15 +402,15 @@ client.on('message',message=>{
 			if(embed==undefined){
 				message.channel.send(new Discord.MessageEmbed().setDescription("No event planned/in progress!").setColor("RED"));	
 			} else if(embed.footer=="!eventstart"){
-				message.channel.send(new Discord.MessageEmbed().setDescription("Event has already started!").setColor("AQUA"));	
+				message.channel.send(new Discord.MessageEmbed().setDescription("Event has already started!").setColor("AQUA"));
 			} else if(embed.footer=="!eventend"){
 				message.channel.send(new Discord.MessageEmbed().setDescription("Event has already started!").setColor("AQUA"));	
-			} else if(t!=NaN){
-				if(t-Date.now()>0){
+			} else if(st!=NaN){
+				if(st-Date.now()>0){
 					let f=msToString(t-Date.now());
 					message.channel.send(new Discord.MessageEmbed().setDescription("Event starts in " + f + "!").setColor("AQUA"));	
 				} else {
-					message.channel.send(new Discord.MessageEmbed().setDescription("Event must be starting now...").setColor("ORANGE"));	
+					message.channel.send(new Discord.MessageEmbed().setDescription("Event will start shortly...").setColor("ORANGE"));	
 				}
 			} else {
 				message.channel.send(new Discord.MessageEmbed().setDescription("No event planned/in progress!").setColor("RED"));	
