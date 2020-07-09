@@ -10,10 +10,68 @@ function adminlog(info){
 	client.channels.resolve("729744865776107550").send(info);
 }
 function msToString(ms){
-	var hours=((ms/1000)/3600)|0;
-	var minutes=((ms/1000)-(hours*3600))/60|0;
-	var seconds=((ms/1000)-(hours*3600)-(minutes*60))|0;
-	return "**"+hours+"** hours, **"+minutes+"** minutes and **"+seconds+"** seconds";
+	var weeks=((ms/1000)/604800)|0;
+	var days=((ms/1000)-(weeks*604800))/86400|0;
+	var hours=((ms/1000)-(weeks*604800)-(days*86400))/3600|0;
+	var minutes=((ms/1000)-(weeks*604800)-(days*86400)-(hours*3600))/60|0;
+	var seconds=((ms/1000)-(weeks*604800)-(days*86400)-(hours*3600)-(minutes*60))|0;
+	return `${weeks>0 ? `**${weeks}** weeks, ` : '' }` + `${days>0 ? `**${days}** days, ` : '' }` + `${hours>0 ? `**${hours}** hours,` : '' }` + `${minutes>0 ? `**${minutes}** minutes and ` : '' }` + `**${seconds}** seconds`;
+}
+function timeformatToSeconds(f){
+	return eval(f.replace("m","*60+").replace("h","*3600+").replace("d","*3600*24+").replace("w","*3600*24*7+")+"0");	
+}
+function eventReminder(){
+
+	client.guilds.cache.array()[0].channels.cache.get("728022865622073446").fetch({limit:1}).then(ms=>{
+		let message=ms.array()[0];
+		let em=message.embeds[0];
+		if(em!=undefined){
+			let time=parseInt(em.footer.replace("!eventannounce ",""));
+			if((time!=NaN)&&(time-Date.now()>0)){
+				if(time-Date.now()-3600*1000>0) setTimeout(function(){
+					let mmm=message.guild.roles.cache.get("730598527654297771").members.cache;
+					if(mmm!=undefined){
+						mmm.array().forEach(member=>{
+							member.send(new Discord.MessageEmbed().setDescription("Event is starting shortly...").setColor("ORANGE"));
+						});
+					}
+				},time-Date.now());
+				if(time-Date.now()-3600*1000>0) setTimeout(function(){
+					let mmm=message.guild.roles.cache.get("730598527654297771").members.cache;
+					if(mmm!=undefined){
+						mmm.array().forEach(member=>{
+							member.send(new Discord.MessageEmbed().setDescription("Event is starting in **1** hour").setColor("PURPLE"));
+						});
+					}
+				},time-Date.now()-3600*1000);
+				if(time-Date.now()-1800*1000>0) setTimeout(function(){
+					let mmm=message.guild.roles.cache.get("730598527654297771").members.cache;
+					if(mmm!=undefined){
+						mmm.array().forEach(member=>{
+							member.send(new Discord.MessageEmbed().setDescription("Event is starting in **30** minutes").setColor("PURPLE"));
+						});
+					}
+				},time-Date.now()-1800*1000);
+				if(time-Date.now()-900*1000>0) setTimeout(function(){
+					let mmm=message.guild.roles.cache.get("730598527654297771").members.cache;
+					if(mmm!=undefined){
+						mmm.array().forEach(member=>{
+							member.send(new Discord.MessageEmbed().setDescription("Event is starting in **15** minutes").setColor("PURPLE"));
+						});
+					}
+				},time-Date.now()-900*1000);
+				if(time-Date.now()-300*1000>0) setTimeout(function(){
+					let mmm=message.guild.roles.cache.get("730598527654297771").members.cache;
+					if(mmm!=undefined){
+						mmm.array().forEach(member=>{
+							member.send(new Discord.MessageEmbed().setDescription("Event is starting in **5** minutes").setColor("PURPLE"));
+						});
+					}
+				},time-Date.now()-300*1000);
+			}
+		}
+	})
+	
 }
 async function updateProfile(member,points){
 	const data = await info.load(member.id);
@@ -64,12 +122,21 @@ async function updateProfile(member,points){
 
 async function mute(member,seconds){
 	var data = await info.load(member.id);
-	data.mutedTo=Date.now()+seconds*1000;
+	if(data.mutedTo==undefined) data.mutedTo=0;
+	data.mutedTo=Math.max(Date.now(),data.mutedTo)+seconds*1000;
 	await member.roles.add("728216095835815976");
 	await info.save(member.id,data);
 	setTimeout(function(){
 		member.roles.remove("728216095835815976");
 	},seconds*1000);
+	return true;
+}
+
+async function unmute(member){
+	var data = await info.load(member.id);
+	data.mutedTo=0;
+	await member.roles.remove("728216095835815976");
+	await info.save(member.id,data);
 	return true;
 }
 
@@ -81,7 +148,7 @@ var info = {
 	},
 	save: async function(id,data){
 		var exists=false;
-		var col = await client.channels.cache.get("728363315138658334").messages.fetch();
+		var col = await client.channels.cache.get("728363315138658334").messages.fetch({limit: 0});
 		var messages = col.array();
 		for(var i=0;i<messages.length;i++){
 			if(messages[i].content.includes(id)){
@@ -94,7 +161,7 @@ var info = {
 	},
 	load: async function(id){	
 		var exists=false;
-		var col = await client.channels.cache.get("728363315138658334").messages.fetch();
+		var col = await client.channels.cache.get("728363315138658334").messages.fetch({limit: 0});
 		messages=col.array();
 		for(var i=0;i<messages.length;i++){
 			if(messages[i].content.includes(id)){
@@ -147,6 +214,7 @@ client.on('error',err=>{
 });
 client.on('ready',()=>{
 	log("Ready!");
+	eventReminder();
 	client.guilds.cache.array()[0].roles.resolve("728216095835815976").members.array().forEach(member=>{
 		info.load(member.id).then(data=>{
 			if(![0,undefined].includes(data.mutedTo)) {
@@ -164,13 +232,15 @@ client.on('ready',()=>{
 		info.load(member.id,data=>{
 			if(data.firstMessage==null) data.firstMessage=Date.now();
 			var remTime=data.firstMessage+86405000-Date.now();
-			if(remTime>0){
-				setTimeout(function(){
-					updateProfile(member,0);
-				},remTime);
-			} else {
-				updateProfile(member,0);	
-			}
+			info.save(member.id,data=>{
+				if(remTime>0){
+					setTimeout(function(){
+						updateProfile(member,0);
+					},remTime);
+				} else {
+					updateProfile(member,0);	
+				}
+			});
 		});
 	});
 })
@@ -185,6 +255,23 @@ client.on('raw',event=>{
 			const member = message.guild.members.resolve(data.user_id);
 			if(member.user.bot==true) return;
 			log(member.displayName + " `ID: " + member.id + "` reacted with " + react.emoji.name + " on a message `ID : " + react.message.id + "` in channel '" + react.message.channel.name + "' `ID: " + react.message.channel.id + "`");
+			if(react.message.channel.id=="728022865622073446"){
+				react.message.channel.fetch({limit: 2}).then(messages=>{
+					if(messages.array()[0].embeds[0])==undefined) return;
+					if(!messages.array()[0].embeds[0].footer.includes("!eventend")){
+						if(message.array().includes(message)){
+							if(react.emoji.name=="🎉") {
+								member.roles.add("730056362029219911");
+								member.send(new Discord.MessageEmbed().setDescription("You've joined the event!").setColor("GREEN"))
+							}
+							if(react.emoji.name=="🔔") {
+								member.roles.add("730598527654297771");
+								member.send(new Discord.MessageEmbed().setDescription("You've activated reminder for the event!").setColor("GREEN"))
+							}
+						}
+					}
+				});
+			}
 			if(react.message.channel.id!="729298706188468234") return;
 			react.users.remove(member.id);
 			const roleToAdd=react.message.mentions.roles.array().find(e=>{return message.content.includes(react.emoji.name + " - <@&" + e.id + ">")});
@@ -206,6 +293,33 @@ client.on('raw',event=>{
 				} else {
 					member.roles.add(roleToAdd);
 				}
+			}
+		});
+	} else if(event.t=="MESSAGE_REACTION_REMOVE"){
+		const data=event.d;
+		const channel = client.channels.resolve(data.channel_id);
+		channel.messages.fetch(data.message_id).then(message=>{
+			const emojiKey = (data.emoji.id) ? `${data.emoji.id}` : data.emoji.name;
+			const react = message.reactions.cache.get(emojiKey);
+			const member = message.guild.members.resolve(data.user_id);
+			if(member.user.bot==true) return;
+			log(member.displayName + " `ID: " + member.id + "` unreacted with " + react.emoji.name + " on a message `ID : " + react.message.id + "` in channel '" + react.message.channel.name + "' `ID: " + react.message.channel.id + "`");
+			if(react.message.channel.id=="728022865622073446"){
+				react.message.channel.fetch({limit: 2}).then(messages=>{
+					if(messages.array()[0].embeds[0])==undefined) return;
+					if(!messages.array()[0].embeds[0].footer.includes("!eventend")){
+						if(message.array().includes(message)){
+							if(react.emoji.name=="🎉") {
+								member.roles.remove("730056362029219911");
+								member.send(new Discord.MessageEmbed().setDescription("You've left the event!").setColor("RED"))
+							}
+							if(react.emoji.name=="🔔") {
+								member.roles.remove("730598527654297771");
+								member.send(new Discord.MessageEmbed().setDescription("You've desactivated reminder for the event!").setColor("RED"))
+							}
+						}
+					}
+				});
 			}
 		});
 	}
@@ -277,10 +391,37 @@ client.on('message',message=>{
 		updateProfile(message.member,10);
 	}
 	
-	//Commands
-	if(message.channel.id!="728025726556569631") return;
 	var args=message.content.toLowerCase().split(" ");
 	var args_case=message.content.split(" ");
+	//Global commands
+	if(args[0]=="nextevent"){
+		message.guild.channels.cache.get("728022865622073446").fetch({
+		limit: 1
+		}).then(messages=>{
+			const embed = messages.array()[0].embeds[0];
+			const st=parseInt(embed.footer.replace("!eventannounce ",""));
+			if(embed==undefined){
+				message.channel.send(new Discord.MessageEmbed().setDescription("No event planned/in progress!").setColor("RED"));	
+			} else if(embed.footer=="!eventstart"){
+				message.channel.send(new Discord.MessageEmbed().setDescription("Event has already started!").setColor("AQUA"));	
+			} else if(embed.footer=="!eventend"){
+				message.channel.send(new Discord.MessageEmbed().setDescription("Event has already started!").setColor("AQUA"));	
+			} else if(t!=NaN){
+				if(t-Date.now()>0){
+					let f=msToString(t-Date.now());
+					message.channel.send(new Discord.MessageEmbed().setDescription("Event starts in " + f + "!").setColor("AQUA"));	
+				} else {
+					message.channel.send(new Discord.MessageEmbed().setDescription("Event must be starting now...").setColor("ORANGE"));	
+				}
+			} else {
+				message.channel.send(new Discord.MessageEmbed().setDescription("No event planned/in progress!").setColor("RED"));	
+			}
+		})
+	}
+	
+	//Commands
+	if(message.channel.id!="728025726556569631") return;
+	
 	if(args[0].startsWith("!")) args[0].replace("!","");
 	
 	if(args[0]=="ping"){
@@ -423,10 +564,12 @@ client.on('message',message=>{
 		
 	} else if(message.member.roles.cache.get("728034751780356096")||message.member.roles.cache.get("728034436997709834")){
 	
-		if(args[0]=="mute"){
+		if(args[0]=="unmute"){
+			
+		} else if(args[0]=="mute"){
 			try{
 				const muted=message.mentions.members.array()[0];
-				const time=eval(args[2].replace("m","*60").replace("h","*3600"));
+				const time=timeformatToSeconds(args[2]);
 
 				const reason=args.join(" ").replace(args[0]+" ","").replace(args[1]+" ","").replace(args[2]+" ","");
 				if(![muted,time].includes(undefined)){
@@ -500,23 +643,32 @@ client.on('message',message=>{
 				} else {
 				
 					const event=message.guild.events.find(e=>(e.id==args[2]));
-					const embed= new Discord.MessageEmbed().setTitle(event.name).setDescription(event.desc).setColor("AQUA").addField("Host","<@!"+event.host.id+">").addField("Date",new Date(event.time)).addField("Starts in",msToString(event.time-Date.now()));
-					message.guild.channels.cache.get("728022865622073446").send("<@&728223648942653451> <@&728224459487576134> **New Event!**",embed);
+					const embed= new Discord.MessageEmbed().setTitle(event.name).setDescription(event.desc).setColor("AQUA").addField("Host","<@!"+event.host.id+">").addField("Date",new Date(event.time)).addField("Starts in",msToString(event.time-Date.now())).setFooter("!eventannounce " + event.time).addField("Join","React with 🎉 to join the event.\nReact with 🔔 to activate reminders.");
+					eventReminder();
+					message.guild.channels.cache.get("728022865622073446").send("<@&728223648942653451> <@&728224459487576134> **New Event!**",embed).then(m=>{
+					m.react("🎉")
+					m.react("🔔")
+					});;
 					adminlog(message.member.displayName+" `ID: "+message.author.id+"` announced event with identifier: " + args[2]);
 					
 				}
 				
 			} else if(args[1]=="start"){
-			
-					const embed= new Discord.MessageEmbed().setTitle("Event Started!").setColor("GREEN");
-					message.guild.channels.cache.get("728022865622073446").send(embed);
+					const embed= new Discord.MessageEmbed().setTitle("Event Started!").setColor("GREEN").setFooter("!eventstart");
+					message.guild.channels.cache.get("728022865622073446").send(embed)
 					adminlog(message.member.displayName+" `ID: "+message.author.id+"` started the event.");
-				
+					if(message.guild.roles.cache.get("730598527654297771").members.cache!= undefined) message.guild.roles.cache.get("730598527654297771").members.cache.array()[0].forEach(m=>{
+						m.send(new Discord.MessageEmbed().setDescription("Event has started!").setColor("GREEN"))
+					});
 			} else if(args[1]=="end"){
 			
-					const embed= new Discord.MessageEmbed().setTitle("Event ended! :(").setColor("RED");
+					const embed= new Discord.MessageEmbed().setTitle("Event ended! :(").setColor("RED").setFooter("!eventend");
 					message.guild.channels.cache.get("728022865622073446").send(embed);
 					adminlog(message.member.displayName+" `ID: "+message.author.id+"` ended the event.");
+					if(message.guild.roles.cache.get("730598527654297771").members.cache!= undefined) message.guild.roles.cache.get("730598527654297771").members.cache.array()[0].forEach(m=>{
+						m.roles.remove("730598527654297771");
+					});
+					
 				
 			}
 			
@@ -668,6 +820,9 @@ async function musicMessage(message){
 							type: "PLAYING",
 							url: song.url
 						}});
+					if(message.guild.repeatqueue=true){
+						chosenclient.player.addQueue(message.guild.id,oldSong.url);
+					}
 				}).on("end",()=>{
 					chosenclient.user.setPresence({
 						status: "online",
@@ -686,7 +841,7 @@ async function musicMessage(message){
 			let queue = await chosenclient.player.getQueue(message.guild.id);
 			if((queue!=undefined)&&(queue.songs.length!=0)){
 				message.channel.send(new Discord.MessageEmbed().setColor("GOLD").addField("Now playing",queue.songs[0].name + " (Requested by " + queue.songs[0].requestedBy+")").addField("Queue",queue.songs.map((song,i)=>{
-						return song.name + " (Requested by " + song.requestedBy+")";
+						if(i<10) return (i+1) + " ● " + song.name + " (Requested by " + song.requestedBy+")";
 				}).join("\n")))
 			} else {
 				message.channel.send(new Discord.MessageEmbed().setDescription("Queue is empty :(").setColor("RED"))	
@@ -744,24 +899,112 @@ async function musicMessage(message){
 		} else if(args[0]=="repeat"){
 			if(isEmpty){
 				message.channel.send(new Discord.MessageEmbed().setDescription("Queue is empty").setColor("RED"))
-			} else if(["true","enable","yes","on","activate"].includes(args[1])){
-				let r = queue.songs[0].requestedBy;
+			} else if(args[1]=="song"){
+				let r = tqueue.songs[0].requestedBy;
 				if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){	
 					chosenclient.player.setRepeatMode(message.guild.id, true);
+					message.guild.repeatqueue=false;
 					message.channel.send(new Discord.MessageEmbed().setDescription("Current song will be repeated indefinitely.").setColor("GREEN"))	
 				} else {
-					message.channel.send(new Discord.MessageEmbed().setDescription("You can't manage repetition for this song.").setColor("RED"))	
+					message.channel.send(new Discord.MessageEmbed().setDescription("You can't manage repetition.").setColor("RED"))	
 				}
-			} else if(["false","disable","no","off","disactivate"].includes(args[1])){
-				let r = queue.songs[0].requestedBy;
+			} else if(args[1]=="queue"){
+				let r = tqueue.songs[0].requestedBy;
 				if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){	
 					chosenclient.player.setRepeatMode(message.guild.id, false);
-					message.channel.send(new Discord.MessageEmbed().setDescription("Current song will not be repeated.").setColor("ORANGE"))
+					message.guild.repeatqueue=true;
+					message.channel.send(new Discord.MessageEmbed().setDescription("The whole queue will be repeated.").setColor("ORANGE"))
 				} else {
-					message.channel.send(new Discord.MessageEmbed().setDescription("You can't manage repetition for this song.").setColor("RED"))	
+					message.channel.send(new Discord.MessageEmbed().setDescription("You can't manage repetition.").setColor("RED"))	
+				}
+			} else if(args[1]=="off"){
+				let r = tqueue.songs[0].requestedBy;
+				if(tqueue.songs.length<2){
+				   	message.channel.send(new Discord.MessageEmbed().setDescription("There is only one song in the queue, use `repeat song` to repeat it indefinitely.").setColor("RED"))
+				} else if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){	
+					chosenclient.player.setRepeatMode(message.guild.id, false);
+					message.guild.repeatqueue=false;
+					message.channel.send(new Discord.MessageEmbed().setDescription("The queue will not be repeated.").setColor("ORANGE"))
+				} else {
+					message.channel.send(new Discord.MessageEmbed().setDescription("You can't manage repetition.").setColor("RED"))	
 				}
 			} else {
-				message.channel.send(new Discord.MessageEmbed().setDescription("Please specify whether you want to enable/disable song repetition.").setColor("RED"))
+				message.channel.send(new Discord.MessageEmbed().setDescription("Please specify *song*/*queue*/*off*.").setColor("RED"))
+			}
+		} else if((args[0]=="remove")&&(!isEmpty)){
+			let n=parseInt(args[1]);
+			if((n!=NaN)&&(n<tqueue.songs.length)){
+				let r = tqueue.songs[n-1].requestedBy;
+				if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){
+					chosenclient.player.remove(message.guild.id,n-1).then(()=>{
+						message.channel.send(new Discord.MessageEmbed().setDescription("Song removed from queue.").setColor("ORANGE"))	
+					}).catch(err=>{
+						message.channel.send(new Discord.MessageEmbed().setDescription("Unable to remove the song.").setColor("RED"))	
+					})
+				} else {
+					message.channel.send(new Discord.MessageEmbed().setDescription("You can't remove that song.").setColor("RED"))	
+				}
+					
+			} else {
+				message.channel.send(new Discord.MessageEmbed().setDescription("Please specity a correct number between 1 and " + tqueue.songs.length + "!").setColor("RED"))	
+			}
+		} else if(args[0]=="help"){
+			const commands = [{
+				name: "play",
+				description: "Searches and add a song to the queue.",
+				longDescription: "Searches for a song on youtube, and adds it to the bot's queue.",
+				usage: "play <song name/url>"
+			},{
+				name: "queue",
+				description: "Displays the queue.",
+				usage: "queue"
+			},{
+				name: "nowplaying",
+				description: "Shows the current song.",
+				usage: "nowplaying"
+			},{
+				name: "remove",
+				description: "Remove a song from the queue.",
+				longDescription: "Removes a song from the queue depending on its number",
+				usage: "remove <number>"
+			},{
+				name: "pause",
+				description: "Pauses the current song",
+				usage: "pause"
+			},{
+				name: "resume",
+				description: "Resumes the current song",
+				usage: "resume"
+			},{
+				name: "repeat",
+				description: "Manages repetition.",
+				longDescription: "Repeats current song/queue, or disable repetition.",
+				usage: "repeat <song/queue/off>"
+			},{
+				name: "stop",
+				description: "Stops music.",
+				usage: "stop"
+			},{
+				name: "clear",
+				description: "Clears entire queue.",
+				usage: "clear"
+			}];
+			if(["",undefined].includes(args[1])){
+				var embed= new Discord.MessageEmbed().setColor("PURPLE").setTitle("Music ommand list").setDescription("Use `help <command>` for specific command help");
+				commands.forEach(cmd=>{
+					embed.addField(cmd.name,cmd.description);
+				})
+				message.channel.send(embed);
+			} else if(commands.find(t=>(t.name==args[1]))!=undefined){
+				const cmd=commands.find(t=>(t.name==args[1]));
+				var embed= new Discord.MessageEmbed().setColor("fafafa").setTitle("Command help: " + args[1]);
+				embed.addField("Description",cmd.longDescription||cmd.description);
+				embed.addField("Sub-commands",cmd.subcommands||"None.");
+				embed.addField("Usage","*"+cmd.usage+"*")
+				message.channel.send(embed);
+
+			} else {
+				message.channel.send(new Discord.MessageEmbed().setDescription("This command doesn't exist :(").setColor("RED"));
 			}
 		}
 	}
