@@ -235,18 +235,20 @@ client.on('ready',()=>{
 			}
 		});
 	});
-	client.guilds.cache.array()[0].members.cache.array().forEach(member=>{
-		info.load(member.id,data=>{
-			if(data.firstMessage==null) data.firstMessage=Date.now();
-			var remTime=data.firstMessage+86405000-Date.now();
-			info.save(member.id,data).then(data=>{
-				if(remTime>0){
-					setTimeout(function(){
-						updateProfile(member,0);
-					},remTime);
-				} else {
-					updateProfile(member,0);	
-				}
+	client.guilds.cache.array()[0].members.fetch().then(members=>{
+		members.array().forEach(member=>{
+			info.load(member.id,data=>{
+				if(data.firstMessage==null) data.firstMessage=Date.now();
+				var remTime=data.firstMessage+86405000-Date.now();
+				info.save(member.id,data).then(data=>{
+					if(remTime>0){
+						setTimeout(function(){
+							updateProfile(member,0);
+						},remTime);
+					} else {
+						updateProfile(member,0);	
+					}
+				});
 			});
 		});
 	});
