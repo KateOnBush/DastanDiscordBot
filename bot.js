@@ -627,7 +627,7 @@ client.on('message',message=>{
 					adminlog(message.member.displayName+" `ID: "+message.author.id+"` updated date of event with identifier: " + args[2] + " to **"+(new Date(Date.now()+time))+"**");
 				} else {
 					
-					try{const time=eval(args[3].replace("m","*60").replace("h","*3600"));
+					try{const time=timeformatToSeconds(args[3]);
 					message.guild.events.find(e=>(e.id==args[2])).time=Date.now()+time*1000;
 					message.channel.send(new Discord.MessageEmbed().setDescription("Event **"+args[2]+"** starts in: "+msToString(time*1000)+".").setColor("GREEN"))
 					adminlog(message.member.displayName+" `ID: "+message.author.id+"` updated date of event with identifier: " + args[2] + " to **"+(new Date(Date.now()+time*1000))+"**");
