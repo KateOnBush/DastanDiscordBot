@@ -409,7 +409,7 @@ client.on('message',message=>{
 				message.channel.send(new Discord.MessageEmbed().setDescription("Event has already started!").setColor("AQUA"));	
 			} else if(st!=NaN){
 				if(st-Date.now()>0){
-					let f=msToString(t-Date.now());
+					let f=msToString(st-Date.now());
 					message.channel.send(new Discord.MessageEmbed().setDescription("Event starts in " + f + "!").setColor("AQUA"));	
 				} else {
 					message.channel.send(new Discord.MessageEmbed().setDescription("Event will start shortly...").setColor("ORANGE"));	
@@ -566,23 +566,33 @@ client.on('message',message=>{
 	} else if(message.member.roles.cache.get("728034751780356096")||message.member.roles.cache.get("728034436997709834")){
 	
 		if(args[0]=="unmute"){
-			
+			try{
+				const muted=message.mentions.members.array()[0];
+				unmute(muted).then(()=>{
+					message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+muted.id+"> was unmuted by <@!"+message.author.id+">").setColor("RED"));
+					adminlog(muted.displayName+" `ID: "+muted.id+"` was muted by "+message.member.displayName+""+" `ID: "+message.author.id+"`");
+				});
+				
+			}catch(err){
+				message.channel.send(new Discord.MessageEmbed().setDescription("**Syntax:** unmute <user>").setColor("RED"))
+			}
 		} else if(args[0]=="mute"){
 			try{
 				const muted=message.mentions.members.array()[0];
 				const time=timeformatToSeconds(args[2]);
-
-				const reason=args.join(" ").replace(args[0]+" ","").replace(args[1]+" ","").replace(args[2]+" ","");
+				
+				var reason=args_case.join(" ").replace(args_case[0]+" ","").replace(args_case[1]+" ","").replace(args_case[2]+"","");
+				if([""," ",undefined].includes(reason)) reason="Unspecified."
 				if(![muted,time].includes(undefined)){
 					mute(muted,time).then(()=>{
-						message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+muted.id+"> was muted by <@!"+message.author.id+"> for "+msToString(time*1000)+".\n**Reason:** "+(reason||"Unspecified.")).setColor("RED"));
-						adminlog(muted.displayName+" `ID: "+muted.id+"` was muted by "+message.member.displayName+""+" `ID: "+message.author.id+"` for "+msToString(time*1000)+".\n**Reason:** "+(reason||"Unspecified."))
+						message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+muted.id+"> was muted by <@!"+message.author.id+"> for "+msToString(time*1000)+".\n**Reason:** "+reason).setColor("RED"));
+						adminlog(muted.displayName+" `ID: "+muted.id+"` was muted by "+message.member.displayName+""+" `ID: "+message.author.id+"` for "+msToString(time*1000)+".\n**Reason:** "+reason)
 					});	
 				} else {
-					message.channel.send(new Discord.MessageEmbed().setDescription("**Syntax:** mute <user> <time> [reason]").setColor("GRAY"))
+					message.channel.send(new Discord.MessageEmbed().setDescription("**Syntax:** mute <user> <time> [reason]").setColor("RED"))
 				}
 			}catch(err){
-				message.channel.send(new Discord.MessageEmbed().setDescription("**Syntax:** mute <user> <time> [reason]").setColor("GRAY"))
+				message.channel.send(new Discord.MessageEmbed().setDescription("**Syntax:** mute <user> <time> [reason]").setColor("RED"))
 			}
 		} else if(args[0]=="event"){
 		
