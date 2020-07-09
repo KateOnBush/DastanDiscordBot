@@ -28,45 +28,39 @@ function eventReminder(){
 		if((em!=undefined)&&(em.footer!=undefined)){
 			let time=parseInt(em.footer.replace("!eventannounce ",""));
 			if((time!=NaN)&&(time-Date.now()>0)){
-				if(time-Date.now()-3600*1000>0) setTimeout(function(){
+				if(time-Date.now()>0) setTimeout(function(){
 					let mmm=message.guild.roles.cache.get("730598527654297771").members.cache;
-					if(mmm!=undefined){
-						mmm.array().forEach(member=>{
-							member.send(new Discord.MessageEmbed().setDescription("Event is starting shortly...").setColor("ORANGE"));
-						});
-					}
+					mmm.array().forEach(member=>{
+						member.send(new Discord.MessageEmbed().setDescription("Event is starting shortly...").setColor("ORANGE"));
+					});
 				},time-Date.now());
+				
 				if(time-Date.now()-3600*1000>0) setTimeout(function(){
 					let mmm=message.guild.roles.cache.get("730598527654297771").members.cache;
-					if(mmm!=undefined){
-						mmm.array().forEach(member=>{
-							member.send(new Discord.MessageEmbed().setDescription("Event is starting in **1** hour").setColor("PURPLE"));
-						});
-					}
+					mmm.array().forEach(member=>{
+						member.send(new Discord.MessageEmbed().setDescription("Event is starting in **1** hour").setColor("PURPLE"));
+					});
 				},time-Date.now()-3600*1000);
+				
 				if(time-Date.now()-1800*1000>0) setTimeout(function(){
-					let mmm=message.guild.roles.cache.get("730598527654297771").members.cache;
-					if(mmm!=undefined){
-						mmm.array().forEach(member=>{
-							member.send(new Discord.MessageEmbed().setDescription("Event is starting in **30** minutes").setColor("PURPLE"));
-						});
-					}
+					let mmm=message.guild.roles.cache.get("730598527654297771").members;
+					mmm.array().forEach(member=>{
+						member.send(new Discord.MessageEmbed().setDescription("Event is starting in **30** minutes").setColor("PURPLE"));
+					});
 				},time-Date.now()-1800*1000);
+				
 				if(time-Date.now()-900*1000>0) setTimeout(function(){
 					let mmm=message.guild.roles.cache.get("730598527654297771").members.cache;
-					if(mmm!=undefined){
-						mmm.array().forEach(member=>{
-							member.send(new Discord.MessageEmbed().setDescription("Event is starting in **15** minutes").setColor("PURPLE"));
-						});
-					}
+					mmm.array().forEach(member=>{
+						member.send(new Discord.MessageEmbed().setDescription("Event is starting in **15** minutes").setColor("PURPLE"));
+					});
 				},time-Date.now()-900*1000);
+				
 				if(time-Date.now()-300*1000>0) setTimeout(function(){
 					let mmm=message.guild.roles.cache.get("730598527654297771").members.cache;
-					if(mmm!=undefined){
-						mmm.array().forEach(member=>{
-							member.send(new Discord.MessageEmbed().setDescription("Event is starting in **5** minutes").setColor("PURPLE"));
-						});
-					}
+					mmm.array().forEach(member=>{
+						member.send(new Discord.MessageEmbed().setDescription("Event is starting in **5** minutes").setColor("PURPLE"));
+					});
 				},time-Date.now()-300*1000);
 			}
 		}
@@ -308,7 +302,7 @@ client.on('raw',event=>{
 				react.message.channel.messages.fetch({limit: 2}).then(messages=>{
 					if(messages.array()[1].embeds[0]==undefined) return;
 					if(!(messages.array()[1].embeds[0].footer||"").includes("!eventend")){
-						if(message.array().includes(message)){
+						if(messages.array().includes(message)){
 							if(react.emoji.name=="🎉") {
 								member.roles.remove("730056362029219911");
 								member.send(new Discord.MessageEmbed().setDescription("You've left the event!").setColor("RED"))
@@ -395,7 +389,7 @@ client.on('message',message=>{
 	var args_case=message.content.split(" ");
 	//Global commands
 	if(args[0]=="nextevent"){
-		message.guild.channels.cache.get("728022865622073446").fetch({
+		message.guild.channels.cache.get("728022865622073446").messages.fetch({
 		limit: 1
 		}).then(messages=>{
 			const embed = messages.array()[0].embeds[0];
@@ -657,7 +651,7 @@ client.on('message',message=>{
 					const embed= new Discord.MessageEmbed().setTitle("Event Started!").setColor("GREEN").setFooter("!eventstart");
 					message.guild.channels.cache.get("728022865622073446").send(embed)
 					adminlog(message.member.displayName+" `ID: "+message.author.id+"` started the event.");
-					if(message.guild.roles.cache.get("730598527654297771").members.cache!= undefined) message.guild.roles.cache.get("730598527654297771").members.cache.array()[0].forEach(m=>{
+					message.guild.roles.cache.get("730598527654297771").members.array().forEach(m=>{
 						m.send(new Discord.MessageEmbed().setDescription("Event has started!").setColor("GREEN"))
 					});
 			} else if(args[1]=="end"){
@@ -910,7 +904,9 @@ async function musicMessage(message){
 				}
 			} else if(args[1]=="queue"){
 				let r = tqueue.songs[0].requestedBy;
-				if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){	
+				if(tqueue.songs.length<2){
+				   	message.channel.send(new Discord.MessageEmbed().setDescription("There is only one song in the queue, use `repeat song` to repeat it indefinitely.").setColor("RED"))
+				} else if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){	
 					chosenclient.player.setRepeatMode(message.guild.id, false);
 					message.guild.repeatqueue=true;
 					message.channel.send(new Discord.MessageEmbed().setDescription("The whole queue will be repeated.").setColor("ORANGE"))
@@ -919,9 +915,7 @@ async function musicMessage(message){
 				}
 			} else if(args[1]=="off"){
 				let r = tqueue.songs[0].requestedBy;
-				if(tqueue.songs.length<2){
-				   	message.channel.send(new Discord.MessageEmbed().setDescription("There is only one song in the queue, use `repeat song` to repeat it indefinitely.").setColor("RED"))
-				} else if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){	
+				if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){	
 					chosenclient.player.setRepeatMode(message.guild.id, false);
 					message.guild.repeatqueue=false;
 					message.channel.send(new Discord.MessageEmbed().setDescription("The queue will not be repeated.").setColor("ORANGE"))
