@@ -404,9 +404,7 @@ client.on('message',message=>{
 			if(embed==undefined){
 				message.channel.send(new Discord.MessageEmbed().setDescription("No event planned/in progress!").setColor("RED"));	
 			} else if(embed.footer.text=="!eventstart"){
-				message.channel.send(new Discord.MessageEmbed().setDescription("Event has already started!").setColor("AQUA"));
-			} else if(embed.footer.text=="!eventend"){
-				message.channel.send(new Discord.MessageEmbed().setDescription("Event has already started!").setColor("AQUA"));	
+				message.channel.send(new Discord.MessageEmbed().setDescription("An event is already in progress!").setColor("AQUA"));
 			} else if(st!=NaN){
 				if(st-Date.now()>0){
 					let f=msToString(st-Date.now());
@@ -670,15 +668,18 @@ client.on('message',message=>{
 					adminlog(message.member.displayName+" `ID: "+message.author.id+"` started the event.");
 					message.guild.roles.cache.get("730598527654297771").members.array().forEach(m=>{
 						m.send(new Discord.MessageEmbed().setDescription("Event has started!").setColor("GREEN"))
-						m.roles.remove("730598527654297771");
 					});
 			} else if(args[1]=="end"){
 			
 					const embed= new Discord.MessageEmbed().setTitle("Event ended! :(").setColor("RED").setFooter("!eventend");
 					message.guild.channels.cache.get("728022865622073446").send(embed);
 					adminlog(message.member.displayName+" `ID: "+message.author.id+"` ended the event.");
-					message.guild.roles.cache.get("730598527654297771").members.forEach(m=>{
+					message.guild.roles.cache.get("730598527654297771").members.array().forEach(m=>{
 						m.roles.remove("730056362029219911");
+					});
+					message.guild.roles.cache.get("730598527654297771").members.array().forEach(m=>{
+						m.send(new Discord.MessageEmbed().setDescription("Event has ended :(!").setColor("RED"))
+						m.roles.remove("730598527654297771");
 					});
 					
 				
@@ -941,7 +942,7 @@ async function musicMessage(message){
 					message.channel.send(new Discord.MessageEmbed().setDescription("You can't manage repetition.").setColor("RED"))	
 				}
 			} else {
-				message.channel.send(new Discord.MessageEmbed().setDescription("Please specify *song*/*queue*/*off*.").setColor("RED"))
+				message.channel.send(new Discord.MessageEmbed().setDescription("Please specify song/queue/off.").setColor("RED"))
 			}
 		} else if((args[0]=="remove")&&(!isEmpty)){
 			let n=parseInt(args[1]);
