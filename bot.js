@@ -15,7 +15,7 @@ function msToString(ms){
 	var hours=((ms/1000)-(weeks*604800)-(days*86400))/3600|0;
 	var minutes=((ms/1000)-(weeks*604800)-(days*86400)-(hours*3600))/60|0;
 	var seconds=((ms/1000)-(weeks*604800)-(days*86400)-(hours*3600)-(minutes*60))|0;
-	return `${weeks>0 ? `**${weeks}** weeks, ` : '' }` + `${days>0 ? `**${days}** days, ` : '' }` + `${hours>0 ? `**${hours}** hours,` : '' }` + `${minutes>0 ? `**${minutes}** minutes and ` : '' }` + `**${seconds}** seconds`;
+	return `${weeks>0 ? `**${weeks}** weeks, ` : '' }` + `${days>0 ? `**${days}** days, ` : '' }` + `${hours>0 ? `**${hours}** hours, ` : '' }` + `${minutes>0 ? `**${minutes}** minutes and ` : '' }` + `**${seconds}** seconds`;
 }
 function timeformatToSeconds(f){
 	return eval(f.replace("s","+").replace("m","*60+").replace("h","*3600+").replace("d","*3600*24+").replace("w","*3600*24*7+").replace("mo","*3600*24*30+").replace("y","*3600*24*365+")+"0");	
@@ -677,7 +677,7 @@ client.on('message',message=>{
 					const embed= new Discord.MessageEmbed().setTitle("Event ended! :(").setColor("RED").setFooter("!eventend");
 					message.guild.channels.cache.get("728022865622073446").send(embed);
 					adminlog(message.member.displayName+" `ID: "+message.author.id+"` ended the event.");
-					message.guild.roles.cache.get("730598527654297771").members.array()[0].forEach(m=>{
+					message.guild.roles.cache.get("730598527654297771").members.forEach(m=>{
 						m.roles.remove("730056362029219911");
 					});
 					
