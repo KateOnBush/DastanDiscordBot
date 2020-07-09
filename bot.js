@@ -408,11 +408,9 @@ client.on('message',message=>{
 		limit: 1
 		}).then(messages=>{
 			const embed = messages.array()[0].embeds[0];
-			const st=parseInt((embed.footer.text||"").replace("!eventannounce ",""));
+			const st=parseInt((embed.footer||{text:""}).text.replace("!eventannounce ",""));
 			if(embed==undefined){
-				message.channel.send(new Discord.MessageEmbed().setDescription("🚫 No event planned/in progress!").setColor("RED"));	
-			} else if(embed.footer==undefined){
-				message.channel.send(new Discord.MessageEmbed().setDescription("🚫 No event planned/in progress!").setColor("RED"));	
+				message.channel.send(new Discord.MessageEmbed().setDescription("🚫 No event planned/in progress!").setColor("RED"));
 			} else if(embed.footer.text=="!eventstart"){
 				message.channel.send(new Discord.MessageEmbed().setDescription("🥳 An event is already in progress!").setColor("AQUA"));
 			} else if(embed.footer.text=="!eventend"){
