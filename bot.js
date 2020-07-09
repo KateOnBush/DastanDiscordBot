@@ -161,7 +161,7 @@ var info = {
 	},
 	load: async function(id){	
 		var exists=false;
-		var col = await client.channels.cache.get("728363315138658334").messages.fetch({limit: 0});
+		var col = await client.channels.cache.get("728363315138658334").messages.fetch({limit: (client.guilds.cache.array()[0].memberCount+5)});
 		messages=col.array();
 		for(var i=0;i<messages.length;i++){
 			if(messages[i].content.includes(id)){
@@ -257,7 +257,7 @@ client.on('raw',event=>{
 			log(member.displayName + " `ID: " + member.id + "` reacted with " + react.emoji.name + " on a message `ID : " + react.message.id + "` in channel '" + react.message.channel.name + "' `ID: " + react.message.channel.id + "`");
 			if(react.message.channel.id=="728022865622073446"){
 				react.message.channel.fetch({limit: 2}).then(messages=>{
-					if(messages.array()[0].embeds[0])==undefined) return;
+					if(messages.array()[0].embeds[0]==undefined) return;
 					if(!messages.array()[0].embeds[0].footer.includes("!eventend")){
 						if(message.array().includes(message)){
 							if(react.emoji.name=="🎉") {
@@ -306,7 +306,7 @@ client.on('raw',event=>{
 			log(member.displayName + " `ID: " + member.id + "` unreacted with " + react.emoji.name + " on a message `ID : " + react.message.id + "` in channel '" + react.message.channel.name + "' `ID: " + react.message.channel.id + "`");
 			if(react.message.channel.id=="728022865622073446"){
 				react.message.channel.fetch({limit: 2}).then(messages=>{
-					if(messages.array()[0].embeds[0])==undefined) return;
+					if(messages.array()[0].embeds[0]==undefined) return;
 					if(!messages.array()[0].embeds[0].footer.includes("!eventend")){
 						if(message.array().includes(message)){
 							if(react.emoji.name=="🎉") {
