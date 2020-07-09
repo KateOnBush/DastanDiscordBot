@@ -255,8 +255,8 @@ client.on('raw',event=>{
 			log(member.displayName + " `ID: " + member.id + "` reacted with " + react.emoji.name + " on a message `ID : " + react.message.id + "` in channel '" + react.message.channel.name + "' `ID: " + react.message.channel.id + "`");
 			if(react.message.channel.id=="728022865622073446"){
 				react.message.channel.messages.fetch({limit: 2}).then(messages=>{
-					if(messages.array()[1].embeds[0]==undefined) return;
-					if(!(messages.array()[1].embeds[0].footer.text||"").includes("!eventend")){
+					if(messages.array()[0].embeds[0]==undefined) return;
+					if(!(messages.array()[0].embeds[0].footer||{text:""}).text.includes("!eventend")){
 						if(messages.array().includes(message)){
 							if(react.emoji.name=="🎉") {
 								member.roles.add("730056362029219911");
@@ -304,8 +304,8 @@ client.on('raw',event=>{
 			log(member.displayName + " `ID: " + member.id + "` unreacted with " + react.emoji.name + " on a message `ID : " + react.message.id + "` in channel '" + react.message.channel.name + "' `ID: " + react.message.channel.id + "`");
 			if(react.message.channel.id=="728022865622073446"){
 				react.message.channel.messages.fetch({limit: 2}).then(messages=>{
-					if(messages.array()[1].embeds[0]==undefined) return;
-					if(!(messages.array()[1].embeds[0].footer.text||"").includes("!eventend")){
+					if(messages.array()[0].embeds[0]==undefined) return;
+					if(!(messages.array()[0].embeds[0].footer||{text:""}).text.includes("!eventend")){
 						if(messages.array().includes(message)){
 							if(react.emoji.name=="🎉") {
 								member.roles.remove("730056362029219911");
