@@ -372,7 +372,7 @@ client.on('message',message=>{
 	}
 	
 		//Membership
-		var days=((message.member.joinedTimestamp-Date.now())/(1000*24*3600));
+		var days=((Date.now()-message.member.joinedTimestamp)/(1000*24*3600));
 		var roles=["728214239784861776","730628941429342208","728214473638412310","728214612222410784","728214677578055713","728214723182723183","728214892187746365"]
 		var change=0;
 		if(days>730){
