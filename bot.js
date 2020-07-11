@@ -882,7 +882,7 @@ async function musicMessage(message){
 			var page=(parseInt(args[1])||1);
 			let queue = await chosenclient.player.getQueue(message.guild.id);
 			if((queue!=undefined)&&(queue.songs.length!=0)){
-				if((page<=0)||((page-1)>(queue.songs.length/10|0))) page=1;
+				if((page<=0)||((page-1)>((queue.songs.length-1)/10|0))) page=1;
 				message.channel.send(new Discord.MessageEmbed().setColor("GOLD").addField("Now playing",np.name + " (Requested by " + np.requestedBy+")").addField("Queue" + (()=>{if(page>1) return " (Page " + page + "/"+((queue.songs.length/10|0)+1)+")"; else return ""})(),queue.songs.map((song,i)=>{
 						if(((i+1)>10*(page-1))&&((i+1)<=10*page)) return (i+1) + " ● " + song.name + " (Requested by " + song.requestedBy+")";
 				}).join("\n")))
