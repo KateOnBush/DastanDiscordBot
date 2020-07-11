@@ -1043,14 +1043,14 @@ async function musicMessage(message){
 					const name=args.join(" ").replace(args[0],"").replaceAll(" ","");
 					const q=data.savedQueues.find(o=>o.name==name);
 					if(q==undefined){
-						message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't find that playlist!").setColor("RED")	
+						message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't find that playlist!").setColor("RED"))
 					} else {
 						if(isEmpty){
 							chosenclient.player.getQueue(message.guild.id)=q.queue;
 							chosenclient.player.skip(message.guild.id);
 							message.channel.send(new Discord.MessageEmbed().setDescription("Playlist loaded!").setColor("GREEN"))
 						} else {
-							message.channel.send(new Discord.MessageEmbed().setDescription("Please clear the queue before loading a playlist.").setColor("RED")
+							message.channel.send(new Discord.MessageEmbed().setDescription("Please clear the queue before loading a playlist.").setColor("RED"))
 						}
 					}
 					
