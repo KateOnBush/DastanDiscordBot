@@ -920,8 +920,11 @@ async function musicMessage(message){
 				if(!s.requestedBy.includes(message.member.id)) t=false;
 			})
 			if(message.member.hasPermission("MANAGE_CHANNELS")||t){
-				chosenclient.player.clearQueue(message.guild.id);
-				message.channel.send(new Discord.MessageEmbed().setDescription("Queue cleared!").setColor("YELLOW"))
+				chosenclient.player.clearQueue(message.guild.id).then(()=>{
+					chosenclient.player.skip(message.guild.id);
+					message.channel.send(new Discord.MessageEmbed().setDescription("Queue cleared!").setColor("YELLOW"))
+				});
+				
 			} else {
 				message.channel.send(new Discord.MessageEmbed().setDescription("You can't clear the queue.").setColor("RED"))	
 			}
