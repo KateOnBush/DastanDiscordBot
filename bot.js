@@ -979,7 +979,7 @@ async function musicMessage(message){
 			
 		} else if((["np","nowplaying"].includes(args[0]))&&(!isEmpty)){
 			let song = await chosenclient.player.nowPlaying(message.guild.id);
-			let time = ((Date.now()/1000)-message.guild.songStarted/60|0) + ":" + ("0"+(((Date.now()/1000)-message.guild.songStarted)%60)).substring(1);
+			let time = ((((Date.now()/1000)-message.guild.songStarted)/60)|0) + ":" + ("0"+((Date.now()/1000)-message.guild.songStarted)%60|0).substring(1);
 			message.channel.send(new Discord.MessageEmbed().setColor("GOLD").setDescription("**Now playing: **" +song.name + " (Requested by " + song.requestedBy+") **[**"+time+"**/**"+song.duration+"**]**"));
 		} else if((["clearqueue","clear"].includes(args[0]))&&(!isEmpty)){
 			let queue = await chosenclient.player.getQueue(message.guild.id);
