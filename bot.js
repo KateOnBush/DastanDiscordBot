@@ -407,7 +407,7 @@ client.on('message',message=>{
 	}
 	
 		//Membership
-		membershipUpdate(member);
+		membershipUpdate(message.member);
 		
 	
 	if(message.member.messageCombo==undefined) message.member.messageCombo=0;
