@@ -20,6 +20,9 @@ function msToString(ms){
 function timeformatToSeconds(f){
 	return eval(f.replace("s","+").replace("m","*60+").replace("h","*3600+").replace("d","*3600*24+").replace("w","*3600*24*7+").replace("mo","*3600*24*30+").replace("y","*3600*24*365+")+"0");	
 }
+function levelXp(level){
+return 60*level+(10*Math.pow(1.456,level-1)|0);
+}
 function eventReminder(){
 
 	client.guilds.cache.array()[0].channels.cache.get("728022865622073446").messages.fetch({limit:1}).then(ms=>{
@@ -143,21 +146,20 @@ async function updateProfile(member,points){
 		c.messagesSentToday+=points;
 		c.messagesEverSent+=points;
 		var level=c.level;
-		while(c.messagesEverSent>(30*Math.pow(1.6,level-1))){
-		      level+=1;
+		let gold=gold;
+		while(c.messagesEverSent>levelXp(level)){
+			level+=1;
+			gold+=50;
+			if(level%5==0) gold+=200;
 		}
 		if(level>c.level){
 			const message=new Discord.MessageEmbed().setDescription("🎊 **Congratulations <@!"+member.id+">!** You reached level **"+level+"**!").setColor("GREEN");
-			message.setDescription(message.description + "\nYou have received 50 gold!");
-			c.gold+=50;
-			if(level%5==0){
-				message.setDescription(message.description + "\n**Woo! Multiple of 10!** You have received 350 gold!");
-				c.gold+=300;
-			}
+			message.setDescription(message.description + "\nYou have received **"+(gold-c.gold)+"** gold!");
 			if(member.lastMessage!=null) member.lastMessage.channel.send(message);
 			else { member.guild.channels.cache.get("728025726556569631").send(message) }
 		}
 		c.level=level;
+		c.gold=gold;
 		return await info.save(member.id,c);
 }
 
@@ -369,6 +371,60 @@ client.on('raw',event=>{
 	}
 })
 
+//Store
+client.on('message',message=>{
+	
+	let args=message.content.toLowerCase().split(" ");
+	let args_case=message.content.split(" ");
+	if(message.channel.id!="731648543579963423") return;
+	if(args[0]=="help"){
+		
+		const commands = [{
+			name: "store",
+			description: "Displays buyable items.",
+			usage: "store"
+		},{
+			name: "gold",
+			description: "Shows your gold.",
+			usage: "gold"
+		}];
+		
+		if(["",undefined].includes(args[1])){
+			var embed= new Discord.MessageEmbed().setColor("GOLD").setTitle("Store command list").setDescription("Use `help <command>` for specific command help");
+			commands.forEach(cmd=>{
+				embed.addField(cmd.name,cmd.description);
+			})
+			message.channel.send(embed);
+		} else if(commands.find(t=>(t.name==args[1]))!=undefined){
+			
+			const cmd=commands.find(t=>(t.name==args[1]));
+			var embed= new Discord.MessageEmbed().setColor("fafafa").setTitle("Command help: " + args[1]);
+			embed.addField("Description",cmd.longDescription||cmd.description);
+			embed.addField("Sub-commands",cmd.subcommands||"None.");
+			embed.addField("Usage","*"+cmd.usage+"*")
+			message.channel.send(embed);
+			
+		} else {
+			message.channel.send(new Discord.MessageEmbed().setDescription("This command doesn't exist :(").setColor("RED"));
+		}
+		
+	} else if(["store","s","shop","list"].includes(args[0])){
+		
+		message.channel.send(new Discord.MessageEmbed().setDescription("There is nothing you can buy for now, i have no idea what to put here! :(").setColor("ORANGE"));
+		
+	} else if(args[0]=="gold"){
+		var userToFind=message.member;
+		if(message.mentions.members.array().length!=0){
+			userToFind=message.mentions.members.array()[0];
+		}
+		info.load(userToFind.id).then(data=>{
+			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+"> has " + data.gold + " gold!").setColor("GOLD"));
+		})	
+	}
+	
+	
+})
+
 //User event
 client.on('message',message=>{
 
@@ -461,10 +517,10 @@ client.on('message',message=>{
 		}
 		updateProfile(userToFind,0).then(()=>{
 			info.load(userToFind.id).then(data=>{
-				var last=(30*Math.pow(1.6,data.level-2));
+				var last=levelXp(data.level-1);
 				if(data.level==1) last=0;
 				const all=data.messagesEverSent-last;
-				const next=(30*Math.pow(1.6,data.level-1))-last;
+				const next=levelXp(data.level)-last;
 				const prog=all/next;
 				message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").addField("Progress","█".repeat(Math.max(prog*10,0)|0)+"▒".repeat(Math.max(1-prog,0)*10|0)+" "+(prog*100|0)+"%").setColor("GREEN"));
 			});
@@ -487,10 +543,10 @@ client.on('message',message=>{
 		}
 		updateProfile(userToFind,0).then(()=>{
 			info.load(userToFind.id).then(data=>{
-				var last=(30*Math.pow(1.6,data.level-2));
+				var last=levelXp(data.level-1);
 				if(data.level==1) last=0;
 				const all=data.messagesEverSent-last;
-				const next=(30*Math.pow(1.6,data.level-1))-last;
+				const next=levelXp(data.level)-last;
 				const prog=all/next;
 				message.channel.send(new Discord.MessageEmbed().setTitle(userToFind.displayName+"'s profile").addField("Level",data.level).addField("Progress","█".repeat(Math.max(prog*10,0)|0,)+"▒".repeat(Math.max(1-prog,0)*10|0)+" "+(prog*100|0)+"%",true).addField("Gold",data.gold).addField("Joined at",new Date(userToFind.joinedTimestamp),true).addField("Average Daily Activity Points",numberBeautifier(data.messageAveragePerDay,",")).addField("All-Time Activity Points",numberBeautifier(data.messagesEverSent,","),true).setColor("RANDOM").setThumbnail(userToFind.user.displayAvatarURL()));
 			})
@@ -1008,55 +1064,6 @@ async function musicMessage(message){
 			} else {
 				message.channel.send(new Discord.MessageEmbed().setDescription("Please specity a correct number between 1 and " + tqueue.songs.length + "!").setColor("RED"))	
 			}
-		} else if(["save","savequeue","savelist"].includes(args[0])){
-			if(["",undefined].includes(args[1])){
-				message.channel.send(new Discord.MessageEmbed().setDescription("Please specity a correct name for the playlist.").setColor("RED"))
-			} else if(isEmpty){
-				message.channel.send(new Discord.MessageEmbed().setDescription("The queue is empty :( you don't wanna save an empty playlist do you?").setColor("RED"))
-			} else {
-				info.load(message.member.id).then(data=>{
-					if(data.gold<60){
-						message.channel.send(new Discord.MessageEmbed().setDescription("You do not have enough gold ("+data.gold+")").setColor("RED"))
-					} else {
-						data.gold-=60;
-						if(data.savedQueues==undefined) data.savedQueues=[];
-						const name=args.join(" ").replace(args[0]+" ","");
-						data.savedQueues.push({
-							name: name,
-							queue: chosenclient.player.getQueue(message.guild.id)
-						});
-						message.channel.send(new Discord.MessageEmbed().setDescription("Playlist **"+name+"** saved!").setColor("GREEN"))
-						info.save(data);
-						
-					}
-				})
-			}
-		
-		} else if(["load","loadqueue","loadlist"].includes(args[0])){
-			  
-			info.load(message.member.id).then(data=>{
-				if(["",undefined].includes(args[1])){
-					message.channel.send(new Discord.MessageEmbed().setDescription("Please specity a correct name.").setColor("RED"))
-				} else if(data.savedQueues==undefined){
-					message.channel.send(new Discord.MessageEmbed().setDescription("Your playlist list is empty :(").setColor("RED"))
-				} else {
-					const name=args.join(" ").replace(args[0]+" ","");
-					const q=data.savedQueues.find(o=>o.name==name);
-					if(q==undefined){
-						message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't find that playlist!").setColor("RED"))
-					} else {
-						if(isEmpty){
-							chosenclient.player.getQueue(message.guild.id)=q.queue;
-							chosenclient.player.skip(message.guild.id);
-							message.channel.send(new Discord.MessageEmbed().setDescription("Playlist loaded!").setColor("GREEN"))
-						} else {
-							message.channel.send(new Discord.MessageEmbed().setDescription("Please clear the queue before loading a playlist.").setColor("RED"))
-						}
-					}
-					
-				}
-			});
-			
 		}else if(args[0]=="help"){
 			const commands = [{
 				name: "play",
