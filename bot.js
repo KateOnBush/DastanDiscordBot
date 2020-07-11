@@ -908,6 +908,7 @@ async function musicMessage(message){
 			} else {
 				chosenclient.player.play(message.member.voice.channel,message.content.replace(args_case[0],""),"<@!"+message.member.id+">").then(song=>{
 				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.song.name + " (Requested by " + song.song.requestedBy+")"))
+				message.guild.songStarted=Date.now()/1000;
 				chosenclient.user.setPresence({
 						status: "online",
 						afk: false,
@@ -926,6 +927,7 @@ async function musicMessage(message){
 							type: "PLAYING",
 							url: song.url
 						}});
+					message.guild.songStarted=Date.now()/1000;
 					if(message.guild.repeatqueue==true){ 
 						chosenclient.player.getQueue(message.guild.id).songs.push(oldSong);
 					}
@@ -947,8 +949,9 @@ async function musicMessage(message){
 			var page=(parseInt(args[1])||1);
 			let queue = await chosenclient.player.getQueue(message.guild.id);
 			if((queue!=undefined)&&(queue.songs.length!=0)){
+				let time = ((Date.now()/1000)-message.guild.songStarted/60|0) + ":" + ("0"+(((Date.now()/1000)-message.guild.songStarted)%60)).substring(1);
 				if((page<=0)||((page-1)>((queue.songs.length-1)/10|0))) page=1;
-				message.channel.send(new Discord.MessageEmbed().setColor("GOLD").addField("Now playing",np.name + " (Requested by " + np.requestedBy+")").addField("Queue" + (()=>{if((queue.songs.length/10|0)>0) return " (Page " + page + "/"+((queue.songs.length/10|0)+1)+")"; else return ""})(),queue.songs.map((song,i)=>{
+				message.channel.send(new Discord.MessageEmbed().setColor("GOLD").addField("Now playing",np.name + " (Requested by " + np.requestedBy+") **[**"+time+"**/**"+song.duration+"**]**").addField("Queue" + (()=>{if((queue.songs.length/10|0)>0) return " (Page " + page + "/"+((queue.songs.length/10|0)+1)+")"; else return ""})(),queue.songs.map((song,i)=>{
 						if(((i+1)>10*(page-1))&&((i+1)<=10*page)) return (i+1) + " ● " + song.name + " (Requested by " + song.requestedBy+")";
 				}).join("\n")))
 			} else {
@@ -976,7 +979,8 @@ async function musicMessage(message){
 			
 		} else if((["np","nowplaying"].includes(args[0]))&&(!isEmpty)){
 			let song = await chosenclient.player.nowPlaying(message.guild.id);
-			message.channel.send(new Discord.MessageEmbed().setColor("GOLD").setDescription("**Now playing: **" +song.name + " (Requested by " + song.requestedBy+")"));
+			let time = ((Date.now()/1000)-message.guild.songStarted/60|0) + ":" + ("0"+(((Date.now()/1000)-message.guild.songStarted)%60)).substring(1);
+			message.channel.send(new Discord.MessageEmbed().setColor("GOLD").setDescription("**Now playing: **" +song.name + " (Requested by " + song.requestedBy+") **[**"+time+"**/**"+song.duration+"**]**"));
 		} else if((["clearqueue","clear"].includes(args[0]))&&(!isEmpty)){
 			let queue = await chosenclient.player.getQueue(message.guild.id);
 			let r = queue.songs[0].requestedBy;
