@@ -883,8 +883,8 @@ async function musicMessage(message){
 			let queue = await chosenclient.player.getQueue(message.guild.id);
 			if((queue!=undefined)&&(queue.songs.length!=0)){
 				if((page<=0)||((page-1)>(queue.songs.length/10|0))) page=1;
-				message.channel.send(new Discord.MessageEmbed().setColor("GOLD").addField("Now playing",np.name + " (Requested by " + np.requestedBy+")").addField("Queue" + (()=>{if(page>1) return "(Page " + page + "/"+((queue.songs.length/10|0)+1)+")"})(),queue.songs.map((song,i)=>{
-						if(((i+1)>10*(page-1))&&((i+1)<10*page)) return ((page-1)+i+1) + " ● " + song.name + " (Requested by " + song.requestedBy+")";
+				message.channel.send(new Discord.MessageEmbed().setColor("GOLD").addField("Now playing",np.name + " (Requested by " + np.requestedBy+")").addField("Queue" + (()=>{if(page>1) return " (Page " + page + "/"+((queue.songs.length/10|0)+1)+")"; else return ""})(),queue.songs.map((song,i)=>{
+						if(((i+1)>10*(page-1))&&((i+1)<=10*page)) return (i+1) + " ● " + song.name + " (Requested by " + song.requestedBy+")";
 				}).join("\n")))
 			} else {
 				message.channel.send(new Discord.MessageEmbed().setDescription("Queue is empty :(").setColor("RED"))	
