@@ -146,7 +146,7 @@ async function updateProfile(member,points){
 		c.messagesSentToday+=points;
 		c.messagesEverSent+=points;
 		var level=c.level;
-		let gold=gold;
+		let gold=c.gold;
 		while(c.messagesEverSent>levelXp(level)){
 			level+=1;
 			gold+=50;
