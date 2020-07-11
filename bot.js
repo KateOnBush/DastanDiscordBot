@@ -1023,7 +1023,7 @@ async function musicMessage(message){
 						const name=args.join(" ").replace(args[0],"").replaceAll(" ","");
 						data.savedQueues.push({
 							name: name,
-							queue: chosenclient.player.getQueue(message.guild.id);
+							queue: chosenclient.player.getQueue(message.guild.id)
 						});
 						message.channel.send(new Discord.MessageEmbed().setDescription("Playlist **"+name+"** saved!").setColor("GREEN"))
 						info.save(data);
