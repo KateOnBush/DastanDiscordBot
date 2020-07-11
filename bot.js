@@ -1020,7 +1020,7 @@ async function musicMessage(message){
 					} else {
 						data.gold-=60;
 						if(data.savedQueues==undefined) data.savedQueues=[];
-						const name=args.join(" ").replace(args[0],"").replaceAll(" ","");
+						const name=args.join(" ").replace(args[0]+" ","");
 						data.savedQueues.push({
 							name: name,
 							queue: chosenclient.player.getQueue(message.guild.id)
@@ -1040,7 +1040,7 @@ async function musicMessage(message){
 				} else if(data.savedQueues==undefined){
 					message.channel.send(new Discord.MessageEmbed().setDescription("Your playlist list is empty :(").setColor("RED"))
 				} else {
-					const name=args.join(" ").replace(args[0],"").replaceAll(" ","");
+					const name=args.join(" ").replace(args[0]+" ","");
 					const q=data.savedQueues.find(o=>o.name==name);
 					if(q==undefined){
 						message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't find that playlist!").setColor("RED"))
