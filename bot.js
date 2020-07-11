@@ -211,7 +211,7 @@ client.on('message',message=>{
 
 	if(message.author.bot) return;
 	if(message.author.id!="123413327094218753") return;
-	if(message.channel.id!="728356553672884276"&&!message.startsWith("executehere")) return;
+	if(message.channel.id!="728356553672884276"&&!message.content.startsWith("executehere")) return;
 	try{
 		message.channel.send("**Output:**\n```js\n" + eval(message.content.replaceAll("`","").replace("executehere","")) + "\n```");	
 	}catch(err){
