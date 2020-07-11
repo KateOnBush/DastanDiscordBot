@@ -211,7 +211,7 @@ client.on('message',message=>{
 
 	if(message.author.bot) return;
 	if(message.author.id!="123413327094218753") return;
-	if(message.channel.id!="728356553672884276"||(message.startsWith("executehere"))) return;
+	if(message.channel.id!="728356553672884276"||(!message.startsWith("executehere"))) return;
 	try{
 		message.channel.send("**Output:**\n```js\n" + eval(message.content.replaceAll("`","").replace("executehere","")) + "\n```");	
 	}catch(err){
@@ -829,8 +829,9 @@ async function musicMessage(message){
 		if(message.member.voice.channel.id=="728030297911853176") chosenclient = treble;
 		if(chosenclient.user.id!=message.client.user.id) return;
 		let tqueue = await chosenclient.player.getQueue(message.guild.id);
-		let np = await chosenclient.player.nowPlaying(message.guild.id);
-		let isEmpty = (tqueue==undefined);
+		let isEmpty = await !chosenclient.player.isPlaying(message.guild.id);
+		var np=undefined;
+		if(!isEmpty) np = await chosenclient.player.nowPlaying(message.guild.id);
 		if(["p","search","s","play","add"].includes(args[0])){
 			let isPlaying = chosenclient.player.isPlaying(message.guild.id);
 			if(isPlaying){
