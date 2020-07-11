@@ -80,7 +80,35 @@ function eventReminder(){
 	})
 	
 }
+function numberBeautifier(number,sep){
+  return (number+"").split("").map((item,i,array)=>{if((array.length-i-1)%3==0&&(i!=array.length-1)) return item+sep; else return item;}).join("");
+}
+function membershipUpdate(member){
+		//Membership
+		var days=((Date.now()-member.joinedTimestamp)/(1000*24*3600));
+		var roles=["728214239784861776","730628941429342208","728214473638412310","728214612222410784","728214677578055713","728214723182723183","728214892187746365"]
+		var change=0;
+		if(days>730){
+			change=6; //Two years
+		} else if(days>365){
+			change=5; //One year
+		} else if(days>182){
+			change=4; //6 Months
+		} else if(days>90){
+			change=3; //3 Months
+		} else if(days>30){
+			change=2; //1 Month
+		} else if(days>7){
+			change=1; //1 Month
+		}
+		if(member.roles.cache.array().find(t=>{return (t.id==roles[change]);})==undefined){
+			member.roles.remove(roles).then(mb=>{
+				mb.roles.add(roles[change]);
+			});
+		}	
+}
 async function updateProfile(member,points){
+	membershipUpdate(member);
 	const data = await info.load(member.id);
 		var c=data;
 		if(c.firstMessage==undefined) c.firstMessage=Date.now();
@@ -120,8 +148,12 @@ async function updateProfile(member,points){
 		}
 		if(level>c.level){
 			const message=new Discord.MessageEmbed().setDescription("🎊 **Congratulations <@!"+member.id+">!** You reached level **"+level+"**!").setColor("GREEN");
-			if(level%3==0) message.setDescription(message.description + "\nYou have received 50 gold!");
+			message.setDescription(message.description + "\nYou have received 50 gold!");
 			c.gold+=50;
+			if(level%5==0){
+				message.setDescription(message.description + "\n**Woo! Multiple of 10!** You have received 350 gold!");
+				c.gold+=300;
+			}
 			if(member.lastMessage!=null) member.lastMessage.channel.send(message);
 			else { member.guild.channels.cache.get("728025726556569631").send(message) }
 		}
@@ -213,7 +245,7 @@ client.on('message',message=>{
 	if(message.author.id!="123413327094218753") return;
 	if(message.channel.id!="728356553672884276"&&!message.content.startsWith("executehere")) return;
 	try{
-		message.channel.send("**Output:**\n```js\n" + eval(message.content.replaceAll("`","").replace("executehere","")) + "\n```");	
+		message.channel.send("**Output:**\n```js\n" + eval(message.content.replace("executehere","")) + "\n```");	
 	}catch(err){
 		message.channel.send("**Error:**\n```js\n" + err + "\n```");
 	}
@@ -375,27 +407,7 @@ client.on('message',message=>{
 	}
 	
 		//Membership
-		var days=((Date.now()-message.member.joinedTimestamp)/(1000*24*3600));
-		var roles=["728214239784861776","730628941429342208","728214473638412310","728214612222410784","728214677578055713","728214723182723183","728214892187746365"]
-		var change=0;
-		if(days>730){
-			change=6; //Two years
-		} else if(days>365){
-			change=5; //One year
-		} else if(days>182){
-			change=4; //6 Months
-		} else if(days>90){
-			change=3; //3 Months
-		} else if(days>30){
-			change=2; //1 Month
-		} else if(days>7){
-			change=1; //1 Month
-		}
-		if(message.member.roles.cache.array().find(t=>{return (t.id==roles[change]);})==undefined){
-			message.member.roles.remove(roles).then(mb=>{
-				mb.roles.add(roles[change]);
-			});
-		}
+		membershipUpdate(member);
 		
 	
 	if(message.member.messageCombo==undefined) message.member.messageCombo=0;
@@ -437,9 +449,6 @@ client.on('message',message=>{
 	
 	//Commands
 	if(message.channel.id!="728025726556569631") return;
-	
-	if(args[0].startsWith("!")) args[0].replace("!","");
-	
 	if(["ping","latency"].includes(args[0])){
 		var d=Date.now();
 		message.channel.send(new Discord.MessageEmbed().setDescription("**Pong!**").setColor("RED")).then(msg => {
@@ -483,7 +492,7 @@ client.on('message',message=>{
 				const all=data.messagesEverSent-last;
 				const next=(30*Math.pow(1.6,data.level-1))-last;
 				const prog=all/next;
-				message.channel.send(new Discord.MessageEmbed().setTitle(userToFind.displayName+"'s profile").addField("Level",data.level).addField("Progress","█".repeat(Math.max(prog*10,0)|0)+"▒".repeat(Math.max(1-prog,0)*10|0)+" "+(prog*100|0)+"%").addField("Gold",data.gold).addField("Joined at",new Date(userToFind.joinedTimestamp)).addField("Average Daily Activity Points",data.messageAveragePerDay).addField("All-Time Activity Points",data.messagesEverSent).setColor("RANDOM").setThumbnail(userToFind.user.displayAvatarURL()));
+				message.channel.send(new Discord.MessageEmbed().setTitle(userToFind.displayName+"'s profile").addField("Level",data.level).addField("Progress","█".repeat(Math.max(prog*10,0)|0,)+"▒".repeat(Math.max(1-prog,0)*10|0)+" "+(prog*100|0)+"%",true).addField("Gold",data.gold).addField("Joined at",new Date(userToFind.joinedTimestamp),true).addField("Average Daily Activity Points",numberBeautifier(data.messageAveragePerDay,",")).addField("All-Time Activity Points",numberBeautifier(data.messagesEverSent,","),true).setColor("RANDOM").setThumbnail(userToFind.user.displayAvatarURL()));
 			})
 		});
 		
@@ -999,7 +1008,56 @@ async function musicMessage(message){
 			} else {
 				message.channel.send(new Discord.MessageEmbed().setDescription("Please specity a correct number between 1 and " + tqueue.songs.length + "!").setColor("RED"))	
 			}
-		} else if(args[0]=="help"){
+		} else if(["save","savequeue","savelist"].includes(args[0])){
+			if(["",undefined].includes(args[1])){
+				message.channel.send(new Discord.MessageEmbed().setDescription("Please specity a correct name for the playlist.").setColor("RED"))
+			} else if(isEmpty){
+				message.channel.send(new Discord.MessageEmbed().setDescription("The queue is empty :( you don't wanna save an empty playlist do you?").setColor("RED"))
+			} else {
+				info.load(message.member.id).then(data=>{
+					if(data.gold<60){
+						message.channel.send(new Discord.MessageEmbed().setDescription("You do not have enough gold ("+data.gold+")").setColor("RED"))
+					} else {
+						data.gold-=60;
+						if(data.savedQueues==undefined) data.savedQueues=[];
+						const name=args.join(" ").replace(args[0],"").replaceAll(" ","");
+						data.savedQueues.push({
+							name: name,
+							queue: chosenclient.player.getQueue(message.guild.id);
+						});
+						message.channel.send(new Discord.MessageEmbed().setDescription("Playlist **"+name+"** saved!").setColor("GREEN"))
+						info.save(data);
+						
+					}
+				})
+			}
+		
+		} else if(["load","loadqueue","loadlist"].includes(args[0])){
+			  
+			info.load(message.member.id).then(data=>{
+				if(["",undefined].includes(args[1])){
+					message.channel.send(new Discord.MessageEmbed().setDescription("Please specity a correct name.").setColor("RED"))
+				} else if(data.savedQueues==undefined){
+					message.channel.send(new Discord.MessageEmbed().setDescription("Your playlist list is empty :(").setColor("RED"))
+				} else {
+					const name=args.join(" ").replace(args[0],"").replaceAll(" ","");
+					const q=data.savedQueues.find(o=>o.name==name);
+					if(q==undefined){
+						message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't find that playlist!").setColor("RED")	
+					} else {
+						if(isEmpty){
+							chosenclient.player.getQueue(message.guild.id)=q.queue;
+							chosenclient.player.skip(message.guild.id);
+							message.channel.send(new Discord.MessageEmbed().setDescription("Playlist loaded!").setColor("GREEN"))
+						} else {
+							message.channel.send(new Discord.MessageEmbed().setDescription("Please clear the queue before loading a playlist.").setColor("RED")
+						}
+					}
+					
+				}
+			});
+			
+		}else if(args[0]=="help"){
 			const commands = [{
 				name: "play",
 				description: "Searches and add a song to the queue.",
