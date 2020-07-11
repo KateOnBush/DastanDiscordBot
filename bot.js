@@ -861,7 +861,7 @@ async function musicMessage(message){
 							type: "PLAYING",
 							url: song.url
 						}});
-					if(message.guild.repeatqueue==true){
+					if(message.guild.repeatqueue==true){ 
 						chosenclient.player.getQueue(message.guild.id).songs.push(oldSong);
 					}
 				}).on("end",()=>{
