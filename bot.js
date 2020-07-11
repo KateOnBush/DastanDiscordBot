@@ -829,7 +829,7 @@ async function musicMessage(message){
 		if(message.member.voice.channel.id=="728030297911853176") chosenclient = treble;
 		if(chosenclient.user.id!=message.client.user.id) return;
 		let tqueue = await chosenclient.player.getQueue(message.guild.id);
-		let isEmpty = await !chosenclient.player.isPlaying(message.guild.id);
+		let isEmpty = !(await chosenclient.player.isPlaying(message.guild.id));
 		var np=undefined;
 		if(!isEmpty) np = await chosenclient.player.nowPlaying(message.guild.id);
 		if(["p","search","s","play","add"].includes(args[0])){
@@ -880,10 +880,9 @@ async function musicMessage(message){
 			}
 		} else if(["queue","q"].includes(args[0])){
 			var page=(parseInt(args[1])||1);
-			
 			let queue = await chosenclient.player.getQueue(message.guild.id);
-			if((page<=0)||((page-1)>(queue.songs.length/10|0))) page=1;
 			if((queue!=undefined)&&(queue.songs.length!=0)){
+				if((page<=0)||((page-1)>(queue.songs.length/10|0))) page=1;
 				message.channel.send(new Discord.MessageEmbed().setColor("GOLD").addField("Now playing",np.name + " (Requested by " + np.requestedBy+")").addField("Queue" + (()=>{if(page>1) return "(Page " + page + "/"+((queue.songs.length/10|0)+1)+")"})(),queue.songs.map((song,i)=>{
 						if((i>10*(page-1))&&(i<10*page)) return ((page-1)+i+1) + " ● " + song.name + " (Requested by " + song.requestedBy+")";
 				}).join("\n")))
