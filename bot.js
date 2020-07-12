@@ -388,7 +388,7 @@ client.on('message',message=>{
 		subcommand: "events",
 		items: [{
 			name: "Event automatic joiner",
-			description: "Automatically joins events when they are announced, you can disable/enable at any time.",
+			description: "Automatically joins events when they are announced, you can disable/enable at any time using `autoevent` command.",
 			longDescription: "With this upgrade, whenever a new event is announced, this will allow you to automatically join it, you will then unlock the command `autoevent <on/off>`, which will give you the ability to enable/disable this perk at any time!",
 			price: 300,
 			id: 1,
@@ -649,7 +649,7 @@ client.on('message',message=>{
 	} else if(args[0]=="autoevent"){
 		info.load(message.member.id).then(data=>{
 		if(data.items==undefined) return;
-		if(!data.includes(1)) return;
+		if(!data.items.includes(1)) return;
 		  if(["on","off"].includes(args[1])){
 			  if(args[1]=="on"){
 				  message.member.roles.add("731828010923065405");
