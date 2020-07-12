@@ -111,11 +111,15 @@ function membershipUpdate(member){
 		}	
 }
 async function updateProfile(member,points){
+	if(member.user.bot) return;
 	membershipUpdate(member);
 	const data = await info.load(member.id);
 		var c=data;
 		if(c.firstMessage==undefined) c.firstMessage=Date.now();
 		if((Date.now()-c.firstMessage)>=86400000){
+			setTimeout(function(){
+				updateProfile(member,0);
+			},86400000);
 			c.firstMessage=Date.now();
 			var t=(c.messageAveragePerDay*0.7+c.messagesSentToday*0.3);
 			c.messageAveragePerDay=t|0;
@@ -376,13 +380,32 @@ client.on('message',message=>{
 	
 	let args=message.content.toLowerCase().split(" ");
 	let args_case=message.content.split(" ");
+	if(message.channel.type=="dm") return;
 	if(message.channel.id!="731648543579963423") return;
+	
+	const items = [{
+		name: "Events",
+		subcommand: "events",
+		items: [{
+			name: "Event automatic joiner",
+			description: "Automatically joins events when they are announced, you can disable/enable at any time.",
+			longDescription: "With this upgrade, whenever a new event is announced, this will allow you to automatically join it, you will then unlock the command `autoevent <on/off>`, which will give you the ability to enable/disable this perk at any time!",
+			price: 300,
+			id: 1,
+			multiple: false,
+			buy: function(member){
+				member.roles.add("731828010923065405");
+				return true;
+			}
+		}]
+	}]
 	if(args[0]=="help"){
 		
 		const commands = [{
 			name: "store",
 			description: "Displays buyable items.",
-			usage: "store"
+			longDescription: "Displays buyable items and information about them.",
+			usage: "store [category] [item]"
 		},{
 			name: "gold",
 			description: "Shows your gold.",
@@ -409,8 +432,30 @@ client.on('message',message=>{
 		}
 		
 	} else if(["store","s","shop","list"].includes(args[0])){
-		
-		message.channel.send(new Discord.MessageEmbed().setDescription("There is nothing you can buy for now, i have no idea what to put here! :(").setColor("ORANGE"));
+		if(!["",undefined].includes(args[1])&&items.find(cat=>cat.subcommand==args[1])!=undefined){
+			let cat=items.find(cat=>cat.subcommand==args[1]);
+			if(!["",undefined].includes(args[2])&&cat.items.find(item=>item.id==parseInt(args[2]))!=undefined){
+				let item=cat.items.find(item=>item.id==parseInt(args[2]);
+				let embed=new Discord.MessageEmbed().setColor("YELLOW").setTitle(item.name+":");
+				embed.setDescription(item.longDescription||item.description);
+				embed.addField("Price",item.price);
+				embed.addField("ID",item.id);
+				message.channel.send(embed);
+			} else {
+				let embed=new Discord.MessageEmbed().setColor("YELLOW").setTitle(cat.name+":");
+				cat.items.forEach(item=>{
+					embed.addField(item.name,item.description + "\nPrice: **"+item.price+"**\nID: **"+item.id+"**",true);
+				})
+				message.channel.send(embed);
+			}
+			
+		} else {
+			let embed=new Discord.MessageEmbed().setColor("GOLD").setTitle("Store categories:")
+			items.forEach(cat=>{
+				embed.addField(cat.name,"Subcommand: *"+cat.subcommand+"*",true);
+			})
+			message.channel.send(embed);
+		}
 		
 	} else if(args[0]=="gold"){
 		var userToFind=message.member;
@@ -420,6 +465,34 @@ client.on('message',message=>{
 		info.load(userToFind.id).then(data=>{
 			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+"> has " + data.gold + " gold!").setColor("GOLD"));
 		})	
+	} else if(args[0]=="buy"){
+		let item=undefined;
+		items.forEach(cat=>{
+			item=cat.items.find(i=>i.id==parseInt(args[1]));
+		})
+		if(["",undefined].includes(args[1])){
+			message.channel.send(new Discord.MessageEmbed().setDescription("Please specifiy an item ID, check `store` for items.").setColor("RED"));
+		} else if(item==undefined){
+			message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't find any item with that ID :(").setColor("RED"));	
+		} else if(item==undefined){
+			info.load(message.member.id).then(data=>{
+				if(data.items) data.items=[];
+				if(data.gold<item.price){
+					message.channel.send(new Discord.MessageEmbed().setDescription("You need **"+(item.price-data.gold)+"** more gold to buy this item.").setColor("RED"));
+				} else if(data.items.includes(item.id)&&item.multiple!=true){ 
+					message.channel.send(new Discord.MessageEmbed().setDescription("You already have this item!").setColor("RED"));
+				} else {
+					data.gold-=item.price;
+					if(item.multiple!=true) data.items.push(item.id)
+					info.save(message.member.id,data).then(()=>{
+						item.buy(message.member);
+						
+					});
+					message.channel.send(new Discord.MessageEmbed().setDescription("You have successfully bought **"+item.name+"**!").setColor("GREEN"));
+				}
+			})	
+		}
+		
 	}
 	
 	
@@ -428,7 +501,6 @@ client.on('message',message=>{
 //User event
 client.on('message',message=>{
 
-	
 	if(message.member.id=="302050872383242240"){
 		if(message.embeds[0]==undefined) return;
 		if(!message.embeds[0].description.includes(message.guild.waitingForDisboard.id)) return;
@@ -565,7 +637,7 @@ client.on('message',message=>{
 				const all=data.messagesEverSent-last;
 				const next=levelXp(data.level)-last;
 				const prog=all/next;
-				message.channel.send(new Discord.MessageEmbed().setTitle(userToFind.displayName+"'s profile").addField("Level",data.level).addField("Progress","█".repeat(Math.max(prog*10,0)|0,)+"▒".repeat(Math.max(1-prog,0)*10|0)+" "+(prog*100|0)+"%",true).addField("Gold",data.gold).addField("Joined at",new Date(userToFind.joinedTimestamp),true).addField("Average Daily Activity Points",numberBeautifier(data.messageAveragePerDay,",")).addField("All-Time Activity Points",numberBeautifier(data.messagesEverSent,","),true).setColor("RANDOM").setThumbnail(userToFind.user.displayAvatarURL()));
+				message.channel.send(new Discord.MessageEmbed().setTitle(userToFind.displayName+"'s profile").addField("Level",data.level,true).addField("Progress","█".repeat(Math.max(prog*10,0)|0,)+"▒".repeat(Math.max(1-prog,0)*10|0)+" "+(prog*100|0)+"%",true).addField("Gold",data.gold).addField("Joined at",new Date(userToFind.joinedTimestamp),true).addField("Average Daily Activity Points",numberBeautifier(data.messageAveragePerDay,","),true).addField("All-Time Activity Points",numberBeautifier(data.messagesEverSent,","),true).setColor("RANDOM").setThumbnail(userToFind.user.displayAvatarURL()));
 			})
 		});
 		
@@ -902,6 +974,7 @@ pitch.on("message",(message)=>{musicMessage(message)});
 
 async function musicMessage(message){
 	//Music Commands
+	if(message.channel.type=="dm") return;
 	if(message.channel.id!="728029565607346227") return;
 	if(message.author.bot) return;
 	var args=message.content.toLowerCase().split(" ");
@@ -968,9 +1041,9 @@ async function musicMessage(message){
 			if((queue!=undefined)&&(queue.songs.length!=0)){
 				let sec = ("0"+(((Date.now()/1000)-message.guild.songStarted)%60|0));
 				let min = (((Date.now()/1000)-message.guild.songStarted)/60|0);
-				let time = min + ":" + (sec+"").substring(2);
+				let time = min + ":" + (sec+"").substring(sec.length-2);
 				if((page<=0)||((page-1)>((queue.songs.length-1)/10|0))) page=1;
-				message.channel.send(new Discord.MessageEmbed().setColor("GOLD").addField("Now playing",np.name + " (Requested by " + np.requestedBy+") **[**"+time+"**/**"+song.duration+"**]**").addField("Queue" + (()=>{if((queue.songs.length/10|0)>0) return " (Page " + page + "/"+((queue.songs.length/10|0)+1)+")"; else return ""})(),queue.songs.map((song,i)=>{
+				message.channel.send(new Discord.MessageEmbed().setColor("GOLD").addField("Now playing",np.name + " (Requested by " + np.requestedBy+") **[**"+time+"**/**"+np.duration+"**]**").addField("Queue" + (()=>{if((queue.songs.length/10|0)>0) return " (Page " + page + "/"+((queue.songs.length/10|0)+1)+")"; else return ""})(),queue.songs.map((song,i)=>{
 						if(((i+1)>10*(page-1))&&((i+1)<=10*page)) return (i+1) + " ● " + song.name + " (Requested by " + song.requestedBy+")";
 				}).join("\n")))
 			} else {
@@ -1000,7 +1073,7 @@ async function musicMessage(message){
 			let song = await chosenclient.player.nowPlaying(message.guild.id);
 			let sec = ("0"+(((Date.now()/1000)-message.guild.songStarted)%60|0));
 			let min = (((Date.now()/1000)-message.guild.songStarted)/60|0);
-			let time = min + ":" + (sec+"").substring(2);
+			let time = min + ":" + (sec+"").substring(sec.length-2);
 			message.channel.send(new Discord.MessageEmbed().setColor("GOLD").setDescription("**Now playing: **" +song.name + " (Requested by " + song.requestedBy+") **[**"+time+"**/**"+song.duration+"**]**"));
 		} else if((["clearqueue","clear"].includes(args[0]))&&(!isEmpty)){
 			let queue = await chosenclient.player.getQueue(message.guild.id);
