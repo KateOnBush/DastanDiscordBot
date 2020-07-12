@@ -435,7 +435,7 @@ client.on('message',message=>{
 		if(!["",undefined].includes(args[1])&&items.find(cat=>cat.subcommand==args[1])!=undefined){
 			let cat=items.find(cat=>cat.subcommand==args[1]);
 			if(!["",undefined].includes(args[2])&&cat.items.find(item=>item.id==parseInt(args[2]))!=undefined){
-				let item=cat.items.find(item=>item.id==parseInt(args[2]);
+				let item=cat.items.find(item=>item.id==parseInt(args[2]));
 				let embed=new Discord.MessageEmbed().setColor("YELLOW").setTitle(item.name+":");
 				embed.setDescription(item.longDescription||item.description);
 				embed.addField("Price",item.price);
