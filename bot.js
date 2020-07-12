@@ -432,7 +432,7 @@ client.on('message',message=>{
 	if(message.member.id=="302050872383242240"){
 		if(message.embeds[0]==undefined) return;
 		if(!message.embeds[0].description.includes(message.guild.waitingForDisboard.id)) return;
-		if(!message.embeds[0].description.includes("Bump done"));
+		if(!message.embeds[0].description.includes("Bump done")) return;
 		let g=50+Math.random()*50|0;
 		info.load(message.guild.waitingForDisboard.id).then(data=>{
 			data.gold+=g;
