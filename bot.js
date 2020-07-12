@@ -481,7 +481,7 @@ client.on('message',message=>{
 			message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't find any item with that ID :(").setColor("RED"));	
 		} else {
 			info.load(message.member.id).then(data=>{
-				if(data.items) data.items=[];
+				if(data.items==undefined) data.items=[];
 				if(data.gold<item.price){
 					message.channel.send(new Discord.MessageEmbed().setDescription("You need **"+(item.price-data.gold)+"** more gold to buy this item.").setColor("RED"));
 				} else if(data.items.includes(item.id)&&item.multiple!=true){ 
