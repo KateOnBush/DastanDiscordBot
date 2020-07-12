@@ -21,7 +21,7 @@ function timeformatToSeconds(f){
 	return eval(f.replace("s","+").replace("m","*60+").replace("h","*3600+").replace("d","*3600*24+").replace("w","*3600*24*7+").replace("mo","*3600*24*30+").replace("y","*3600*24*365+")+"0");	
 }
 function levelXp(level){
-return 60*level+(10*Math.pow(1.456,level-1)|0);
+return 30*level*(1+level);
 }
 function eventReminder(){
 
@@ -429,6 +429,19 @@ client.on('message',message=>{
 client.on('message',message=>{
 
 	
+	if(message.member.id=="302050872383242240"){
+		if(message.embeds[0]==undefined) return;
+		if(!message.embeds[0].description.includes(message.guild.waitingForDisboard.id)) return;
+		if(!message.embeds[0].description.includes("Bump done"));
+		let g=50+Math.random()*50|0;
+		info.load(message.guild.waitingForDisboard.id).then(data=>{
+			data.gold+=g;
+			info.save(message.guild.waitingForDisboard.id,data).then(()=>{
+				message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("**Thank you <@!"+message.guild.waitingForDisboard.id+"> for bumping the server!** Here is **"+g+"** gold!"))
+			})
+		})
+	}
+	
 	//Normal messages
 	if(message.author.bot) return;
 	if(message.channel.type=="dm") return;
@@ -501,7 +514,11 @@ client.on('message',message=>{
 				message.channel.send(new Discord.MessageEmbed().setDescription("🚫 No event planned/in progress!").setColor("RED"));	
 			}
 		})
-	}
+	} else if((args[0] + args[1])=="!dbump"){
+		
+		message.guild.waitingForDisboard=message.member;
+		
+	}	
 	
 	//Commands
 	if(message.channel.id!="728025726556569631") return;
