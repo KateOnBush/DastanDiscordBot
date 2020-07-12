@@ -410,6 +410,11 @@ client.on('message',message=>{
 			name: "gold",
 			description: "Shows your gold.",
 			usage: "gold"
+		},{
+			name: "buy",
+			description: "Buy an item.",
+			longDescription: "Purchase an item using its ID, check `store` for item IDs.",
+			usage: "buy"
 		}];
 		
 		if(["",undefined].includes(args[1])){
@@ -465,7 +470,7 @@ client.on('message',message=>{
 		info.load(userToFind.id).then(data=>{
 			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+"> has " + data.gold + " gold!").setColor("GOLD"));
 		})	
-	} else if(args[0]=="buy"){
+	} else if(["buy","purchase","get"].includes(args[0])){
 		let item=undefined;
 		items.forEach(cat=>{
 			item=cat.items.find(i=>i.id==parseInt(args[1]));
@@ -474,7 +479,7 @@ client.on('message',message=>{
 			message.channel.send(new Discord.MessageEmbed().setDescription("Please specifiy an item ID, check `store` for items.").setColor("RED"));
 		} else if(item==undefined){
 			message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't find any item with that ID :(").setColor("RED"));	
-		} else if(item==undefined){
+		} else {
 			info.load(message.member.id).then(data=>{
 				if(data.items) data.items=[];
 				if(data.gold<item.price){
