@@ -646,7 +646,23 @@ client.on('message',message=>{
 			})
 		});
 		
-	} else if(args[0]=="color"){
+	} else if(args[0]=="autoevent"){
+		info.load(message.member.id).then(data=>{
+		if(data.items==undefined) return;
+		if(!data.includes(1)) return;
+		  if(["on","off"].includes(args[1])){
+			  if(args[1]=="on"){
+				  message.member.roles.add("731828010923065405");
+				  message.channel.send(new Discord.MessageEmbed().setDescription("Event automatic joiner enabled!").setColor("GREEN"))
+			  } else {
+				  message.channel.send(new Discord.MessageEmbed().setDescription("Event automatic joiner disabled!").setColor("ORANGE"))
+			  }
+		  } else {
+			message.channel.send(new Discord.MessageEmbed().setDescription("Please specify **on** or **off**").setColor("RED"))	  
+		  }
+		});
+		  
+	}else if(args[0]=="color"){
 		const roles=["729438971456651394","729438974854168636","729438972161556610","729437918078435358","729421506328657950","729437914542505985","729437921802846239","729421500137865261","729421492835844207","729421510804242492","729421484560482379","729421488431562752","729421479846084648","729421473810219079","729421468752150689","729421463614128238","729395073904672860","729392489617948783"]
 		if(args[1]=="list"){
 			var cnt="";
@@ -834,6 +850,10 @@ client.on('message',message=>{
 					m.react("🔔")
 					eventReminder();
 					});;
+					message.guild.roles.cache.get("731828010923065405").members.array().forEach(t=>{
+						t.roles.add("730056362029219911");
+						t.send(new Discord.MessageEmbed().setDescription("🥳 You have automatically joined the event!").setColor("GREEN"))
+					})
 					adminlog(message.member.displayName+" `ID: "+message.author.id+"` announced event with identifier: " + args[2]);
 					
 				}
