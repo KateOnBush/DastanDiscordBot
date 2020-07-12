@@ -247,6 +247,7 @@ var info = {
 //Debug
 client.on('message',message=>{
 
+	if(message.channel.type=="dm") return;
 	if(message.author.bot) return;
 	if(message.author.id!="123413327094218753") return;
 	if(message.channel.id!="728356553672884276"&&!message.content.startsWith("executehere")) return;
@@ -414,7 +415,7 @@ client.on('message',message=>{
 			name: "buy",
 			description: "Buy an item.",
 			longDescription: "Purchase an item using its ID, check `store` for item IDs.",
-			usage: "buy"
+			usage: "buy <item id>"
 		}];
 		
 		if(["",undefined].includes(args[1])){
@@ -441,13 +442,14 @@ client.on('message',message=>{
 			let cat=items.find(cat=>cat.subcommand==args[1]);
 			if(!["",undefined].includes(args[2])&&cat.items.find(item=>item.id==parseInt(args[2]))!=undefined){
 				let item=cat.items.find(item=>item.id==parseInt(args[2]));
-				let embed=new Discord.MessageEmbed().setColor("YELLOW").setTitle(item.name+":");
+				let embed=new Discord.MessageEmbed().setColor("YELLOW").setTitle("Item: "+item.name);
 				embed.setDescription(item.longDescription||item.description);
 				embed.addField("Price",item.price);
 				embed.addField("ID",item.id);
+				embed.setFooter("Use (buy <id>) to buy an item.")
 				message.channel.send(embed);
 			} else {
-				let embed=new Discord.MessageEmbed().setColor("YELLOW").setTitle(cat.name+":");
+				let embed=new Discord.MessageEmbed().setColor("YELLOW").setTitle("Category: "+cat.name);
 				cat.items.forEach(item=>{
 					embed.addField(item.name,item.description + "\nPrice: **"+item.price+"**\nID: **"+item.id+"**",true);
 				})
@@ -506,6 +508,10 @@ client.on('message',message=>{
 //User event
 client.on('message',message=>{
 
+	//Normal messages
+	if(message.author.bot) return;
+	if(message.channel.type=="dm") return;
+	
 	if(message.member.id=="302050872383242240"){
 		if(message.embeds[0]==undefined) return;
 		if(!message.embeds[0].description.includes(message.guild.waitingForDisboard.id)) return;
@@ -519,9 +525,7 @@ client.on('message',message=>{
 		})
 	}
 	
-	//Normal messages
-	if(message.author.bot) return;
-	if(message.channel.type=="dm") return;
+	
 	
 	log(message.author.username + " `ID: " + message.member.id + "` sent message `ID : " + message.id + "` in channel '" + message.channel.name + "' `ID: " + message.channel.id + "`\n```"+message.content+"```");
 	
@@ -655,6 +659,7 @@ client.on('message',message=>{
 				  message.member.roles.add("731828010923065405");
 				  message.channel.send(new Discord.MessageEmbed().setDescription("Event automatic joiner enabled!").setColor("GREEN"))
 			  } else {
+				  message.member.roles.remove("731828010923065405");
 				  message.channel.send(new Discord.MessageEmbed().setDescription("Event automatic joiner disabled!").setColor("ORANGE"))
 			  }
 		  } else {
@@ -1023,7 +1028,7 @@ async function musicMessage(message){
 			} else {
 				chosenclient.player.play(message.member.voice.channel,message.content.replace(args_case[0],""),"<@!"+message.member.id+">").then(song=>{
 				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.song.name + " (Requested by " + song.song.requestedBy+")"))
-				message.guild.songStarted=Date.now()/1000;
+				chosenclient.player.songStarted=Date.now()/1000;
 				chosenclient.user.setPresence({
 						status: "online",
 						afk: false,
@@ -1042,8 +1047,8 @@ async function musicMessage(message){
 							type: "PLAYING",
 							url: song.url
 						}});
-					message.guild.songStarted=Date.now()/1000;
-					if(message.guild.repeatqueue==true){ 
+					chosenclient.player.songStarted=Date.now()/1000;
+					if(chosenclient.player.repeatqueue==true){ 
 						chosenclient.player.getQueue(message.guild.id).songs.push(oldSong);
 					}
 				}).on("end",()=>{
@@ -1064,8 +1069,8 @@ async function musicMessage(message){
 			var page=(parseInt(args[1])||1);
 			let queue = await chosenclient.player.getQueue(message.guild.id);
 			if((queue!=undefined)&&(queue.songs.length!=0)){
-				let sec = ("0"+(((Date.now()/1000)-message.guild.songStarted)%60|0));
-				let min = (((Date.now()/1000)-message.guild.songStarted)/60|0);
+				let sec = ("0"+(((Date.now()/1000)-chosenclient.player.songStarted)%60|0));
+				let min = (((Date.now()/1000)-chosenclient.player.songStarted)/60|0);
 				let time = min + ":" + (sec+"").substring(sec.length-2);
 				if((page<=0)||((page-1)>((queue.songs.length-1)/10|0))) page=1;
 				message.channel.send(new Discord.MessageEmbed().setColor("GOLD").addField("Now playing",np.name + " (Requested by " + np.requestedBy+") **[**"+time+"**/**"+np.duration+"**]**").addField("Queue" + (()=>{if((queue.songs.length/10|0)>0) return " (Page " + page + "/"+((queue.songs.length/10|0)+1)+")"; else return ""})(),queue.songs.map((song,i)=>{
@@ -1096,8 +1101,8 @@ async function musicMessage(message){
 			
 		} else if((["np","nowplaying"].includes(args[0]))&&(!isEmpty)){
 			let song = await chosenclient.player.nowPlaying(message.guild.id);
-			let sec = ("0"+(((Date.now()/1000)-message.guild.songStarted)%60|0));
-			let min = (((Date.now()/1000)-message.guild.songStarted)/60|0);
+			let sec = ("0"+(((Date.now()/1000)-chosenclient.player.songStarted)%60|0));
+			let min = (((Date.now()/1000)-chosenclient.player.songStarted)/60|0);
 			let time = min + ":" + (sec+"").substring(sec.length-2);
 			message.channel.send(new Discord.MessageEmbed().setColor("GOLD").setDescription("**Now playing: **" +song.name + " (Requested by " + song.requestedBy+") **[**"+time+"**/**"+song.duration+"**]**"));
 		} else if((["clearqueue","clear"].includes(args[0]))&&(!isEmpty)){
@@ -1141,7 +1146,7 @@ async function musicMessage(message){
 				let r = tqueue.songs[0].requestedBy;
 				if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){	
 					chosenclient.player.setRepeatMode(message.guild.id, true);
-					message.guild.repeatqueue=false;
+					chosenclient.player.repeatqueue=false;
 					message.channel.send(new Discord.MessageEmbed().setDescription("Current song will be repeated indefinitely.").setColor("GREEN"))	
 				} else {
 					message.channel.send(new Discord.MessageEmbed().setDescription("You can't manage repetition.").setColor("RED"))	
@@ -1152,7 +1157,7 @@ async function musicMessage(message){
 				   	message.channel.send(new Discord.MessageEmbed().setDescription("There is only one song in the queue, use `repeat song` to repeat it indefinitely.").setColor("RED"))
 				} else if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){	
 					chosenclient.player.setRepeatMode(message.guild.id, false);
-					message.guild.repeatqueue=true;
+					chosenclient.player.repeatqueue=true;
 					message.channel.send(new Discord.MessageEmbed().setDescription("The whole queue will be repeated.").setColor("ORANGE"))
 				} else {
 					message.channel.send(new Discord.MessageEmbed().setDescription("You can't manage repetition.").setColor("RED"))	
@@ -1161,7 +1166,7 @@ async function musicMessage(message){
 				let r = tqueue.songs[0].requestedBy;
 				if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){	
 					chosenclient.player.setRepeatMode(message.guild.id, false);
-					message.guild.repeatqueue=false;
+					chosenclient.player.repeatqueue=false;
 					message.channel.send(new Discord.MessageEmbed().setDescription("The queue will not be repeated.").setColor("ORANGE"))
 				} else {
 					message.channel.send(new Discord.MessageEmbed().setDescription("You can't manage repetition.").setColor("RED"))	
@@ -1205,7 +1210,7 @@ async function musicMessage(message){
 				name: "remove",
 				description: "Remove a song from the queue.",
 				longDescription: "Removes a song from the queue depending on its number",
-				usage: "remove <number>"
+				usage: "remove <number/first/last/current>"
 			},{
 				name: "pause",
 				description: "Pauses the current song",
