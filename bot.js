@@ -147,8 +147,12 @@ async function updateProfile(member,points){
 					});
 				}	
 			}
-		c.messagesSentToday+=points;
-		c.messagesEverSent+=points;
+		let mult=1;
+		if(member.roles.cache.array().find(rl=>rl.id=="732234963310608426")!=undefined){
+			mult=2;
+		}
+		c.messagesSentToday+=points*mult;
+		c.messagesEverSent+=points*mult;
 		var level=c.level;
 		let gold=c.gold;
 		while(c.messagesEverSent>levelXp(level)){
@@ -401,6 +405,7 @@ client.on('message',message=>{
 	
 	const items = [{
 		name: "Events",
+		description: "All what you need to make your event experience better!",
 		subcommand: "events",
 		items: [{
 			name: "Event automatic joiner",
@@ -416,11 +421,12 @@ client.on('message',message=>{
 		}]
 	},{
 		name: "Boosts",
+		description: "Boost your server experience with awesome perks!",
 		subcommand: "boosts",
 		items: [{
 			name: "Double XP - 6 hours",
 			description: "With this upgrade you get doubled xp for 6 hours!",
-			price: 80,
+			price: 120,
 			id: 6,
 			multiple: true,
 			buy: function(member){
@@ -445,6 +451,24 @@ client.on('message',message=>{
 				info.load(member.id).then(data=>{
 					data.doubleXp=(data.doubleXp||Date.now());
 					data.doubleXp=Math.max(data.doubleXp,Date.now())+3600*24000;
+					member.roles.add("732234963310608426");
+					info.save(member.id,data)
+					setTimeout(function(){
+						member.roles.remove("732234963310608426");
+					},data.doubleXp-Date.now());
+				})
+				return true;
+			}
+		},{
+			name: "Double XP - 1 week",
+			description: "With this upgrade you get doubled xp for 1 day!",
+			price: 2200,
+			id: 8,
+			multiple: true,
+			buy: function(member){
+				info.load(member.id).then(data=>{
+					data.doubleXp=(data.doubleXp||Date.now());
+					data.doubleXp=Math.max(data.doubleXp,Date.now())+3600*7*24000;
 					member.roles.add("732234963310608426");
 					info.save(member.id,data)
 					setTimeout(function(){
@@ -514,7 +538,7 @@ client.on('message',message=>{
 		} else {
 			let embed=new Discord.MessageEmbed().setColor("GOLD").setTitle("Store categories:")
 			items.forEach(cat=>{
-				embed.addField(cat.name,"Subcommand: *"+cat.subcommand+"*",true);
+				embed.addField(cat.name,cat.description+"\n**Subcommand:** "+cat.subcommand,true);
 			})
 			message.channel.send(embed);
 		}
