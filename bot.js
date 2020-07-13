@@ -294,6 +294,21 @@ client.on('ready',()=>{
 			});
 		});
 	});
+	client.guilds.cache.array()[0].roles.resolve("728216095835815976").members.array().forEach(member=>{
+		info.load(member.id).then(data=>{
+			if(![0,undefined].includes(data.doubleXp)) {
+				if(Date.now()>data.doubleXp) {
+					member.roles.remove("732234963310608426");
+				} else {
+					setTimeout(function(){
+						member.roles.remove("732234963310608426");
+					},data.doubleXp-Date.now());
+				}
+			} else {
+				member.roles.remove("732234963310608426");
+			}
+		});
+	});
 })
 
 client.on('raw',event=>{
@@ -399,6 +414,46 @@ client.on('message',message=>{
 				return true;
 			}
 		}]
+	},{
+		name: "Boosts",
+		subcommand: "boosts",
+		items: [{
+			name: "Double XP - 6 hours",
+			description: "With this upgrade you get doubled xp for 6 hours!",
+			price: 80,
+			id: 6,
+			multiple: true,
+			buy: function(member){
+				info.load(member.id).then(data=>{
+					data.doubleXp=(data.doubleXp||Date.now());
+					data.doubleXp=Math.max(data.doubleXp,Date.now())+3600*+6000;
+					member.roles.add("732234963310608426");
+					info.save(member.id,data)
+					setTimeout(function(){
+						member.roles.remove("732234963310608426");
+					},data.doubleXp-Date.now());
+				})
+				return true;
+			}
+		},{
+			name: "Double XP - 1 day",
+			description: "With this upgrade you get doubled xp for 1 day!",
+			price: 400,
+			id: 7,
+			multiple: true,
+			buy: function(member){
+				info.load(member.id).then(data=>{
+					data.doubleXp=(data.doubleXp||Date.now());
+					data.doubleXp=Math.max(data.doubleXp,Date.now())+3600*24000;
+					member.roles.add("732234963310608426");
+					info.save(member.id,data)
+					setTimeout(function(){
+						member.roles.remove("732234963310608426");
+					},data.doubleXp-Date.now());
+				})
+				return true;
+			}
+		}]
 	}]
 	if(args[0]=="help"){
 		
@@ -421,7 +476,7 @@ client.on('message',message=>{
 		if(["",undefined].includes(args[1])){
 			var embed= new Discord.MessageEmbed().setColor("GOLD").setTitle("Store command list").setDescription("Use `help <command>` for specific command help");
 			commands.forEach(cmd=>{
-				embed.addField(cmd.name,cmd.description);
+				embed.addField(cmd.name,cmd.description,true);
 			})
 			message.channel.send(embed);
 		} else if(commands.find(t=>(t.name==args[1]))!=undefined){
@@ -507,9 +562,7 @@ client.on('message',message=>{
 
 //User event
 client.on('message',message=>{
-
-	//Normal messages
-	if(message.author.bot) return;
+	
 	if(message.channel.type=="dm") return;
 	
 	if(message.member.id=="302050872383242240"){
@@ -525,7 +578,8 @@ client.on('message',message=>{
 		})
 	}
 	
-	
+	//Normal messages
+	if(message.author.bot) return;
 	
 	log(message.author.username + " `ID: " + message.member.id + "` sent message `ID : " + message.id + "` in channel '" + message.channel.name + "' `ID: " + message.channel.id + "`\n```"+message.content+"```");
 	
@@ -613,6 +667,7 @@ client.on('message',message=>{
 		if(message.mentions.members.array().length!=0){
 			userToFind=message.mentions.members.array()[0];
 		}
+		if(userToFind.user.bot) userToFind=message.member;
 		updateProfile(userToFind,0).then(()=>{
 			info.load(userToFind.id).then(data=>{
 				var last=levelXp(data.level-1);
@@ -630,6 +685,7 @@ client.on('message',message=>{
 		if(message.mentions.members.array().length!=0){
 			userToFind=message.mentions.members.array()[0];
 		}
+		if(userToFind.user.bot) userToFind=message.member;
 		info.load(userToFind.id).then(data=>{
 			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+"> has " + data.gold + " gold!").setColor("GOLD"));
 		})	
@@ -639,6 +695,7 @@ client.on('message',message=>{
 		if(message.mentions.members.array().length!=0){
 			userToFind=message.mentions.members.array()[0];
 		}
+		if(userToFind.user.bot) userToFind=message.member;
 		updateProfile(userToFind,0).then(()=>{
 			info.load(userToFind.id).then(data=>{
 				var last=levelXp(data.level-1);
@@ -700,6 +757,7 @@ client.on('message',message=>{
 			if(member==undefined){
 				member=message.member;	
 			}
+			if(member.user.bot) member=message.member;
 			var role=undefined;
 			roles.forEach(t=>{
 				if(member.roles.cache.get(t)!=undefined) role=member.roles.cache.get(t);
@@ -742,7 +800,7 @@ client.on('message',message=>{
 		if(["",undefined].includes(args[1])){
 			var embed= new Discord.MessageEmbed().setColor("AQUA").setTitle("Command list").setDescription("Use `help <command>` for specific command help");
 			commands.forEach(cmd=>{
-				embed.addField(cmd.name,cmd.description);
+				embed.addField(cmd.name,cmd.description,true);
 			})
 			message.channel.send(embed);
 		} else if(commands.find(t=>(t.name==args[1]))!=undefined){
@@ -1240,7 +1298,7 @@ async function musicMessage(message){
 			if(["",undefined].includes(args[1])){
 				var embed= new Discord.MessageEmbed().setColor("PURPLE").setTitle("Music command list").setDescription("Use `help <command>` for specific command help");
 				commands.forEach(cmd=>{
-					embed.addField(cmd.name,cmd.description);
+					embed.addField(cmd.name,cmd.description,true);
 				})
 				message.channel.send(embed);
 			} else if(commands.find(t=>(t.name==args[1]))!=undefined){
