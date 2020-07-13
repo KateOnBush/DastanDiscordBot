@@ -443,7 +443,7 @@ client.on('message',message=>{
 			}
 		},{
 			name: "Double XP - 1 day",
-			description: "With this upgrade you get doubled xp for 1 day!",
+			description: "With this upgrade you get doubled xp for 1 day! Level up fast today!",
 			price: 400,
 			id: 7,
 			multiple: true,
@@ -461,7 +461,7 @@ client.on('message',message=>{
 			}
 		},{
 			name: "Double XP - 1 week",
-			description: "With this upgrade you get doubled xp for 1 day!",
+			description: "With this upgrade you get doubled xp for full 7 days! Boost your experience!",
 			price: 2200,
 			id: 8,
 			multiple: true,
@@ -530,7 +530,7 @@ client.on('message',message=>{
 			} else {
 				let embed=new Discord.MessageEmbed().setColor("YELLOW").setTitle("Category: "+cat.name);
 				cat.items.forEach(item=>{
-					embed.addField(item.name,item.description + "\nPrice: **"+item.price+"**\nID: **"+item.id+"**",true);
+					embed.addField(item.name,item.description + "\n**Price:** "+item.price+"\n**ID:** "+item.id,true);
 				})
 				message.channel.send(embed);
 			}
