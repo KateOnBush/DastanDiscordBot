@@ -289,17 +289,19 @@ client.on('error',err=>{
 client.on('ready',()=>{
 	log("Ready!");
 	eventReminder();
-	client.guilds.cache.array()[0].roles.resolve("728216095835815976").members.array().forEach(member=>{
-		info.load(member.id).then(data=>{
-			if(![0,undefined].includes(data.mutedTo)) {
-				if(Date.now()>data.mutedTo) {
-					member.roles.remove("728216095835815976");
-				} else {
-					setTimeout(function(){
+	client.guilds.cache.array()[0].roles.fetch("728216095835815976").then(role=>{
+		role.members.array().forEach(member=>{
+			info.load(member.id).then(data=>{
+				if(![0,undefined].includes(data.mutedTo)) {
+					if(Date.now()>data.mutedTo) {
 						member.roles.remove("728216095835815976");
-					},data.mutedTo-Date.now());
+					} else {
+						setTimeout(function(){
+							member.roles.remove("728216095835815976");
+						},data.mutedTo-Date.now());
+					}
 				}
-			}
+			});
 		});
 	});
 	client.guilds.cache.array()[0].members.fetch().then(members=>{
@@ -319,19 +321,21 @@ client.on('ready',()=>{
 			});
 		});
 	});
-	client.guilds.cache.array()[0].roles.resolve("728216095835815976").members.array().forEach(member=>{
-		info.load(member.id).then(data=>{
-			if(![0,undefined].includes(data.doubleXp)) {
-				if(Date.now()>data.doubleXp) {
-					member.roles.remove("732234963310608426");
-				} else {
-					setTimeout(function(){
+	client.guilds.cache.array()[0].roles.fetch("728216095835815976").then(role=>{
+		role.members.array().forEach(member=>{
+			info.load(member.id).then(data=>{
+				if(![0,undefined].includes(data.doubleXp)) {
+					if(Date.now()>data.doubleXp) {
 						member.roles.remove("732234963310608426");
-					},data.doubleXp-Date.now());
+					} else {
+						setTimeout(function(){
+							member.roles.remove("732234963310608426");
+						},data.doubleXp-Date.now());
+					}
+				} else {
+					member.roles.remove("732234963310608426");
 				}
-			} else {
-				member.roles.remove("732234963310608426");
-			}
+			});
 		});
 	});
 })
@@ -814,6 +818,7 @@ client.on('message',message=>{
 	} else if(args[0]=="restart"){
 		  
 		if(message.author.id!="123413327094218753") return;
+		message.channel.send("All bots restarting...");
 		restart();
 		  
 	}else if(args[0]=="help"){
