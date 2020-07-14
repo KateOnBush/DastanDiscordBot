@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
+const request = require('request');
 
 
 //Logs
@@ -22,6 +23,26 @@ function timeformatToSeconds(f){
 }
 function levelXp(level){
 return 30*level*(1+level);
+}
+function restart(){
+	var token = '47e28c9c-9dd4-47b7-9219-d3c0d65ee334';
+	var appName = 'manic353-bot';
+	var dynoName = 'worker';
+	request.delete(
+	    {
+		url: 'https://api.heroku.com/apps/' + appName + '/dynos/',
+		headers: {
+		    'Content-Type': 'application/json',
+		    'Accept': 'application/vnd.heroku+json; version=3',
+		    'Authorization': 'Bearer ' + token
+		}
+	    },
+	    function(error, response, body) {
+		// Do stuff
+		console.log(error);
+		console.log(response)
+	    }
+	)	
 }
 function eventReminder(){
 
@@ -790,7 +811,12 @@ client.on('message',message=>{
 			member.roles.add(role);
 			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+member.id+">'s color is **"+role.name+"**").setColor(role.color))
 		}
-	} else if(args[0]=="help"){
+	} else if(args[0]=="restart"){
+		  
+		if(message.author.id!="123413327094218753") return;
+		restart();
+		  
+	}else if(args[0]=="help"){
 	
 		const commands = [{
 			name: "ping",
