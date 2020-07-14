@@ -25,6 +25,7 @@ function levelXp(level){
 return 30*level*(1+level);
 }
 function restart(){
+	log("Restarting...")
 	var token = '47e28c9c-9dd4-47b7-9219-d3c0d65ee334';
 	var appName = 'manic353-bot';
 	var dynoName = 'worker';
@@ -321,7 +322,7 @@ client.on('ready',()=>{
 			});
 		});
 	});
-	client.guilds.cache.array()[0].roles.fetch("728216095835815976").then(role=>{
+	client.guilds.cache.array()[0].roles.fetch("732234963310608426").then(role=>{
 		role.members.array().forEach(member=>{
 			info.load(member.id).then(data=>{
 				if(![0,undefined].includes(data.doubleXp)) {
