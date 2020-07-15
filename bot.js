@@ -473,7 +473,7 @@ client.on('message',message=>{
 		}]
 	},{
 		name: "Boosts",
-		description: "Boost your server experience with awesome perks!",
+		description: "Make your server experience much more enjoyable with a bunch of server boosts!",
 		subcommand: "boosts",
 		items: [{
 			name: "Double XP - 6 hours",
@@ -577,7 +577,7 @@ client.on('message',message=>{
 				embed.setDescription(item.longDescription||item.description);
 				embed.addField("Price",item.price,true);
 				embed.addField("ID",item.id,true);
-				embed.setFooter("Use (buy <id>) to buy an item.")
+				embed.setFooter("Use (buy "+item.id+") to buy this item.")
 				message.channel.send(embed);
 			} else {
 				let embed=new Discord.MessageEmbed().setColor("YELLOW").setTitle("Category: "+cat.name).setDescription(cat.description).setFooter("Use (store "+cat.subcommand+" <item ID>) to see a specific item.");
