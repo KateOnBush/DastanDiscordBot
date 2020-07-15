@@ -580,15 +580,15 @@ client.on('message',message=>{
 				embed.setFooter("Use (buy <id>) to buy an item.")
 				message.channel.send(embed);
 			} else {
-				let embed=new Discord.MessageEmbed().setColor("YELLOW").setTitle("Category: "+cat.name);
+				let embed=new Discord.MessageEmbed().setColor("YELLOW").setTitle("Category: "+cat.name).setDescription(cat.description).setFooter("Use (store "+cat.subcommand+" <item ID>) to see a specific item.");
 				cat.items.forEach(item=>{
-					embed.addField(item.name,item.description + "\n**Price:** "+item.price+"\n**ID:** "+item.id,true);
+					embed.addField(item.name,"**Price:** "+item.price+"\n**ID:** "+item.id,true);
 				})
 				message.channel.send(embed);
 			}
 			
 		} else {
-			let embed=new Discord.MessageEmbed().setColor("GOLD").setTitle("Store categories:")
+			let embed=new Discord.MessageEmbed().setColor("GOLD").setTitle("Store categories:").setFooter("Use (store <category>) to see category items.")
 			items.forEach(cat=>{
 				embed.addField(cat.name,cat.description+"\n**Subcommand:** "+cat.subcommand,true);
 			})
