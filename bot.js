@@ -773,7 +773,7 @@ client.on('message',message=>{
 				const all=data.messagesEverSent-last;
 				const next=levelXp(data.level)-last;
 				const prog=all/next;
-				message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").addField("Progress","`"+"█".repeat(Math.max(prog*10,0)|0)+"  ".repeat(Math.max(1-prog,0)*10|0)+"` **"+(prog*100|0)+"**%").setColor("GREEN"));
+				message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").addField("Progress","`"+"██".repeat(Math.max(prog*10,0)|0)+"  ".repeat(Math.max(1-prog,0)*10|0)+"`  **"+(prog*100|0)+"**%").setColor("GREEN"));
 			});
 		});
 	} else if(args[0]=="uptime"){
@@ -801,7 +801,7 @@ client.on('message',message=>{
 				const all=data.messagesEverSent-last;
 				const next=levelXp(data.level)-last;
 				const prog=all/next;
-				message.channel.send(new Discord.MessageEmbed().setTitle(userToFind.displayName+"'s profile").addField("Level",data.level,true).addField("Progress","`"+"█".repeat(Math.max(prog*10,0)+1|0,)+"  ".repeat(Math.max(1-prog,0)*10|0)+"` **"+(prog*100|0)+"**%",true).addField("Gold",data.gold,true).addField("Joined at",new Date(userToFind.joinedTimestamp)).addField("Average Daily Activity Points",numberBeautifier(data.messageAveragePerDay,","),true).addField("All-Time Activity Points",numberBeautifier(data.messagesEverSent,","),true).setColor("RANDOM").setThumbnail(userToFind.user.displayAvatarURL()));
+				message.channel.send(new Discord.MessageEmbed().setTitle(userToFind.displayName+"'s profile").addField("Level",data.level,true).addField("Progress","`"+"██".repeat(Math.max(prog*10,0)|0,)+"  ".repeat(Math.max(1-prog,0)*10|0)+"`  **"+(prog*100|0)+"**%",true).addField("Gold",data.gold,true).addField("Joined at",new Date(userToFind.joinedTimestamp)).addField("Average Daily Activity Points",numberBeautifier(data.messageAveragePerDay,","),true).addField("All-Time Activity Points",numberBeautifier(data.messagesEverSent,","),true).setColor("RANDOM").setThumbnail(userToFind.user.displayAvatarURL()));
 			})
 		});
 		
@@ -902,7 +902,7 @@ client.on('message',message=>{
 		},{
 			name: "dailyreward",
 			description: "Claim your daily reward.",
-			longDescription: "Claim a daily **100** gold reward, if you get lucky and claim it soon enough, you may get more gold!",
+			longDescription: "Claim a daily **40** gold reward, if you get lucky and claim it soon enough, you may get more gold!",
 			usage: "dailyreward"
 		}];
 		
@@ -1185,16 +1185,20 @@ async function musicMessage(message){
 		var np=undefined;
 		if(!isEmpty) np = await chosenclient.player.nowPlaying(message.guild.id);
 		if(["p","search","s","play","add"].includes(args[0])){
+			message.channel.startTyping();
 			let isPlaying = chosenclient.player.isPlaying(message.guild.id);
 			if(isPlaying){
 				chosenclient.player.addToQueue(message.guild.id,message.content.replace(args_case[0],""),"<@!"+message.member.id+">").then(songPlayer=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("**Added to queue:** "+songPlayer.song.name+" (Requested by "+songPlayer.song.requestedBy+")").setColor("AQUA"))
+					message.channel.stopTyping();
 				}).catch(err=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't find the song, maybe try with more details?").setColor("RED"))
+					message.channel.stopTyping();
 				});
 			} else {
 				chosenclient.player.play(message.member.voice.channel,message.content.replace(args_case[0],""),"<@!"+message.member.id+">").then(song=>{
 				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.song.name + " (Requested by " + song.song.requestedBy+")"))
+				message.channel.stopTyping();
 				chosenclient.player.songStarted=Date.now()/1000;
 				chosenclient.user.setPresence({
 						status: "online",
@@ -1230,6 +1234,7 @@ async function musicMessage(message){
 				});
 				}).catch(err=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't find the song, maybe try with more details?").setColor("RED"))
+					message.channel.stopTyping();
 				});;
 			}
 		} else if(["queue","q"].includes(args[0])){
