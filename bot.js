@@ -17,7 +17,8 @@ function msToString(ms){
 	var hours=((ms/1000)-(weeks*604800)-(days*86400))/3600|0;
 	var minutes=((ms/1000)-(weeks*604800)-(days*86400)-(hours*3600))/60|0;
 	var seconds=((ms/1000)-(weeks*604800)-(days*86400)-(hours*3600)-(minutes*60))|0;
-	return `${weeks>0 ? `**${weeks}** weeks, ` : '' }` + `${days>0 ? `**${days}** days, ` : '' }` + `${hours>0 ? `**${hours}** hours, ` : '' }` + `${minutes>0 ? `**${minutes}** minutes and ` : '' }` + `**${seconds}** seconds`;
+	let s = `${weeks>0 ? `**${weeks}** weeks, ` : '' }` + `${days>0 ? `**${days}** days, ` : '' }` + `${hours>0 ? `**${hours}** hours, ` : '' }` + `${minutes>0 ? `**${minutes}** minutes and ` : '' }` + `**${seconds}** seconds`;
+	return s.replace(" and **0** seconds","");
 }
 function timeformatToSeconds(f){
 	return eval(f.replace("s","+").replace("m","*60+").replace("h","*3600+").replace("d","*3600*24+").replace("w","*3600*24*7+").replace("mo","*3600*24*30+").replace("y","*3600*24*365+")+"0");	
@@ -738,7 +739,7 @@ client.on('message',message=>{
 			if(data.dailyReward==undefined||(Date.now()-data.dailyReward>3600*24*1000)){
 				if(data.dailyReward==undefined) data.dailyReward=0; 
 				let gold=100;
-				let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("<@!"+message.member.id+"> 💸 You have claimed your **100** daily reward!");
+				let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("💸 You have claimed your **100** gold daily reward!");
 				if(Date.now()-data.dailyReward-3600*24*1000<30*1000){
 					gold+=300;
 					embed.setDescription(embed.description+"\n⌛ You have claimed your reward very early! You received an additional **300** gold!");
@@ -750,6 +751,7 @@ client.on('message',message=>{
 				})
 			} else {
 				let embed=new Discord.MessageEmbed().setColor("RED").setDescription("🕙 Come back in "+msToString(data.dailyReward+3600*24*1000-Date.now())+" to claim your daily reward!");	
+				message.channel.send(embed)
 			}
 		})
 		
