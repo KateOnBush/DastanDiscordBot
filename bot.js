@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 const client = new Discord.Client();
 const request = require('request');
 
+let dataCache = [];
 
 //Logs
 function log(info){
@@ -220,28 +221,51 @@ var info = {
 		await client.channels.cache.get("728363315138658334").send(JSON.stringify(data));
 	},
 	save: async function(id,data){
-		var exists=false;
-		var col = await client.channels.cache.get("728363315138658334").messages.fetch({limit: (client.guilds.cache.array()[0].memberCount+5)});
-		var messages = col.array();
-		for(var i=0;i<messages.length;i++){
-			if(messages[i].content.includes(id)){
-				exists=await messages[i].edit(JSON.stringify(data));
+		var exists=undefined;
+		let messageID = undefined;
+		let toEdit=undefined;
+		if(dataCache.find(i=>i.id==id)!=undefined){ messageID = dataCache.find(i=>i.id==id).message};
+		if(messageID==undefined){
+			var col = await client.channels.cache.get("728363315138658334").messages.fetch({limit: (client.guilds.cache.array()[0].memberCount+5)});
+			var messages = col.array();
+			for(var i=0;i<messages.length;i++){
+				if(messages[i].content.includes(id)){
+					toEdit=messages[i];
+				}
 			}
-		}
-		if(exists==false){
+		} else if(client.channels.cache.get("728363315138658334").messages.cache.array().find(m=>m.id==messageID)==undefined){
+			toEdit=await client.channels.cache.get("728363315138658334").messages.fetch(messageID);
+		} else {
+			toEdit=client.channels.cache.get("728363315138658334").messages.cache.array().find(m=>m.id==messageID);
+		}	
+		exists=await toEdit.edit(JSON.stringify(data));
+		if(exists==undefined){
 			await this.init(data);
 		}
 	},
 	load: async function(id){	
-		var exists=false;
-		var col = await client.channels.cache.get("728363315138658334").messages.fetch({limit: (client.guilds.cache.array()[0].memberCount+5)});
-		messages=col.array();
-		for(var i=0;i<messages.length;i++){
-			if(messages[i].content.includes(id)){
-				exists=JSON.parse(messages[i].content);
-			} 
+		var exists=undefined;
+		let messageID = undefined;
+		if(dataCache.find(i=>i.id==id)!=undefined){ messageID = dataCache.find(i=>i.id==id).message};
+		if(messageID==undefined){
+			var col = await client.channels.cache.get("728363315138658334").messages.fetch({limit: (client.guilds.cache.array()[0].memberCount+5)});
+			messages=col.array();
+			for(var i=0;i<messages.length;i++){
+				if(messages[i].content.includes(id)){
+					dataCache.push({
+						id: id,
+						message: messages[i].id
+					});
+					exists=JSON.parse(messages[i].content);
+				} 
+			}
+		} else if(client.channels.cache.get("728363315138658334").messages.cache.array().find(m=>m.id==messageID)==undefined){
+			let msg=await client.channels.cache.get("728363315138658334").messages.fetch(messageID);
+			exists=JSON.parse(msg.content);
+		} else {
+			exists=JSON.parse(client.channels.cache.get("728363315138658334").messages.cache.array().find(m=>m.id==messageID).content);
 		}
-		if(exists==false){
+		if(exists==undefined){
 			//Default data
 			var def={
 				id: id,
@@ -254,6 +278,7 @@ var info = {
 			}
 			await this.init(def);
 			exists=def;
+		} else {	
 		}
 		return exists;
 	},
@@ -707,7 +732,28 @@ client.on('message',message=>{
 	
 	//Commands
 	if(message.channel.id!="728025726556569631") return;
-	if(["ping","latency"].includes(args[0])){
+	if(["dailyreward","daily","dr","reward"].includes(args[0])){
+	
+		info.load(message.member.id).then(data=>{
+			if(data.dailyReward==undefined||(Date.now()-data.dailyReward>3600*24*1000)){
+				if(data.dailyReward==undefined) data.dailyReward=0; 
+				let gold=100;
+				let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("<@!"+message.member.id+"> 💸 You have claimed your **100** daily reward!");
+				if(Date.now()-data.dailyReward-3600*24*1000<30*1000){
+					gold+=300;
+					embed.setDescription(embed.description+"\n⌛ You have claimed your reward very early! You received an additional **300** gold!");
+				}
+				data.gold+=gold;
+				data.dailyReward=Date.now(); 
+				info.save(message.member.id,data).then(()=>{
+					message.channel.send(embed);
+				})
+			} else {
+				let embed=new Discord.MessageEmbed().setColor("RED").setDescription("🕙 Come back in "+msToString(data.dailyReward+3600*24*1000-Date.now())+" to claim your daily reward!");	
+			}
+		})
+		
+	} else if(["ping","latency"].includes(args[0])){
 		var d=Date.now();
 		message.channel.send(new Discord.MessageEmbed().setDescription("**Pong!**").setColor("RED")).then(msg => {
             		msg.edit(new Discord.MessageEmbed().setDescription("**Pong!** My latency is "+(Date.now()-d)+" ms!").setColor("GREEN"));
@@ -851,6 +897,11 @@ client.on('message',message=>{
 			longDescription: "This commands is used to change your name color, or to see your/someone's color.",
 			subcommands: "set, list",
 			usage: "color <set/list> (color name)"
+		},{
+			name: "dailyreward",
+			description: "Claim your daily reward.",
+			longDescription: "Claim a daily **100** gold reward, if you get lucky and claim it soon enough, you may get more gold!",
+			usage: "dailyreward"
 		}];
 		
 		if(["",undefined].includes(args[1])){
@@ -863,9 +914,9 @@ client.on('message',message=>{
 			
 			const cmd=commands.find(t=>(t.name==args[1]));
 			var embed= new Discord.MessageEmbed().setColor("fafafa").setTitle("Command help: " + args[1]);
-			embed.addField("Description",cmd.longDescription||cmd.description);
-			embed.addField("Sub-commands",cmd.subcommands||"None.");
-			embed.addField("Usage","*"+cmd.usage+"*")
+			embed.addField("Description",cmd.longDescription||cmd.description,true);
+			embed.addField("Sub-commands",cmd.subcommands||"None.",true);
+			embed.addField("Usage","*"+cmd.usage+"*",true)
 			message.channel.send(embed);
 			
 		} else {
@@ -879,7 +930,7 @@ client.on('message',message=>{
 				const muted=message.mentions.members.array()[0];
 				unmute(muted).then(()=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+muted.id+"> was unmuted by <@!"+message.author.id+">").setColor("RED"));
-					adminlog(muted.displayName+" `ID: "+muted.id+"` was muted by "+message.member.displayName+""+" `ID: "+message.author.id+"`");
+					adminlog(muted.displayName+" `ID: "+muted.id+"` was unmuted by "+message.member.displayName+""+" `ID: "+message.author.id+"`");
 				});
 				
 			}catch(err){
