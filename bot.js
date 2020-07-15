@@ -560,8 +560,8 @@ client.on('message',message=>{
 			const cmd=commands.find(t=>(t.name==args[1]));
 			var embed= new Discord.MessageEmbed().setColor("fafafa").setTitle("Command help: " + args[1]);
 			embed.addField("Description",cmd.longDescription||cmd.description);
-			embed.addField("Sub-commands",cmd.subcommands||"None.");
-			embed.addField("Usage","*"+cmd.usage+"*")
+			embed.addField("Sub-commands",cmd.subcommands||"None.",true);
+			embed.addField("Usage","*"+cmd.usage+"*",true)
 			message.channel.send(embed);
 			
 		} else {
@@ -575,8 +575,8 @@ client.on('message',message=>{
 				let item=cat.items.find(item=>item.id==parseInt(args[2]));
 				let embed=new Discord.MessageEmbed().setColor("YELLOW").setTitle("Item: "+item.name);
 				embed.setDescription(item.longDescription||item.description);
-				embed.addField("Price",item.price);
-				embed.addField("ID",item.id);
+				embed.addField("Price",item.price,true);
+				embed.addField("ID",item.id,true);
 				embed.setFooter("Use (buy <id>) to buy an item.")
 				message.channel.send(embed);
 			} else {
@@ -738,11 +738,11 @@ client.on('message',message=>{
 		info.load(message.member.id).then(data=>{
 			if(data.dailyReward==undefined||(Date.now()-data.dailyReward>3600*24*1000)){
 				if(data.dailyReward==undefined) data.dailyReward=0; 
-				let gold=100;
-				let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("💸 You have claimed your **100** gold daily reward!");
-				if(Date.now()-data.dailyReward-3600*24*1000<30*1000){
-					gold+=300;
-					embed.setDescription(embed.description+"\n⌛ You have claimed your reward very early! You received an additional **300** gold!");
+				let gold=30;
+				let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("💸 You have claimed your **40** gold daily reward!");
+				if(Date.now()-data.dailyReward-3600*24*1000<10*1000){
+					gold+=150;
+					embed.setDescription(embed.description+"\n⌛ You have claimed your reward very early! You received an additional **120** gold!");
 				}
 				data.gold+=gold;
 				data.dailyReward=Date.now(); 
@@ -773,7 +773,7 @@ client.on('message',message=>{
 				const all=data.messagesEverSent-last;
 				const next=levelXp(data.level)-last;
 				const prog=all/next;
-				message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").addField("Progress","█".repeat(Math.max(prog*10,0)|0)+"▒".repeat(Math.max(1-prog,0)*10|0)+" "+(prog*100|0)+"%").setColor("GREEN"));
+				message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").addField("Progress","`"+"█".repeat(Math.max(prog*10,0)|0)+"  ".repeat(Math.max(1-prog,0)*10|0)+"` **"+(prog*100|0)+"**%").setColor("GREEN"));
 			});
 		});
 	} else if(args[0]=="uptime"){
@@ -801,7 +801,7 @@ client.on('message',message=>{
 				const all=data.messagesEverSent-last;
 				const next=levelXp(data.level)-last;
 				const prog=all/next;
-				message.channel.send(new Discord.MessageEmbed().setTitle(userToFind.displayName+"'s profile").addField("Level",data.level,true).addField("Progress","█".repeat(Math.max(prog*10,0)|0,)+"▒".repeat(Math.max(1-prog,0)*10|0)+" "+(prog*100|0)+"%",true).addField("Gold",data.gold).addField("Joined at",new Date(userToFind.joinedTimestamp),true).addField("Average Daily Activity Points",numberBeautifier(data.messageAveragePerDay,","),true).addField("All-Time Activity Points",numberBeautifier(data.messagesEverSent,","),true).setColor("RANDOM").setThumbnail(userToFind.user.displayAvatarURL()));
+				message.channel.send(new Discord.MessageEmbed().setTitle(userToFind.displayName+"'s profile").addField("Level",data.level,true).addField("Progress","`"+"█".repeat(Math.max(prog*10,0)+1|0,)+"  ".repeat(Math.max(1-prog,0)*10|0)+"` **"+(prog*100|0)+"**%",true).addField("Gold",data.gold,true).addField("Joined at",new Date(userToFind.joinedTimestamp)).addField("Average Daily Activity Points",numberBeautifier(data.messageAveragePerDay,","),true).addField("All-Time Activity Points",numberBeautifier(data.messagesEverSent,","),true).setColor("RANDOM").setThumbnail(userToFind.user.displayAvatarURL()));
 			})
 		});
 		
@@ -916,7 +916,7 @@ client.on('message',message=>{
 			
 			const cmd=commands.find(t=>(t.name==args[1]));
 			var embed= new Discord.MessageEmbed().setColor("fafafa").setTitle("Command help: " + args[1]);
-			embed.addField("Description",cmd.longDescription||cmd.description,true);
+			embed.addField("Description",cmd.longDescription||cmd.description);
 			embed.addField("Sub-commands",cmd.subcommands||"None.",true);
 			embed.addField("Usage","*"+cmd.usage+"*",true)
 			message.channel.send(embed);
@@ -1414,8 +1414,8 @@ async function musicMessage(message){
 				const cmd=commands.find(t=>(t.name==args[1]));
 				var embed= new Discord.MessageEmbed().setColor("fafafa").setTitle("Command help: " + args[1]);
 				embed.addField("Description",cmd.longDescription||cmd.description);
-				embed.addField("Sub-commands",cmd.subcommands||"None.");
-				embed.addField("Usage","*"+cmd.usage+"*")
+				embed.addField("Sub-commands",cmd.subcommands||"None.",true);
+				embed.addField("Usage","*"+cmd.usage+"*",true)
 				message.channel.send(embed);
 
 			} else {
