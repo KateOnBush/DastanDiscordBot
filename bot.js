@@ -31,8 +31,8 @@ function dropChest(){
 		if(c.chest.collected==false){
 			c.send(new Discord.MessageEmbed().setColor("RED").setDescription("**Oh no!** The chest has disappeared! Better luck next time!"))	
 		}
-	},5*1000)
-	setTimeout(dropChest,60*1000+(Math.random()*3|0)*60*1000)
+	},5*60*1000)
+	setTimeout(dropChest,3600*1000+(Math.random()*3|0)*3600*1000)
 	
 }
 
@@ -347,7 +347,7 @@ client.on('ready',()=>{
 			url: null
 		}});
 	log("Ready!");
-	setTimeout(dropChest,5000);
+	setTimeout(dropChest,50000);
 	eventReminder();
 	client.guilds.cache.array()[0].roles.fetch("728216095835815976").then(role=>{
 		role.members.array().forEach(member=>{
