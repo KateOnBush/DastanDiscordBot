@@ -11,6 +11,31 @@ function log(info){
 function adminlog(info){
 	client.channels.resolve("729744865776107550").send(info);
 }
+function dropChest(){
+	let c=client.channels.cache.get("728025726556569631");
+	let em=new Discord.MessageEmbed().setColor("ORANGE").setDescription("📦 A new chest has been dropped! Quickly write `collect` to collect it!");
+	c.chest={
+		value: 20+Math.random()*100|0,
+		collected: false
+	}
+	if(Math.random()<0.1){
+		c.chest.value+=200;
+		em.setDescription("💰 **A rare chest** has been dropped! Quickly write `collect` to collect it!!").setColor("GREEN");
+	}
+	if(Math.random()<0.04){
+		c.chest.value+=600;
+		em.setDescription("💎 **A very rare chest has been dropped!** Quickly write `collect` to collect it!!!").setColor("AQUA");
+	}
+	c.send(em);
+	setTimeout(function(){
+		if(c.chest.collected==false){
+			c.send(new Discord.MessageEmbed().setColor("RED").setDescription("**Oh no!** The chest has disappeared! Better luck next time!"))	
+		}
+	},5*1000)
+	setTimeout(dropChest,60*1000+(Math.random()*3|0)*60*1000)
+	
+}
+
 function msToString(ms){
 	var weeks=((ms/1000)/604800)|0;
 	var days=((ms/1000)-(weeks*604800))/86400|0;
@@ -322,6 +347,7 @@ client.on('ready',()=>{
 			url: null
 		}});
 	log("Ready!");
+	setTimeout(dropChest,5000);
 	eventReminder();
 	client.guilds.cache.array()[0].roles.fetch("728216095835815976").then(role=>{
 		role.members.array().forEach(member=>{
@@ -633,7 +659,7 @@ client.on('message',message=>{
 						item.buy(message.member);
 						
 					});
-					message.channel.send(new Discord.MessageEmbed().setDescription("You have successfully bought **"+item.name+"**!").setColor("GREEN"));
+					message.channel.send(new Discord.MessageEmbed().setDescription("You have successfully bought **"+item.name+"** for **"+item.price+"** gold!").setColor("GREEN"));
 				}
 			})	
 		}
@@ -750,6 +776,19 @@ client.on('message',message=>{
 				message.channel.send(embed)
 			}
 		})
+		
+	} else if(args[0]=="collect"){
+		if(message.channel.chest==undefined||message.channel.chest.collected==true){
+			message.channel.send(new Discord.MessageEmbed().setDescription("😧 There is no dropped chest now! Come back later!").setColor("RED"))
+		} else {
+			info.load(message.member.id).then(data=>{
+				data.gold+=message.channel.chest.value;
+				message.channel.chest.collected=true;
+				info.save(message.member.id,data).then(()=>{
+					message.channel.send(new Discord.MessageEmbed().setDescription("🌟 **You have opened the chest!** You received **"+message.channel.chest.value+"** gold!").setColor("GREEN"))
+				})
+			})	
+		}
 		
 	} else if(["ping","latency"].includes(args[0])){
 		var d=Date.now();
@@ -1254,7 +1293,16 @@ async function musicMessage(message){
 			let queue = await chosenclient.player.getQueue(message.guild.id);
 			let r = queue.songs[0].requestedBy;
 			if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){
-				chosenclient.player.stop(message.guild.id);
+				chosenclient.player.stop(message.guild.id).then(()=>{
+				chosenclient.user.setPresence({
+						status: "online",
+						afk: false,
+						activity: {
+							name: "",
+							type: "PLAYING",
+							url: null
+						}});
+				});
 				message.channel.send(new Discord.MessageEmbed().setDescription("⏹️ Music stopped!").setColor("RED"))
 			} else {
 				message.channel.send(new Discord.MessageEmbed().setDescription("You can't stop the music.").setColor("RED"))	
