@@ -808,7 +808,7 @@ client.on('message',message=>{
 				const all=data.messagesEverSent-last;
 				const next=levelXp(data.level)-last;
 				const prog=all/next;
-				message.channel.send(new Discord.MessageEmbed().setTitle(userToFind.displayName+"'s profile").addField("Level",data.level,true).addField("Progress","`"+"██".repeat(Math.max(prog*10,0)|0,)+"  ".repeat(Math.max(1-prog,0)*10|0)+"`  **"+(prog*100|0)+"**%",true).addField("Gold",data.gold,true).addField("All-Time Activity Points",numberBeautifier(data.messagesEverSent,","),true).setColor("RANDOM").setThumbnail(userToFind.user.displayAvatarURL()).addField("Joined at",new Date(userToFind.joinedTimestamp)).addField("Average Daily Activity Points",numberBeautifier(data.messageAveragePerDay,","),true));
+				message.channel.send(new Discord.MessageEmbed().setTitle(userToFind.displayName+"'s profile").addField("Level",data.level,true).addField("Progress","`"+"██".repeat(Math.max(prog*10,0)|0,)+"  ".repeat(Math.max(1-prog,0)*10|0)+"`  **"+(prog*100|0)+"**%",true).addField("Gold",data.gold,true).setColor("RANDOM").setThumbnail(userToFind.user.displayAvatarURL()).addField("Joined at",new Date(userToFind.joinedTimestamp)).addField("Average Daily Activity Points",numberBeautifier(data.messageAveragePerDay,","),true).addField("All-Time Activity Points",numberBeautifier(data.messagesEverSent,","),true));
 			})
 		});
 		
