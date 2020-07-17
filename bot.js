@@ -313,6 +313,14 @@ client.on('error',err=>{
 	log("Error encountered: `"+err+"`");
 });
 client.on('ready',()=>{
+	client.user.setPresence({
+		status: "online",
+		afk: false,
+		activity: {
+			name: client.guilds.cache.array()[0].members.cache.array().length+" members do nothing.",
+			type: "WATCHING",
+			url: null
+		}});
 	log("Ready!");
 	eventReminder();
 	client.guilds.cache.array()[0].roles.fetch("728216095835815976").then(role=>{
@@ -1201,8 +1209,8 @@ async function musicMessage(message){
 				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.song.name + " (Requested by " + song.song.requestedBy+")"))
 				message.channel.stopTyping();
 				chosenclient.player.songStarted=Date.now()/1000;
-				chosenclient.user.setPresence({
-						status: "online",
+				if(message.guild.id=="728008557244448788") chosenclient.user.setPresence({
+						status: "dnd",
 						afk: false,
 						activity: {
 							name: song.song.name,
@@ -1211,8 +1219,8 @@ async function musicMessage(message){
 						}});
 				chosenclient.player.getQueue(message.guild.id).on('songChanged', (oldSong, song) => {
 			    		message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.name + " (Requested by " + song.requestedBy+")"))
-					chosenclient.user.setPresence({
-						status: "online",
+					if(message.guild.id=="728008557244448788") chosenclient.user.setPresence({
+						status: "dnd",
 						afk: false,
 						activity: {
 							name: song.name,
@@ -1224,7 +1232,7 @@ async function musicMessage(message){
 						chosenclient.player.getQueue(message.guild.id).songs.push(oldSong);
 					}
 				}).on("end",()=>{
-					chosenclient.user.setPresence({
+					if(message.guild.id=="728008557244448788") chosenclient.user.setPresence({
 						status: "online",
 						afk: false,
 						activity: {
@@ -1253,6 +1261,7 @@ async function musicMessage(message){
 				message.channel.send(new Discord.MessageEmbed().setDescription("Queue is empty :(").setColor("RED"))	
 			}
 		} else if((args[0]=="stop")&&(!isEmpty)){
+			await chosenclient.player.resume(message.guild.id);
 			let queue = await chosenclient.player.getQueue(message.guild.id);
 			let r = queue.songs[0].requestedBy;
 			if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){
@@ -1263,6 +1272,7 @@ async function musicMessage(message){
 			}
 			
 		} else if((args[0]=="skip")&&(!isEmpty)){
+			await chosenclient.player.resume(message.guild.id);
 			let queue = await chosenclient.player.getQueue(message.guild.id);
 			let r = queue.songs[0].requestedBy;
 			if(message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id)){
@@ -1279,6 +1289,7 @@ async function musicMessage(message){
 			let time = min + ":" + (sec+"").substring(sec.length-2);
 			message.channel.send(new Discord.MessageEmbed().setColor("GOLD").setDescription("**Now playing: **" +song.name + " (Requested by " + song.requestedBy+") **[**"+time+"**/**"+song.duration+"**]**"));
 		} else if((["clearqueue","clear"].includes(args[0]))&&(!isEmpty)){
+			await chosenclient.player.resume(message.guild.id);
 			let queue = await chosenclient.player.getQueue(message.guild.id);
 			let r = queue.songs[0].requestedBy;
 			var t=true;
@@ -1353,7 +1364,10 @@ async function musicMessage(message){
 				let r = tqueue.songs[n-1].requestedBy;
 				if((message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id))){
 					chosenclient.player.remove(message.guild.id,n-1).then(()=>{
-						if(n==1) chosenclient.player.skip(message.guild.id);
+						if(n==1) {
+							await chosenclient.player.resume(message.guild.id);
+							chosenclient.player.skip(message.guild.id);
+						}
 						message.channel.send(new Discord.MessageEmbed().setDescription("Song removed from queue.").setColor("ORANGE"))	
 					}).catch(err=>{
 						message.channel.send(new Discord.MessageEmbed().setDescription("Unable to remove the song.").setColor("RED"))	
