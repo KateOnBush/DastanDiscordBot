@@ -653,6 +653,12 @@ client.on('message',message=>{
 	
 	log(message.author.username + " `ID: " + message.member.id + "` sent message `ID : " + message.id + "` in channel '" + message.channel.name + "' `ID: " + message.channel.id + "`\n```"+message.content+"```");
 	
+	if(message.channel.id=="733647169491304508"){
+		message.react("⬆️").then(()=>{
+			message.react("⬇️");
+		})	
+	}
+	
 	//Anti-Spam
 	if(message.author.antiSpamCount==undefined) message.author.antiSpamCount=0;
 	if(message.author.antiSpamCount==0) message.author.antiSpamFirst=Date.now();
