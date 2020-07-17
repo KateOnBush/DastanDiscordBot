@@ -1363,7 +1363,7 @@ async function musicMessage(message){
 			if((n!=NaN)&&(n<=tqueue.songs.length)&&(n>=1)){
 				let r = tqueue.songs[n-1].requestedBy;
 				if((message.member.hasPermission("MANAGE_CHANNELS")||r.includes(message.member.id))){
-					chosenclient.player.remove(message.guild.id,n-1).then(()=>{
+					chosenclient.player.remove(message.guild.id,n-1).then(async ()=>{
 						if(n==1) {
 							await chosenclient.player.resume(message.guild.id);
 							chosenclient.player.skip(message.guild.id);
