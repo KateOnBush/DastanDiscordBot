@@ -215,7 +215,6 @@ async function unmute(member){
 	return true;
 }
 
-//Data Management
 var info = {
 	exists: false,
 	init: async function(data){
@@ -801,7 +800,7 @@ client.on('message',message=>{
 				const all=data.messagesEverSent-last;
 				const next=levelXp(data.level)-last;
 				const prog=all/next;
-				message.channel.send(new Discord.MessageEmbed().setTitle(userToFind.displayName+"'s profile").addField("Level",data.level,true).addField("Progress","`"+"██".repeat(Math.max(prog*10,0)|0,)+"  ".repeat(Math.max(1-prog,0)*10|0)+"`  **"+(prog*100|0)+"**%",true).addField("Gold",data.gold,true).addField("Joined at",new Date(userToFind.joinedTimestamp)).addField("Average Daily Activity Points",numberBeautifier(data.messageAveragePerDay,","),true).addField("All-Time Activity Points",numberBeautifier(data.messagesEverSent,","),true).setColor("RANDOM").setThumbnail(userToFind.user.displayAvatarURL()));
+				message.channel.send(new Discord.MessageEmbed().setTitle(userToFind.displayName+"'s profile").addField("Level",data.level,true).addField("Progress","`"+"██".repeat(Math.max(prog*10,0)|0,)+"  ".repeat(Math.max(1-prog,0)*10|0)+"`  **"+(prog*100|0)+"**%",true).addField("Gold",data.gold,true).addField("All-Time Activity Points",numberBeautifier(data.messagesEverSent,","),true).setColor("RANDOM").setThumbnail(userToFind.user.displayAvatarURL()).addField("Joined at",new Date(userToFind.joinedTimestamp)).addField("Average Daily Activity Points",numberBeautifier(data.messageAveragePerDay,","),true));
 			})
 		});
 		
@@ -1143,7 +1142,8 @@ pitch.player = new Player(pitch, "AIzaSyAT-lCRVKfYrprwdKqk69TszCfoh1jqqjM", opti
 
 treble.on("ready",()=>{
 	treble.channels.resolve("729155101746528286").send("Ready!");
-	treble.guilds.cache.array()[0].channels.cache.get("728030297911853176").join();
+	treble.channels.cache.get("728030297911853176").join();
+	treble.channels.cache.get("733527587749363793").join();
 	treble.user.setPresence({
 						status: "online",
 						afk: false,
@@ -1155,7 +1155,8 @@ treble.on("ready",()=>{
 });
 pitch.on("ready",()=>{
 	pitch.channels.resolve("729155101746528286").send("Ready!");
-	pitch.guilds.cache.array()[0].channels.cache.get("728029167286878240").join();
+	pitch.channels.cache.get("728029167286878240").join();
+	pitch.channels.cache.get("733528421396643973").join();
 	pitch.user.setPresence({
 						status: "online",
 						afk: false,
@@ -1172,7 +1173,7 @@ pitch.on("message",(message)=>{musicMessage(message)});
 async function musicMessage(message){
 	//Music Commands
 	if(message.channel.type=="dm") return;
-	if(message.channel.id!="728029565607346227") return;
+	if(message.channel.id!="728029565607346227"&&message.channel.id!="733527714375663626") return;
 	if(message.author.bot) return;
 	var args=message.content.toLowerCase().split(" ");
 	var args_case=message.content.split(" ");
