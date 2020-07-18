@@ -847,7 +847,7 @@ client.on('message',message=>{
 					info.load(message.member.id).then(data=>{
 						data.pname=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
 						if(data.pname.length<4||data.pname.length>20){
-							message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Your profile name must be between 4 and 20 characters long.")
+							message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Your profile name must be between 4 and 20 characters long."));
 						} else {
 							info.save(message.member.id,data).then(()=>{
 								message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Profile name successfully updated!"));
