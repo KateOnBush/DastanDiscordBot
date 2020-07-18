@@ -748,11 +748,11 @@ client.on('message',message=>{
 		info.load(message.member.id).then(data=>{
 			if(data.dailyReward==undefined||(Date.now()-data.dailyReward>3600*24*1000)){
 				if(data.dailyReward==undefined) data.dailyReward=0; 
-				let gold=30;
+				let gold=40;
 				let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("💸 You have claimed your **40** gold daily reward!");
 				if(Date.now()-data.dailyReward-3600*24*1000<10*1000){
-					gold+=150;
-					embed.setDescription(embed.description+"\n⌛ You have claimed your reward very early! You received an additional **120** gold!");
+					gold+=160;
+					embed.setDescription(embed.description+"\n⌛ You have claimed your reward very early! You received an additional **160** gold!");
 				}
 				data.gold+=gold;
 				data.dailyReward=Date.now(); 
@@ -819,11 +819,11 @@ client.on('message',message=>{
 				} else {
 					info.load(message.member.id).then(data=>{
 						data.bio=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
-						if(data.bio.length<5||data.bio.length>80){
-							message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Your bio must be between 5 and 80 characters long."));
+						if(data.bio.length<5||data.bio.length>200){
+							message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Your bio must be between 5 and 200 characters long."));
 						} else {
 							info.save(message.member.id,data).then(()=>{
-								message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Bio successfully updated!"));
+								message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("Bio successfully updated!"));
 							})
 						}
 					})	
@@ -834,8 +834,8 @@ client.on('message',message=>{
 				} else {
 					info.load(message.member.id).then(data=>{
 						data.pname=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
-						if(data.pname.length<4||data.pname.length>30){
-							message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Your profile name must be between 4 and 30 characters long."));
+						if(data.pname.length<4||data.pname.length>50){
+							message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Your profile name must be between 4 and 50 characters long."));
 						} else {
 							info.save(message.member.id,data).then(()=>{
 								message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("Profile name successfully updated!"));
