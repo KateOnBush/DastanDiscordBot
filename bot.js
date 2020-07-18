@@ -32,7 +32,7 @@ function dropChest(){
 			c.send(new Discord.MessageEmbed().setColor("RED").setDescription("**Oh no!** The chest has disappeared! Better luck next time!"))	
 		}
 	},5*60*1000)
-	setTimeout(dropChest,3600*1000+(Math.random()*3|0)*3600*1000)
+	setTimeout(dropChest,3600*1000+Math.random()*3*3600*1000|0)
 	
 }
 
@@ -251,11 +251,16 @@ var info = {
 		let toEdit=undefined;
 		if(dataCache.find(i=>i.id==id)!=undefined){ messageID = dataCache.find(i=>i.id==id).message};
 		if(messageID==undefined){
-			var col = await client.channels.cache.get("728363315138658334").messages.fetch({limit: (client.guilds.cache.array()[0].memberCount+5)});
-			var messages = col.array();
-			for(var i=0;i<messages.length;i++){
-				if(messages[i].content.includes(id)){
-					toEdit=messages[i];
+			let alr= client.channels.cache.get("728363315138658334").messages.cache.array().find(m=>m.content.includes(id));
+			if(alr!=undefined) {
+				toEdit=alr;
+			} else {
+				var col = await client.channels.cache.get("728363315138658334").messages.fetch();
+				var messages = col.array();
+				for(var i=0;i<messages.length;i++){
+					if(messages[i].content.includes(id)){
+						toEdit=messages[i];
+					}
 				}
 			}
 		} else if(client.channels.cache.get("728363315138658334").messages.cache.array().find(m=>m.id==messageID)==undefined){
