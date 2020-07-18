@@ -1,8 +1,15 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const request = require('request');
-
-let dataCache = [];
+let dataStorage=[];
+request.get({
+        url: 'https://jsonbox.io/box_a38581244aec497a6188',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+        },(err,r,body)=>{
+dataStorage=JSON.parse(body);
+});
 
 //Logs
 function log(info){
@@ -243,79 +250,50 @@ async function unmute(member){
 var info = {
 	exists: false,
 	init: async function(data){
-		await client.channels.cache.get("728363315138658334").send(JSON.stringify(data));
+		request.post(
+			{
+				url: 'https://jsonbox.io/box_a38581244aec497a6188',
+				headers: {
+				    'Content-Type': 'application/json',
+				},
+				json: data
+			});
 	},
 	save: async function(id,data){
-		var exists=undefined;
-		let messageID = undefined;
-		let toEdit=undefined;
-		if(dataCache.find(i=>i.id==id)!=undefined){ messageID = dataCache.find(i=>i.id==id).message};
-		if(messageID==undefined){
-			let alr= client.channels.cache.get("728363315138658334").messages.cache.array().find(m=>m.content.includes(id));
-			if(alr!=undefined) {
-				toEdit=alr;
-			} else {
-				var col = await client.channels.cache.get("728363315138658334").messages.fetch();
-				var messages = col.array();
-				for(var i=0;i<messages.length;i++){
-					if(messages[i].content.includes(id)){
-						toEdit=messages[i];
-					}
-				}
-			}
-		} else if(client.channels.cache.get("728363315138658334").messages.cache.array().find(m=>m.id==messageID)==undefined){
-			toEdit=await client.channels.cache.get("728363315138658334").messages.fetch(messageID);
-		} else {
-			toEdit=client.channels.cache.get("728363315138658334").messages.cache.array().find(m=>m.id==messageID);
-		}	
-		exists=await toEdit.edit(JSON.stringify(data));
-		if(exists==undefined){
-			await this.init(data);
+		
+		let userdata = dataStorage.find(d=>d.id==id);
+		if(userdata!=undefined){
+			request.put(
+				{
+				url: 'https://jsonbox.io/box_a38581244aec497a6188/'+userdata._id,
+				headers: {
+				    'Content-Type': 'application/json',
+				},
+				json: data
+				});
 		}
+		userdata=data;
+		
 	},
-	load: async function(id){	
-		var exists=undefined;
-		let messageID = undefined;
-		if(dataCache.find(i=>i.id==id)!=undefined){ messageID = dataCache.find(i=>i.id==id).message};
-		if(messageID==undefined){
-			let alr= client.channels.cache.get("728363315138658334").messages.cache.array().find(m=>m.content.includes(id));
-			if(alr!=undefined) {
-				exists=JSON.parse(alr.content);
-			} else {
-				var col = await client.channels.cache.get("728363315138658334").messages.fetch({limit: (client.guilds.cache.array()[0].memberCount+5)});
-				messages=col.array();
-				for(var i=0;i<messages.length;i++){
-					if(messages[i].content.includes(id)){
-						dataCache.push({
-							id: id,
-							message: messages[i].id
-						});
-						exists=JSON.parse(messages[i].content);
-					} 
-				}
-			}
-		} else if(client.channels.cache.get("728363315138658334").messages.cache.array().find(m=>m.id==messageID)==undefined){
-			let msg=await client.channels.cache.get("728363315138658334").messages.fetch(messageID);
-			exists=JSON.parse(msg.content);
+	load: async function(id){
+		
+		let userdata = dataStorage.find(d=>d.id==id);
+		if(userdata!=undefined){
+			return userdata;	
 		} else {
-			exists=JSON.parse(client.channels.cache.get("728363315138658334").messages.cache.array().find(m=>m.id==messageID).content);
-		}
-		if(exists==undefined){
-			//Default data
-			var def={
+			userdata={
 				id: id,
-				level: 1,
-				gold: 100,
+				level:1,
+				gold:100,
+				messagesEverSent: 0,
 				messageAveragePerDay: 0,
 				messagesSentToday: 0,
-				messagesEverSent: 0,
-				firstMessage: undefined
+				firstMessage: Date.now()
 			}
-			await this.init(def);
-			exists=def;
-		} else {	
+			this.init(userdata);
+			return userdata;
 		}
-		return exists;
+
 	},
 	check: async function(id){
 		var exists=false;
