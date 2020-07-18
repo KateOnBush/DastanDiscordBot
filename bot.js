@@ -808,7 +808,7 @@ client.on('message',message=>{
 				const all=data.messagesEverSent-last;
 				const next=levelXp(data.level)-last;
 				const prog=all/next;
-				message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").addField("Progress","`"+"██".repeat(Math.max(prog*10,0)|0)+"  ".repeat(Math.max(1-prog,0)*10|0)+"`  **"+(prog*100|0)+"**%").setColor("GREEN"));
+				message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").addField("Progress","`"+"█".repeat(Math.max(prog*20,0)+1|0)+"  ".repeat(Math.max(1-prog,0)*20|0)+"`  **"+(prog*100|0)+"**%").setColor("GREEN"));
 			});
 		});
 	} else if(args[0]=="uptime"){
@@ -824,6 +824,42 @@ client.on('message',message=>{
 		})	
 	} else if(args[0]=="profile"){
 		
+		if(args[1]=="set"){
+			if(args[2]=="bio"){
+				if(["",undefined].includes(args[3])){
+					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a bio."));	
+				} else {
+					info.load(message.member.id).then(data=>{
+						data.bio=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
+						if(data.bio.length<5||data.bio.length>80){
+							message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Your bio must be between 5 and 80 characters long."));
+						} else {
+							info.save(message.member.id,data).then(()=>{
+								message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Bio successfully updated!"));
+							})
+						}
+					})	
+				}
+			} else if(args[2]=="name"){
+				if(["",undefined].includes(args[3])){
+					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a profile name."));	
+				} else {
+					info.load(message.member.id).then(data=>{
+						data.pname=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
+						if(data.pname.length<4||data.pname.length>20){
+							message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Your profile name must be between 4 and 20 characters long.")
+						} else {
+							info.save(message.member.id,data).then(()=>{
+								message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Profile name successfully updated!"));
+							})
+						}
+					})	
+				}
+			} else{
+				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify: **name**, **bio**."));	
+			}
+		}
+		
 		var userToFind=message.member;
 		if(message.mentions.members.array().length!=0){
 			userToFind=message.mentions.members.array()[0];
@@ -836,7 +872,7 @@ client.on('message',message=>{
 				const all=data.messagesEverSent-last;
 				const next=levelXp(data.level)-last;
 				const prog=all/next;
-				message.channel.send(new Discord.MessageEmbed().setTitle(userToFind.displayName+"'s profile").addField("Level",data.level,true).addField("Progress","`"+"██".repeat(Math.max(prog*10,0)|0,)+"  ".repeat(Math.max(1-prog,0)*10|0)+"`  **"+(prog*100|0)+"**%",true).addField("Gold",data.gold,true).setColor("RANDOM").setThumbnail(userToFind.user.displayAvatarURL()).addField("Joined at",new Date(userToFind.joinedTimestamp)).addField("Average Daily Activity Points",numberBeautifier(data.messageAveragePerDay,","),true).addField("All-Time Activity Points",numberBeautifier(data.messagesEverSent,","),true));
+				message.channel.send(new Discord.MessageEmbed().setTitle((data.pname||userToFind.displayName+"'s profile")).addField("Level",data.level,true).setDescription((data.bio||"")).addField("Progress","`"+"█".repeat(Math.max(prog*20,0)+1|0,)+" ".repeat(Math.max(1-prog,0)*20|0)+"`  **"+(prog*100|0)+"**%",true).addField("Gold",data.gold,true).setColor(userToFind.roles.highest.color).setThumbnail(userToFind.user.displayAvatarURL()).addField("Average Daily Activity Points",numberBeautifier(data.messageAveragePerDay,","),true).addField("All-Time Activity Points",numberBeautifier(data.messagesEverSent,","),true).addField("Joined at",new Date(userToFind.joinedTimestamp)));
 			})
 		});
 		
@@ -919,15 +955,16 @@ client.on('message',message=>{
 		},{
 			name: "profile",
 			description: "Displays your/someone's full profile.",
-			usage: "profile [<user>]"
+			longDescription: "Use this command to display someone's full profile, or to edit your own profile.",
+			usage: "profile [@user/set] (name/bio)"
 		},{
 			name: "level",
 			description: "Displays your/someone's level.",
-			usage: "level [<user>]"
+			usage: "level [@user]"
 		},{
 			name: "gold",
 			description: "Displays your/someone's gold.",
-			usage: "gold [<user>]"
+			usage: "gold [@user]"
 		},{
 			name: "color",
 			description: "Name color commands.",
@@ -939,6 +976,11 @@ client.on('message',message=>{
 			description: "Claim your daily reward.",
 			longDescription: "Claim a daily **40** gold reward, if you get lucky and claim it soon enough, you may get more gold!",
 			usage: "dailyreward"
+		},{
+			name: "collect",
+			description: "Collect a dropped chest.",
+			longDescription: "Use this command to collect a chest whenever it is dropped!",
+			usage: "collect"
 		}];
 		
 		if(["",undefined].includes(args[1])){
