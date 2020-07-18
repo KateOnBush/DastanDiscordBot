@@ -278,16 +278,22 @@ var info = {
 		let messageID = undefined;
 		if(dataCache.find(i=>i.id==id)!=undefined){ messageID = dataCache.find(i=>i.id==id).message};
 		if(messageID==undefined){
-			var col = await client.channels.cache.get("728363315138658334").messages.fetch({limit: (client.guilds.cache.array()[0].memberCount+5)});
-			messages=col.array();
-			for(var i=0;i<messages.length;i++){
-				if(messages[i].content.includes(id)){
-					dataCache.push({
-						id: id,
-						message: messages[i].id
-					});
-					exists=JSON.parse(messages[i].content);
-				} 
+			if(messageID==undefined){
+			let alr= client.channels.cache.get("728363315138658334").messages.cache.array().find(m=>m.content.includes(id));
+			if(alr!=undefined) {
+				exists=JSON.parse(alr.content);
+			} else {
+				var col = await client.channels.cache.get("728363315138658334").messages.fetch({limit: (client.guilds.cache.array()[0].memberCount+5)});
+				messages=col.array();
+				for(var i=0;i<messages.length;i++){
+					if(messages[i].content.includes(id)){
+						dataCache.push({
+							id: id,
+							message: messages[i].id
+						});
+						exists=JSON.parse(messages[i].content);
+					} 
+				}
 			}
 		} else if(client.channels.cache.get("728363315138658334").messages.cache.array().find(m=>m.id==messageID)==undefined){
 			let msg=await client.channels.cache.get("728363315138658334").messages.fetch(messageID);
