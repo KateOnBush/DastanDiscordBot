@@ -278,7 +278,6 @@ var info = {
 		let messageID = undefined;
 		if(dataCache.find(i=>i.id==id)!=undefined){ messageID = dataCache.find(i=>i.id==id).message};
 		if(messageID==undefined){
-			if(messageID==undefined){
 			let alr= client.channels.cache.get("728363315138658334").messages.cache.array().find(m=>m.content.includes(id));
 			if(alr!=undefined) {
 				exists=JSON.parse(alr.content);
