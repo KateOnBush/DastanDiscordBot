@@ -32,7 +32,7 @@ function dropChest(){
 	if(Math.random()<0.04){
 		c.chest.value+=600;
 		em.setDescription("💎 **A very rare chest has been dropped!** Quickly write `collect` to collect it!!!").setColor("AQUA");
-	}
+	} 
 	c.send(em);
 	setTimeout(function(){
 		if(c.chest.collected==false){
