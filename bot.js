@@ -259,7 +259,7 @@ var info = {
 				},
 				json: data
 			},(err,re,body)=>{
-				dataStorage[dataStorage.findIndex(d=>d.id==data.id)] = JSON.parse(body);
+				dataStorage[dataStorage.findIndex(d=>d.id==data.id)] = body;
 			});
 	},
 	save: async function(id,data){
