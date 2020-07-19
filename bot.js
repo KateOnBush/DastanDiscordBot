@@ -687,13 +687,6 @@ client.on('message',message=>{
 		message.author.antiSpamCount=0;
 	}
 	
-	if(message.author.checkedInfo!=true){
-		info.check(message.author.id).then(r=>{
-			if(!r) info.load(message.author.id);
-			message.author.checkedInfo=true;
-		});	
-	}
-	
 		//Membership
 		membershipUpdate(message.member);
 		
