@@ -260,7 +260,7 @@ var info = {
 			dataStorage[dataStorage.findIndex(d=>d.id==id)]=data;
 			request.put(
 				{
-				url: 'https://jsonbox.io/box_a38581244aec497a6188/'+userdata._id,
+				url: 'https://jsonbox.io/box_a38581244aec497a6188/'+userdata._id+'/',
 				headers: {
 				    'Content-Type': 'application/json',
 				},
@@ -342,15 +342,13 @@ client.on('ready',()=>{
 			info.load(member.id).then(data=>{
 				if(data.firstMessage==null) data.firstMessage=Date.now();
 				var remTime=data.firstMessage+86405000-Date.now();
-				info.save(member.id,data).then(data=>{
-					if(remTime>0){
-						setTimeout(function(){
-							updateProfile(member,0);
-						},remTime);
-					} else {
-						updateProfile(member,0);	
-					}
-				});
+				if(remTime>0){
+					setTimeout(function(){
+						updateProfile(member,0);
+					},remTime);
+				} else {
+					updateProfile(member,0);	
+				}
 			});
 		});
 	});
