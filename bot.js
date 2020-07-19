@@ -1,15 +1,6 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const request = require('request');
-let dataStorage=[];
-request.get({
-        url: 'https://jsonbox.io/box_a38581244aec497a6188',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-        },(err,r,body)=>{
-dataStorage=JSON.parse(body);
-});
 
 //Logs
 function log(info){
@@ -1501,9 +1492,21 @@ async function musicMessage(message){
 	}
 }
 
+
+let dataStorage=[];
+request.get({
+        url: 'https://jsonbox.io/box_a38581244aec497a6188',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+        },(err,r,body)=>{
+	dataStorage=JSON.parse(body);
+	client.login(process.env.BOT_TOKEN);
+});
+
 // THIS  MUST  BE  THIS  WAY
 treble.login(process.env.MUSIC2);
 pitch.login(process.env.MUSIC1);
-client.login(process.env.BOT_TOKEN);
+
 
 
