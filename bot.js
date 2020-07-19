@@ -250,6 +250,7 @@ async function unmute(member){
 var info = {
 	exists: false,
 	init: async function(data){
+		dataStorage.push(data);
 		request.post(
 			{
 				url: 'https://jsonbox.io/box_a38581244aec497a6188',
@@ -257,12 +258,15 @@ var info = {
 				    'Content-Type': 'application/json',
 				},
 				json: data
+			},(err,re,body)=>{
+				dataStorage[dataStorage.findIndex(d=>d.id==data.id)] = JSON.parse(body);
 			});
 	},
 	save: async function(id,data){
 		
 		let userdata = dataStorage.find(d=>d.id==id);
 		if(userdata!=undefined){
+			dataStorage[dataStorage.findIndex(d=>d.id==id)]=data;
 			request.put(
 				{
 				url: 'https://jsonbox.io/box_a38581244aec497a6188/'+userdata._id,
@@ -271,8 +275,9 @@ var info = {
 				},
 				json: data
 				});
+		} else{
+			this.init(data);	
 		}
-		userdata=data;
 		
 	},
 	load: async function(id){
@@ -281,7 +286,7 @@ var info = {
 		if(userdata!=undefined){
 			return userdata;	
 		} else {
-			userdata={
+			let data={
 				id: id,
 				level:1,
 				gold:100,
@@ -290,21 +295,10 @@ var info = {
 				messagesSentToday: 0,
 				firstMessage: Date.now()
 			}
-			this.init(userdata);
-			return userdata;
+			this.init(data);
+			return data;
 		}
 
-	},
-	check: async function(id){
-		var exists=false;
-		var col = await client.channels.cache.get("728363315138658334").messages.fetch();
-		messages=col.array();
-		for(var i=0;i<messages.length;i++){
-			if(messages[i].content.includes(id)){
-				exists=true;
-			}
-		}
-		return exists;
 	}
 }
 
