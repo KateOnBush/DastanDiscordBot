@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const request = require('request');
+const dbLink = "https://jsonbox.io/box_1b9370d46ab479194e92"
 
 //Logs
 function log(info){
@@ -245,7 +246,7 @@ var info = {
 		dataStorage.push(data);
 		request.post(
 			{
-				url: 'https://jsonbox.io/box_a38581244aec497a6188',
+				url: dbLink,
 				headers: {
 				    'Content-Type': 'application/json',
 				},
@@ -266,7 +267,7 @@ var info = {
 			dataStorage[dataStorage.findIndex(d=>d.id==id)]=data;
 			request.put(
 				{
-				url: 'https://jsonbox.io/box_a38581244aec497a6188/'+userdata._id+'/',
+				url: dbLink+'/'+userdata._id+'/',
 				headers: {
 				    'Content-Type': 'application/json',
 				},
@@ -1505,7 +1506,7 @@ async function musicMessage(message){
 
 let dataStorage=[];
 request.get({
-        url: 'https://jsonbox.io/box_1b9370d46ab479194e92?limit=1000',
+        url: dbLink+'?limit=1000',
         headers: {
             'Content-Type': 'application/json',
         }
