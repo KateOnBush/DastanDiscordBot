@@ -271,7 +271,7 @@ var info = {
 				json: data
 				});
 		} else{
-			console.log("Data not found for ID: "+id", initiating");
+			console.log("Data not found for ID: "+id+", initiating");
 			this.init(data);	
 		}
 		
