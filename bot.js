@@ -328,6 +328,8 @@ client.on('ready',()=>{
 			url: null
 		}});
 	log("Ready!");
+	console.log("Ready!")
+	dataStorage.forEach(dd=>console.log(client.guilds.cache.array()[0].members.cache.get(dd.id).displayName))
 	setTimeout(dropChest,50000);
 	eventReminder();
 	client.guilds.cache.array()[0].roles.fetch("728216095835815976").then(role=>{
@@ -1508,6 +1510,7 @@ request.get({
         },(err,r,body)=>{
 	if (!err) console.log("Data loaded, no error");
 	dataStorage=JSON.parse(body);
+	dataStorage.forEach(dat=>console.log(dat.id))
 	client.login(process.env.BOT_TOKEN);
 });
 
