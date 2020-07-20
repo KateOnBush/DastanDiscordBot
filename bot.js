@@ -241,6 +241,7 @@ async function unmute(member){
 var info = {
 	exists: false,
 	init: async function(data){
+		console.log("Initiating data")
 		dataStorage.push(data);
 		request.post(
 			{
@@ -250,13 +251,16 @@ var info = {
 				},
 				json: data
 			},(err,re,body)=>{
+				if (!err) console.log("Data initiated, no error");
 				dataStorage[dataStorage.findIndex(d=>d.id==data.id)] = body;
 			});
 	},
 	save: async function(id,data){
 		
+		console.log("Saving data for ID: "+id)
 		let userdata = dataStorage.find(d=>d.id==id);
 		if(userdata!=undefined){
+			console.log("Data found for ID: "+id+", saving")
 			dataStorage[dataStorage.findIndex(d=>d.id==id)]=data;
 			request.put(
 				{
@@ -267,16 +271,20 @@ var info = {
 				json: data
 				});
 		} else{
+			console.log("Data not found for ID: "+id", initiating")
 			this.init(data);	
 		}
 		
 	},
 	load: async function(id){
 		
+		console.log("Loading data for ID: "+id);
 		let userdata = dataStorage.find(d=>d.id==id);
 		if(userdata!=undefined){
+			console.log("Data found for ID: "+id+ ", loading");
 			return userdata;	
 		} else {
+			console.log("Data not found for ID: "+id+", initiating")
 			let data={
 				id: id,
 				level:1,
@@ -1498,6 +1506,7 @@ request.get({
             'Content-Type': 'application/json',
         }
         },(err,r,body)=>{
+	if (!err) console.log("Data loaded, no error");
 	dataStorage=JSON.parse(body);
 	client.login(process.env.BOT_TOKEN);
 });
