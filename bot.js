@@ -252,6 +252,7 @@ var info = {
 				json: data
 			},(err,re,body)=>{
 				if (!err) console.log("Data initiated, no error");
+				console.log("Data return by initiation: " + body);
 				dataStorage[dataStorage.findIndex(d=>d.id==data.id)] = body;
 			});
 	},
