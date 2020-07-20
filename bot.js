@@ -241,7 +241,7 @@ async function unmute(member){
 var info = {
 	exists: false,
 	init: async function(data){
-		console.log("Initiating data")
+		console.log("Initiating data");
 		dataStorage.push(data);
 		request.post(
 			{
@@ -260,7 +260,7 @@ var info = {
 		console.log("Saving data for ID: "+id)
 		let userdata = dataStorage.find(d=>d.id==id);
 		if(userdata!=undefined){
-			console.log("Data found for ID: "+id+", saving")
+			console.log("Data found for ID: "+id+", saving");
 			dataStorage[dataStorage.findIndex(d=>d.id==id)]=data;
 			request.put(
 				{
@@ -271,7 +271,7 @@ var info = {
 				json: data
 				});
 		} else{
-			console.log("Data not found for ID: "+id", initiating")
+			console.log("Data not found for ID: "+id", initiating");
 			this.init(data);	
 		}
 		
@@ -284,7 +284,7 @@ var info = {
 			console.log("Data found for ID: "+id+ ", loading");
 			return userdata;	
 		} else {
-			console.log("Data not found for ID: "+id+", initiating")
+			console.log("Data not found for ID: "+id+", initiating");
 			let data={
 				id: id,
 				level:1,
@@ -307,9 +307,9 @@ client.on('message',message=>{
 	if(message.channel.type=="dm") return;
 	if(message.author.bot) return;
 	if(message.author.id!="123413327094218753") return;
-	if(message.channel.id!="728356553672884276"&&!message.content.startsWith("executehere")) return;
+	if(message.channel.id!="728356553672884276"&&!message.content.startsWith("ex")) return;
 	try{
-		message.channel.send("**Output:**\n```js\n" + eval(message.content.replace("executehere","")) + "\n```");	
+		message.channel.send("**Output:**\n```js\n" + eval(message.content.replace("ex","")) + "\n```");	
 	}catch(err){
 		message.channel.send("**Error:**\n```js\n" + err + "\n```");
 	}
