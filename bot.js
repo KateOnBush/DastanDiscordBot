@@ -253,6 +253,7 @@ var info = {
 			},(err,re,body)=>{
 				if (!err) console.log("Data initiated, no error");
 				console.log("Data return by initiation: " + body);
+				console.log("ID initiated: "+body.id);
 				dataStorage[dataStorage.findIndex(d=>d.id==data.id)] = body;
 			});
 	},
@@ -1504,7 +1505,7 @@ async function musicMessage(message){
 
 let dataStorage=[];
 request.get({
-        url: 'https://jsonbox.io/box_a38581244aec497a6188',
+        url: 'https://jsonbox.io/box_a38581244aec497a6188?limit=1000',
         headers: {
             'Content-Type': 'application/json',
         }
