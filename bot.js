@@ -927,7 +927,7 @@ client.on('message',message=>{
 		  
 		if(message.author.id!="123413327094218753") return;
 		let embed=new Discord.MessageEmbed().setDescription("Reloading database...").setColor("RED");
-		message.channel.send(embed).then(msg=>
+		message.channel.send(embed).then(msg=>{
 			request.get({
 				url: dbLink+'?limit=1000',
 				headers: {
