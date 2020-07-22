@@ -936,7 +936,7 @@ client.on('message',message=>{
 				},(err,r,body)=>{
 				if (!err) console.log("Data loaded, no error");
 				dataStorage=JSON.parse(body);
-				msg.edit(new Discord.MessageEmbed().setDescription("Database reloaded!").setColor("GREEN"))
+				msg.edit(new Discord.MessageEmbed().setDescription("Database reloaded!").setColor("GREEN"));
 			});
 		});
 		  
