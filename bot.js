@@ -917,8 +917,28 @@ client.on('message',message=>{
 	} else if(args[0]=="restart"){
 		  
 		if(message.author.id!="123413327094218753") return;
-		message.channel.send("All bots restarting...");
+		let embed=new Discord.MessageEmbed().setDescription("Restarting...").setColor("YELLOW");
+		message.channel.send(embed);
+		pitch.channels.cache.get(message.channel.id).send(embed);
+		treble.channels.cache.get(message.channel.id).send(embed);
 		restart();
+		  
+	} else if(args[0]=="reload"){
+		  
+		if(message.author.id!="123413327094218753") return;
+		let embed=new Discord.MessageEmbed().setDescription("Reloading database...").setColor("RED");
+		message.channel.send(embed).then(msg=>
+			request.get({
+				url: dbLink+'?limit=1000',
+				headers: {
+				    'Content-Type': 'application/json',
+				}
+				},(err,r,body)=>{
+				if (!err) console.log("Data loaded, no error");
+				dataStorage=JSON.parse(body);
+				msg.edit(new Discord.MessageEmbed().setDescription("Database reloaded!").setColor("GREEN"))
+			});
+		});
 		  
 	}else if(args[0]=="help"){
 	
@@ -1141,7 +1161,8 @@ client.on("voiceStateUpdate",(o,n)=>{
 			updateProfile(n.member,Math.random()*10|0);
 		});
 		},60000)
-	} else if(o.channel!=null){
+	} 
+	if(o.channel!=null){
 		log(o.member.displayName + " `ID: " + o.member.id + "` left voice channel **"+o.channel.name+"** `ID : " + o.channel.id + "`");
 		if(vcs.includes(o.channel.id)){
 			n.member.guild.channels.cache.get("729354613064728636").send(new Discord.MessageEmbed().setDescription("<@!"+o.member.id+"> left **" + o.channel.name + "**").setColor("RED"));
