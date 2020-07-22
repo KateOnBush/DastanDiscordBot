@@ -945,7 +945,7 @@ client.on('message',message=>{
 		const commands = [{
 			name: "ping",
 			description: "Shows the bot's latency.",
-			usage: "ping"
+			usage: "ping" 
 		},{
 			name: "uptime",
 			description: "Shows the bot's uptime.",
