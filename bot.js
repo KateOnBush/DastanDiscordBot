@@ -8,6 +8,7 @@ function rawlog(d){
 	client.channels.resolve("729155101746528286").send(d);
 }
 function log(event,member,content){
+	if(content=="") content=="Empty message/Attachement";
 	client.channels.resolve("729155101746528286").send(new Discord.MessageEmbed().setDescription("**Event:** "+event).addField("Member","<@!"+member.id+">",true).addField("Action/Content",content).setTimestamp().setColor("BLUE"));
 }
 function adminlog(event,member,content,reason){
