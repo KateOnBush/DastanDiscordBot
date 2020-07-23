@@ -1082,7 +1082,7 @@ client.on('message',message=>{
 					try{const time=timeformatToSeconds(args[3]);
 					message.guild.events.find(e=>(e.id==args[2])).time=Date.now()+time*1000;
 					message.channel.send(new Discord.MessageEmbed().setDescription("Event **"+args[2]+"** starts in: "+msToString(time*1000)+".").setColor("GREEN"))
-					adminlog("Event time",message.member,"Updated event time with identifier **" + args[2] + "** to **" + (new Date(Date.now()+time*1000)+"**");
+					adminlog("Event time",message.member,"Updated event time with identifier **" + args[2] + "** to **" + (new Date(Date.now()+time*1000))+"**");
 					   
 					   }catch(err){
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct time for the event.").setColor("GRAY"));
