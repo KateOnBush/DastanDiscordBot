@@ -8,11 +8,11 @@ function rawlog(d){
 	client.channels.resolve("729155101746528286").send(d);
 }
 function log(event,member,content){
-	if(content=="") content=="Empty message/Attachement";
-	client.channels.resolve("729155101746528286").send(new Discord.MessageEmbed().setDescription("**Event:** "+event).addField("Member","<@!"+member.id+">",true).addField("Action/Content",content).setTimestamp().setColor("BLUE"));
+	if(content==""||content==undefined) content="Empty message/Attachement";
+	client.channels.resolve("729155101746528286").send(new Discord.MessageEmbed().setDescription("**Event:** "+event).addField("Member","<@!"+member.id+">",true).addField("Action/Content",content,true).setTimestamp().setColor("BLUE"));
 }
 function adminlog(event,member,content,reason){
-	client.channels.resolve("729155101746528286").send(new Discord.MessageEmbed().setDescription("**Event:** "+event).addField("Member","<@!"+member.id+">",true).addField("Action/Content",content).setTimestamp().setColor("ORANGE").addField("Reason",(reason||"Unspecified"),true));
+	client.channels.resolve("729155101746528286").send(new Discord.MessageEmbed().setDescription("**Event:** "+event).addField("Member","<@!"+member.id+">",true).addField("Action/Content",content,true).setTimestamp().setColor("ORANGE").addField("Reason",(reason||"Unspecified"),true));
 }
 function dropChest(){
 	let c=client.channels.cache.get("728025726556569631");
