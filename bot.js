@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const Canvas = require('canvas-constructor');
 const client = new Discord.Client();
 const request = require('request');
 const dbLink = "https://jsonbox.io/box_1b9370d46ab479194e92"
