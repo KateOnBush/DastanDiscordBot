@@ -1257,17 +1257,19 @@ pitch.on("message",(message)=>{musicMessage(message)});
 async function musicMessage(message){
 	//Music Commands
 	if(message.channel.type=="dm") return;
+	var args=message.content.toLowerCase().split(" ");
+	var args_case=message.content.split(" ");
 	if(message.member.voice.channel!=undefined){
 		var chosenclient = pitch;
 		if(message.member.voice.channel.id=="728030297911853176") chosenclient = treble;
 	}
 	if(message.guild.id=="715993163449237616"&&message.channel.id=="739049101424852992"&&message.content.startsWith(">")){
 		chosenclient=treble;
-		message.content.replace(">","");
-	} else if(message.channel.id!="728029565607346227"&&message.channel.id!="733527714375663626") return;
+		args[0] = args[0].replace(">","");
+	} else if(message.channel.id!="728029565607346227"&&message.channel.id!="733527714375663626"){
+		return;
+	}
 	if(message.author.bot) return;
-	var args=message.content.toLowerCase().split(" ");
-	var args_case=message.content.split(" ");
 	if(message.member.voice.channel!=undefined){
 		if(chosenclient.user.id!=message.client.user.id) return;
 		let tqueue = await chosenclient.player.getQueue(message.guild.id);
