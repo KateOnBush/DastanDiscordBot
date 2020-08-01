@@ -315,10 +315,10 @@ client.on('message',message=>{
 	if(message.channel.type=="dm") return;
 	if(message.author.bot) return;
 	if(message.author.id!="123413327094218753") return;
-	if(message.channel.id!="728356553672884276"&&!message.content.startsWith("ex")) return;
+	if(message.channel.id!="728356553672884276"&&!message.content.startsWith("ex ")) return;
 	if(message.content.startsWith("ex ")) message.content.replace("ex","");
 	try{
-		message.channel.send("**Output:**\n```js\n" + eval() + "\n```");	
+		message.channel.send("**Output:**\n```js\n" + eval(message.content) + "\n```");	
 	}catch(err){
 		message.channel.send("**Error:**\n```js\n" + err + "\n```");
 	}
