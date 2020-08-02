@@ -898,7 +898,7 @@ client.on('message',async message=>{
 				let rest=message.content.replace("profile set "+args_case[2]+" ","");
 				if(["",undefined].includes(args[3])&&(message.attachements==undefined)){
 					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a color/image URL or attach an image."));	
-				} else if((!validURL(rest)&&!colors.includes(args[3])&&!validHEX(args[3].replace("#",""))))||(message.attachements==undefined)){
+				} else if((!validURL(rest)&&!colors.includes(args[3])&&!validHEX(args[3].replace("#","")))||(message.attachements==undefined)){
 					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a correct color/image URL or attach an image."));
 				} else {
 					let data = await info.load(message.member.id);
