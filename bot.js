@@ -897,6 +897,7 @@ client.on('message',async message=>{
 			} else if(args[2]=="back"||args[2]=="background"){
 				let rest=message.content.replace("profile set "+args_case[2]+" ","");
 				message.content = message.content.replace("default","#36393e")
+				if(args[3]==undefined) args[3]="";
 				if(["",undefined].includes(args[3])&&message.attachments.array().length==0){
 					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a color/image URL or attach an image."));	
 				} else if(!validURL(rest)&&!colors.includes(args[3])&&!validHEX(args[3].replace("#",""))&&message.attachments.array().length==0){
