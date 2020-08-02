@@ -911,11 +911,11 @@ client.on('message',async message=>{
 				userToFind=message.mentions.members.array()[0];
 			}
 			if(userToFind.user.bot) userToFind=message.member;
-			await message.channel.startTyping();
+			message.channel.startTyping();
 			await updateProfile(userToFind,0);
 			let profile = await loadProfile(userToFind);
 			await message.channel.send("",{files: [profile]});
-			await message.channel.stopTyping();
+			message.channel.stopTyping();
 			
 		}
 		
