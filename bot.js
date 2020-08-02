@@ -46,9 +46,9 @@ async function loadProfile(member){
 	.setShadowBlur(4).setTextFont('12px Impact')
 	.printText("Bio:",24,126).setGlobalAlpha(0.6).printWrappedText((data.bio||"No bio set."), 70, 126,500-24)
 	.setGlobalAlpha(1).printText("Level :",24,160).setGlobalAlpha(0.6).printText(data.level+"", 70, 160)
-	.setGlobalAlpha(1).printText("Gold :",24,180).setGlobalAlpha(0.6).printText(data.gold+"", 70, 180)
-	.setGlobalAlpha(1).printText("Average Daily Activity Points :",24,200).setGlobalAlpha(0.6).printText(data.messageAveragePerDay+"", 240, 200)
-	.setGlobalAlpha(1).printText("All-Time Activity Points :",24,220).setGlobalAlpha(0.6).printText(data.messagesEverSent+"", 240, 220)
+	.setGlobalAlpha(1).printText("Gold :",24,180).setGlobalAlpha(0.6).printText(numberBeautifier(data.gold,","), 70, 180)
+	.setGlobalAlpha(1).printText("Average Daily Activity Points :",24,200).setGlobalAlpha(0.6).printText(numberBeautifier(data.messageAveragePerDay,","), 240, 200)
+	.setGlobalAlpha(1).printText("All-Time Activity Points :",24,220).setGlobalAlpha(0.6).printText(numberBeautifier(data.messagesEverSent,","), 240, 220)
 	.setGlobalAlpha(1).printText("Member since: ",24,240).setGlobalAlpha(0.6).printText(member.joinedAt.toLocaleDateString()+"", 240, 240)
     	.toBuffer();
 	
@@ -842,7 +842,7 @@ client.on('message',async message=>{
 				const all=data.messagesEverSent-last;
 				const next=levelXp(data.level)-last;
 				const prog=all/next;
-				message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").addField("Progress","`"+"█".repeat(Math.max(prog*20,0)+1|0)+"  ".repeat(Math.max(1-prog,0)*20|0)+"`  **"+(prog*100|0)+"**%").setColor("GREEN"));
+				message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+">'s level is " + data.level + "!").addField("Progress","`"+"█".repeat(Math.max(prog*20,0)+1|0)+" ".repeat(Math.max(1-prog,0)*20|0)+"`  **"+(prog*100|0)+"**%").setColor("GREEN"));
 			});
 		});
 	} else if(args[0]=="uptime"){
@@ -891,15 +891,15 @@ client.on('message',async message=>{
 				}
 			} else if(args[2]=="back"||args[2]=="background"){
 				let rest=message.content.replace("profile set "+args_case[2]+" ","");
-				if(["",undefined].includes(args[3])||(message.attachements.array().length==0)){
+				if(["",undefined].includes(args[3])&&(message.attachements==undefined)){
 					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a color/image URL or attach an image."));	
-				} else if(!validURL(rest)&&!colors.includes(args[3])&&(message.attachements.array().length!=0)){
+				} else if(!validURL(rest)&&!colors.includes(args[3])&&(message.attachements!=undefined)){
 					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a correct color/image URL."));
 				} else {
 					let data = await info.load(message.member.id);
 					data.back=rest;
 					if(colors.includes(args[3])) data.back=args[3];
-					if(message.attachements.array().length!=0) data.back=message.attachements.array()[0].url;
+					if(message.attachements!=undefined) data.back=message.attachements.array()[0].url;
 					await info.save(message.member.id,data);
 					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("Profile background successfully updated!"));	
 				}
