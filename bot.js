@@ -90,6 +90,7 @@ function dropChest(){
 	c.send(em);
 	setTimeout(function(){
 		if(c.chest.collected==false){
+			c.chest.collected=true;
 			c.send(new Discord.MessageEmbed().setColor("RED").setDescription("**Oh no!** The chest has disappeared! Better luck next time!"))	
 		}
 	},5*60*1000)
@@ -304,52 +305,52 @@ async function unmute(member){
 var info = {
 	exists: false,
 	init: async function(data){
-		console.log("Initiating data");
-		dataStorage.push(data);
-		request.post(
-			{
-				url: dbLink,
-				headers: {
-				    'Content-Type': 'application/json',
-				},
-				json: data
-			},(err,re,body)=>{
-				if (!err) console.log("Data initiated, no error");
-				console.log("Data return by initiation: " + body);
-				console.log("ID initiated: "+body.id);
-				dataStorage[dataStorage.findIndex(d=>d.id==data.id)] = body;
-			});
+		return new Promise((resolve,reject)=>{
+			console.log("Initiating data");
+			dataStorage.push(data);
+			request.post(
+				{
+					url: dbLink,
+					headers: {
+					    'Content-Type': 'application/json',
+					},
+					json: data
+				},(err,re,body)=>{
+					dataStorage[dataStorage.findIndex(d=>d.id==data.id)] = body;
+					if(!err) resolve(body);
+					if(err) reject(err);
+				});
+		});
 	},
 	save: async function(id,data){
 		
-		console.log("Saving data for ID: "+id)
 		let userdata = dataStorage.find(d=>d.id==id);
 		if(userdata!=undefined){
-			console.log("Data found for ID: "+id+", saving");
-			dataStorage[dataStorage.findIndex(d=>d.id==id)]=data;
-			request.put(
-				{
-				url: dbLink+'/'+userdata._id+'/',
-				headers: {
-				    'Content-Type': 'application/json',
-				},
-				json: data
-				});
+			return new Promise((resolve,reject)=>{
+				dataStorage[dataStorage.findIndex(d=>d.id==id)]=data;
+				request.put(
+					{
+					url: dbLink+'/'+userdata._id+'/',
+					headers: {
+					    'Content-Type': 'application/json',
+					},
+					json: data
+					},(err,re,body)=>{
+					if(err) reject(err);
+					if(!err) resolve(body)
+					});
+			});
 		} else{
-			console.log("Data not found for ID: "+id+", initiating");
-			this.init(data);	
+			return this.init(data);	
 		}
 		
 	},
 	load: async function(id){
 		
-		console.log("Loading data for ID: "+id);
 		let userdata = dataStorage.find(d=>d.id==id);
 		if(userdata!=undefined){
-			console.log("Data found for ID: "+id+ ", loading");
 			return userdata;	
 		} else {
-			console.log("Data not found for ID: "+id+", initiating");
 			let data={
 				id: id,
 				level:1,
@@ -675,13 +676,36 @@ client.on('message',message=>{
 		}
 		
 	} else if(args[0]=="gold"){
-		var userToFind=message.member;
-		if(message.mentions.members.array().length!=0){
-			userToFind=message.mentions.members.array()[0];
-		}
-		info.load(userToFind.id).then(data=>{
-			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+"> has " + data.gold + " gold!").setColor("GOLD"));
-		})	
+		if(["send","give","pay"].includes(args[1])){
+			if(message.mentions.members.array().length==0||message.mentions.members.array()[0].id==message.member.id){
+				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please mention a user."));
+			} else if(parseInt(args[3])==NaN){
+				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a correct number."));
+			} else {
+				let data = await info.load(message.member.id);
+				let amount = parseInt(args[3]);
+				let receiver = message.mentions.members.array()[0];
+				if(data.gold<amount){
+					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You need **"+(amount-data.gold)+"** more gold."));	
+				} else {
+					data.gold-=amount;
+					let sentData = await info.load(receiver.id);
+					sentData.gold+=amount;
+					await info.save(message.member.id,data);
+					await info.save(receiver.id,sentData);
+					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("**Transfer successful**\n<@!"+message.member.id+"> sent **"+amount+"** to <@!"+receiver.id+">!"));	
+				}
+			}
+		}else{
+			var userToFind=message.member;
+			if(message.mentions.members.array().length!=0){
+				userToFind=message.mentions.members.array()[0];
+			}
+			if(userToFind.user.bot) userToFind=message.member;
+			info.load(userToFind.id).then(data=>{
+				message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+"> has " + data.gold + " gold!").setColor("GOLD"));
+			})
+		}	
 	} else if(["buy","purchase","get"].includes(args[0])){
 		let item=undefined;
 		items.forEach(cat=>{
@@ -854,8 +878,25 @@ client.on('message',async message=>{
 		message.channel.send(new Discord.MessageEmbed().setDescription("I've been up for "+msToString(client.uptime)+"!").setColor("YELLOW"));
 	} else if(args[0]=="gold"){
 		if(["send","give","pay"].includes(args[1])){
-			
-		} else if(){
+			if(message.mentions.members.array().length==0||message.mentions.members.array()[0].id==message.member.id){
+				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please mention a user."));
+			} else if(parseInt(args[3])==NaN){
+				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a correct number."));
+			} else {
+				let data = await info.load(message.member.id);
+				let amount = parseInt(args[3]);
+				let receiver = message.mentions.members.array()[0];
+				if(data.gold<amount){
+					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You need **"+(amount-data.gold)+"** more gold."));	
+				} else {
+					data.gold-=amount;
+					let sentData = await info.load(receiver.id);
+					sentData.gold+=amount;
+					await info.save(message.member.id,data);
+					await info.save(receiver.id,sentData);
+					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("**Transfer successful**\n<@!"+message.member.id+"> sent **"+amount+"** to <@!"+receiver.id+">!"));	
+				}
+			}
 		}else{
 			var userToFind=message.member;
 			if(message.mentions.members.array().length!=0){
@@ -1020,6 +1061,24 @@ client.on('message',async message=>{
 			});
 		});
 		  
+	} else if(["randommeme","meme","rmeme"].includes(args[0])){
+		request.get({
+			url: "https://api.imgflip.com/get_memes",
+			headers: {
+				'Content-Type': 'application/json',
+				}
+			},(err,re,body)=>{
+				let memes=body.data.memes;
+				let meme=undefined;
+				while(meme==undefined)do{
+				let meme=memes[Math.random()*(memes.length)-1|0];
+				}
+				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**"+meme.name+"**").setImage(meme.url));
+			})
+	} else if(args[0]=="randomcat"){
+		let width=Math.random()*1800+200|0;
+		let height=width*9/16|0;
+		message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Meow!**").setImage("http://placekitten.com/"+width+"/"+height+"/"));
 	}else if(args[0]=="help"){
 	
 		const commands = [{
@@ -1071,6 +1130,18 @@ client.on('message',async message=>{
 				description: "Collect a dropped chest.",
 				longDescription: "Use this command to collect a chest whenever it is dropped!",
 				usage: "collect"
+			}]
+		},{
+			name: "Fun & Entertainement",
+			description: "Use your gold and gain rewards!",
+			commands:[{
+				name: "randomcat",
+				description: "Random cute picture of a cat!",
+				usage: "randomcat"
+			},{
+				name: "randommeme",
+				description: "Random meme from a large meme library!",
+				usage: "randommeme"
 			}]
 		}
 		]
