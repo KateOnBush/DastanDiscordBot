@@ -1070,9 +1070,9 @@ client.on('message',async message=>{
 			},(err,re,body)=>{
 				let memes=body.data.memes;
 				let meme=undefined;
-				while(meme==undefined)do{
+				do{
 				meme=memes[Math.random()*(memes.length)-1|0];
-				}
+				}while(meme==undefined)
 				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**"+meme.name+"**").setImage(meme.url));
 			})
 	} else if(args[0]=="randomcat"){
