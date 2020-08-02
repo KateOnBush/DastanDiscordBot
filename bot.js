@@ -1018,52 +1018,68 @@ client.on('message',async message=>{
 	}else if(args[0]=="help"){
 	
 		const commands = [{
-			name: "ping",
-			description: "Shows the bot's latency.",
-			usage: "ping" 
+			name: "Info & Customization",
+			description: "All you need to know!",
+			commands:[{
+				name: "ping",
+				description: "Shows the bot's latency.",
+				usage: "ping" 
+			},{
+				name: "uptime",
+				description: "Shows the bot's uptime.",
+				longDescription: "This command shows for how much time the bot was up.",
+				usage: "uptime"
+			},{
+				name: "profile",
+				description: "Displays your/someone's full profile.",
+				longDescription: "Use this command to display someone's full profile, or to edit your own profile.",
+				usage: "profile [@user/set] (name/bio/background)"
+			},{
+				name: "level",
+				description: "Displays your/someone's level.",
+				usage: "level [@user]"
+			},{
+				name: "gold",
+				description: "Displays your/someone's gold.",
+				usage: "gold [@user]"
+			},{
+				name: "color",
+				description: "Name color commands.",
+				longDescription: "This commands is used to change your name color, or to see your/someone's color.",
+				subcommands: "set, list",
+				usage: "color <set/list> (color name)"
+			}]
 		},{
-			name: "uptime",
-			description: "Shows the bot's uptime.",
-			longDescription: "This command shows for how much time the bot was up.",
-			usage: "uptime"
-		},{
-			name: "profile",
-			description: "Displays your/someone's full profile.",
-			longDescription: "Use this command to display someone's full profile, or to edit your own profile.",
-			usage: "profile [@user/set] (name/bio)"
-		},{
-			name: "level",
-			description: "Displays your/someone's level.",
-			usage: "level [@user]"
-		},{
-			name: "gold",
-			description: "Displays your/someone's gold.",
-			usage: "gold [@user]"
-		},{
-			name: "color",
-			description: "Name color commands.",
-			longDescription: "This commands is used to change your name color, or to see your/someone's color.",
-			subcommands: "set, list",
-			usage: "color <set/list> (color name)"
-		},{
-			name: "dailyreward",
-			description: "Claim your daily reward.",
-			longDescription: "Claim a daily **40** gold reward, if you get lucky and claim it soon enough, you may get more gold!",
-			usage: "dailyreward"
-		},{
-			name: "collect",
-			description: "Collect a dropped chest.",
-			longDescription: "Use this command to collect a chest whenever it is dropped!",
-			usage: "collect"
-		}];
-		
+			name: "Economy",
+			description: "Use your gold and gain rewards!",
+			commands:[{
+				name: "dailyreward",
+				description: "Claim your daily reward.",
+				longDescription: "Claim a daily **40** gold reward, if you get lucky and claim it soon enough, you may get more gold!",
+				usage: "dailyreward"
+			},{
+				name: "gold",
+				description: "Displays your/someone's gold.",
+				usage: "gold [@user/give] (@user)"
+			},{
+				name: "collect",
+				description: "Collect a dropped chest.",
+				longDescription: "Use this command to collect a chest whenever it is dropped!",
+				usage: "collect"
+			}]
+		}
+		]
+		let cmd=undefined;
+		commands.forEach(cat=>{
+			cmd=cat.find(t=>(t.name==args[1]));
+		})
 		if(["",undefined].includes(args[1])){
 			var embed= new Discord.MessageEmbed().setColor("AQUA").setTitle("Command list").setDescription("Use `help <command>` for specific command help");
-			commands.forEach(cmd=>{
-				embed.addField(cmd.name,cmd.description,true);
+			commands.forEach(cat=>{
+				embed.addField(cat.name,cat.description+"\n"+cat.commands.map((item,id)=>{return "`"+item.name+"` - "+item.description;}).join("\n"),true);
 			})
 			message.channel.send(embed);
-		} else if(commands.find(t=>(t.name==args[1]))!=undefined){
+		} else if(cmd!=undefined){
 			
 			const cmd=commands.find(t=>(t.name==args[1]));
 			var embed= new Discord.MessageEmbed().setColor("fafafa").setTitle("Command help: " + args[1]);
