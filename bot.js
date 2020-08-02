@@ -373,7 +373,7 @@ client.on('message',message=>{
 	if(message.author.bot) return;
 	if(message.author.id!="123413327094218753") return;
 	if(message.channel.id!="728356553672884276"&&!message.content.startsWith("ex ")) return;
-	if(message.content.startsWith("ex ")) message.content.replace("ex","");
+	if(message.content.startsWith("ex ")) message.content=message.content.replace("ex ","");
 	try{
 		message.channel.send("**Output:**\n```js\n" + eval(message.content) + "\n```");	
 	}catch(err){
@@ -685,7 +685,7 @@ client.on('message',message=>{
 	} else if(["buy","purchase","get"].includes(args[0])){
 		let item=undefined;
 		items.forEach(cat=>{
-			item=cat.items.find(i=>i.id==parseInt(args[1]));
+			item=(cat.items.find(i=>i.id==parseInt(args[1]))||item);
 		});
 		if(["",undefined].includes(args[1])){
 			message.channel.send(new Discord.MessageEmbed().setDescription("Please specifiy an item ID, check `store` for items.").setColor("RED"));
@@ -853,14 +853,19 @@ client.on('message',async message=>{
 	} else if(args[0]=="uptime"){
 		message.channel.send(new Discord.MessageEmbed().setDescription("I've been up for "+msToString(client.uptime)+"!").setColor("YELLOW"));
 	} else if(args[0]=="gold"){
-		var userToFind=message.member;
-		if(message.mentions.members.array().length!=0){
-			userToFind=message.mentions.members.array()[0];
+		if(["send","give","pay"].includes(args[1])){
+			
+		} else if(){
+		}else{
+			var userToFind=message.member;
+			if(message.mentions.members.array().length!=0){
+				userToFind=message.mentions.members.array()[0];
+			}
+			if(userToFind.user.bot) userToFind=message.member;
+			info.load(userToFind.id).then(data=>{
+				message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+"> has " + data.gold + " gold!").setColor("GOLD"));
+			})
 		}
-		if(userToFind.user.bot) userToFind=message.member;
-		info.load(userToFind.id).then(data=>{
-			message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+"> has " + data.gold + " gold!").setColor("GOLD"));
-		})	
 	} else if(args[0]=="profile"){
 		
 		if(args[1]=="set"){
@@ -1041,7 +1046,7 @@ client.on('message',async message=>{
 			},{
 				name: "gold",
 				description: "Displays your/someone's gold.",
-				usage: "gold [@user]"
+				usage: "gold [@user/give] (@user)"
 			},{
 				name: "color",
 				description: "Name color commands.",
@@ -1071,12 +1076,12 @@ client.on('message',async message=>{
 		]
 		let cmd=undefined;
 		commands.forEach(cat=>{
-			cmd=cat.commands.find(t=>(t.name==args[1]));
+			cmd=(cat.commands.find(t=>(t.name==args[1]))||cmd);
 		})
 		if(["",undefined].includes(args[1])){
 			var embed= new Discord.MessageEmbed().setColor("AQUA").setTitle("Command list").setDescription("Use `help <command>` for specific command help");
 			commands.forEach(cat=>{
-				embed.addField(cat.name,cat.description+"\n"+cat.commands.map((item,id)=>{return "`"+item.name+"` - "+item.description;}).join("\n"),true);
+				embed.addField("__"+cat.name+"__","*"+cat.description+"*\n"+cat.commands.map((item,id)=>{return "`"+item.name+"` - "+item.description;}).join("\n"),true);
 			})
 			message.channel.send(embed);
 		} else if(cmd!=undefined){
