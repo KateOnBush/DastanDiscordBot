@@ -1071,7 +1071,7 @@ client.on('message',async message=>{
 		]
 		let cmd=undefined;
 		commands.forEach(cat=>{
-			cmd=cat.find(t=>(t.name==args[1]));
+			cmd=cat.commands.find(t=>(t.name==args[1]));
 		})
 		if(["",undefined].includes(args[1])){
 			var embed= new Discord.MessageEmbed().setColor("AQUA").setTitle("Command list").setDescription("Use `help <command>` for specific command help");
