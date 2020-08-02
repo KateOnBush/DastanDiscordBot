@@ -4,6 +4,58 @@ const client = new Discord.Client();
 const request = require('request');
 const dbLink = "https://jsonbox.io/box_1b9370d46ab479194e92"
 
+const colors=["black","silver","gray","white","maroon","red","purple","fuchsia","green","lime","olive","yellow","navy","blue","teal","aqua","orange","aliceblue","antiquewhite","aquamarine","azure","beige","bisque","blanchedalmond","blueviolet","brown","burlywood","cadetblue","chartreuse","chocolate","coral","cornflowerblue","cornsilk","crimson","cyan","darkblue","darkcyan","darkgoldenrod","darkgray","darkgreen","darkgrey","darkkhaki","darkmagenta","darkolivegreen","darkorange","darkorchid","darkred","darksalmon","darkseagreen","darkslateblue","darkslategray","darkslategrey","darkturquoise","darkviolet","deeppink","deepskyblue","dimgray","dimgrey","dodgerblue","firebrick","floralwhite","forestgreen","gainsboro","ghostwhite","gold","goldenrod","greenyellow","grey","honeydew","hotpink","indianred","indigo","ivory","khaki","lavender","lavenderblush","lawngreen","lemonchiffon","lightblue","lightcoral","lightcyan","lightgoldenrodyellow","lightgray","lightgreen","lightgrey","lightpink","lightsalmon","lightseagreen","lightskyblue","lightslategray","lightslategrey","lightsteelblue","lightyellow","limegreen","linen","magenta","mediumaquamarine","mediumblue","mediumorchid","mediumpurple","mediumseagreen","mediumslateblue","mediumspringgreen","mediumturquoise","mediumvioletred","midnightblue","mintcream","mistyrose","moccasin","navajowhite","oldlace","olivedrab","orangered","orchid","palegoldenrod","palegreen","paleturquoise","palevioletred","papayawhip","peachpuff","peru","pink","plum","powderblue","rosybrown","royalblue","saddlebrown","salmon","sandybrown","seagreen","seashell","sienna","skyblue","slateblue","slategray","slategrey","snow","springgreen","steelblue","tan","thistle","tomato","turquoise","violet","wheat","whitesmoke","yellowgreen","rebeccapurple"];
+
+function validURL(str) {
+  var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+  return !!pattern.test(str);
+}
+
+async function loadProfile(member){
+	dataStorage.sort((a,b)=>{return -a.messagesEverSent+b.messagesEverSent;})
+	let stat="#09853b";
+	if(member.user.presence.status=="dnd") stat="#e64040";
+	if(member.user.presence.status=="idle") stat="#c2a711";
+	if(member.user.presence.status=="offline") stat="#404040";
+	let data = await info.load(member.id);
+	let rank = 1+dataStorage.findIndex(t=>t.id==member.id);
+	let xpc = (data.messagesEverSent-levelXp(data.level-1))/(levelXp(data.level)-levelXp(data.level-1));
+	let backgroundImg=undefined;
+	let backgroundCol=undefined;
+	if(data.back!=undefined){
+		if(validURL(data.back)){
+			try{
+				backgroundImg= await Canvas.resolveImage(data.back);
+			}catch(err){}	
+		} else {
+			backgroundCol=data.back;
+		}
+	}
+	let avatar=await Canvas.resolveImage(member.user.displayAvatarURL({format: 'png'}));
+	let canvas = Canvas.Canvas(500, 270).setColor((backgroundCol||"#36393e")).printRoundedRectangle(0, 0, 500, 270,15);
+	if(backgroundImg!=undefined){canvas = canvas.printRoundedImage(backgroundImg,0,0,500,270,15);}
+	canvas = canvas.setGlobalAlpha(0.3).setColor("#000000").printRoundedRectangle(10,10,500-20,270-20,10).setGlobalAlpha(1).setColor('#FFFFFF')
+.setTextFont('20px Impact').setShadowColor('#000000').setShadowBlur(30).printCircularImage(avatar,64,64,40).setGlobalAlpha(0.4).setColor("#000000").setShadowBlur(0).printRoundedRectangle(120,79,500-120-24,25,12.5).printCircle(94,94,12).setGlobalAlpha(1).setColor(stat).printCircle(94,94,10).setShadowBlur(10)
+.setColor(member.displayHexColor).printRoundedRectangle(124,83,(500-120-24-8)*xpc,17,12.5).printText(member.user.tag, 120, 45).setTextAlign('right').setColor("#cfc402").setShadowBlur(0).printText("#"+rank,500-28,45).setColor(member.displayHexColor).setTextFont('10px Impact').setShadowBlur(4).printText((xpc*100|0)+"%",500-28,75).setTextAlign('left').setShadowBlur(4).setColor("#ffffff").setTextFont('12px Impact')
+    	.printText((data.pname||""), 120, 62)
+	.setShadowBlur(4).setTextFont('12px Impact')
+	.printText("Bio:",24,126).setGlobalAlpha(0.6).printWrappedText((data.bio||"No bio set."), 70, 126,500-24)
+	.setGlobalAlpha(1).printText("Level :",24,160).setGlobalAlpha(0.6).printText(data.level+"", 70, 160)
+	.setGlobalAlpha(1).printText("Gold :",24,180).setGlobalAlpha(0.6).printText(data.gold+"", 70, 180)
+	.setGlobalAlpha(1).printText("Average Daily Activity Points :",24,200).setGlobalAlpha(0.6).printText(data.messageAveragePerDay+"", 70, 200)
+	.setGlobalAlpha(1).printText("All-Time Activity Points :",24+250,220).setGlobalAlpha(0.6).printText(data.messagesEverSent+"", 70+250, 220)
+	.setGlobalAlpha(1).printText("Member since: ",24,240).setGlobalAlpha(0.6).printText(member.joinedAt+"", 70, 240)
+    	.toBuffer();
+	
+	return canvas;
+
+}
+
 //Logs
 function rawlog(d){
 	client.channels.resolve("729155101746528286").send(d);
@@ -659,7 +711,7 @@ client.on('message',message=>{
 })
 
 //User event
-client.on('message',message=>{
+client.on('message',async message=>{
 	
 	if(message.channel.type=="dm") return;
 	
@@ -837,26 +889,33 @@ client.on('message',message=>{
 						}
 					})	
 				}
+			} else if(args[2]=="back"||args[2]=="background"){
+				let rest=message.content.replace("profile set background ","");
+				if(["",undefined].includes(args[3])){
+					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a color/image URL."));	
+				} else if(!validURL(rest)&&!colors.includes(args[3])){
+					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a correct color/image URL."));
+				} else {
+					let data = await info.load(message.member.id);
+					data.back=rest;
+					if(colors.includes(args[3])) data.back=args[3];
+					await info.save(message.member.id,data);
+					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("Profile background successfully updated!"));	
+				}
 			} else{
-				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify: **name**, **bio**."));	
+				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify: **name**, **bio**, **background**."));	
 			}
 		} else {
-		
 			var userToFind=message.member;
 			if(message.mentions.members.array().length!=0){
 				userToFind=message.mentions.members.array()[0];
 			}
 			if(userToFind.user.bot) userToFind=message.member;
-			updateProfile(userToFind,0).then(()=>{
-				info.load(userToFind.id).then(data=>{
-					var last=levelXp(data.level-1);
-					if(data.level==1) last=0;
-					const all=data.messagesEverSent-last;
-					const next=levelXp(data.level)-last;
-					const prog=all/next;
-					message.channel.send(new Discord.MessageEmbed().setTitle((data.pname||userToFind.displayName+"'s profile")).addField("Level",data.level,true).setDescription((data.bio||"")).addField("Progress","`"+"█".repeat(Math.max(prog*20,0)+1|0,)+" ".repeat(Math.max(1-prog,0)*20|0)+"`  **"+(prog*100|0)+"**%",true).addField("Gold",data.gold,true).setColor(userToFind.roles.highest.color).setThumbnail(userToFind.user.displayAvatarURL()).addField("Average Daily Activity Points",numberBeautifier(data.messageAveragePerDay,","),true).addField("All-Time Activity Points",numberBeautifier(data.messagesEverSent,","),true).addField("Joined at",new Date(userToFind.joinedTimestamp)));
-				})
-			});
+			await message.channel.startTyping();
+			await updateProfile(userToFind,0);
+			let profile = await loadProfile(userToFind);
+			await message.channel.send("",{files: [profile]});
+			await message.channel.stopTyping();
 			
 		}
 		
