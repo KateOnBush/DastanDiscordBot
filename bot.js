@@ -528,7 +528,7 @@ client.on('raw',event=>{
 })
 
 //Store
-client.on('message',message=>{
+client.on('message',async message=>{
 	
 	let args=message.content.toLowerCase().split(" ");
 	let args_case=message.content.split(" ");
