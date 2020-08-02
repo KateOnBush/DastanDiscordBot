@@ -17,7 +17,6 @@ function validURL(str) {
 }
 
 async function loadProfile(member){
-	try{
 	dataStorage.sort((a,b)=>{return -a.messagesEverSent+b.messagesEverSent;})
 	let stat="#09853b";
 	if(member.user.presence.status=="dnd") stat="#e64040";
@@ -38,7 +37,7 @@ async function loadProfile(member){
 		}
 	}
 	let avatar=await Canvas.resolveImage(member.user.displayAvatarURL({format: 'png'}));
-	let canvas = Canvas.Canvas(500, 270).setColor((backgroundCol||"#36393e")).printRoundedRectangle(0, 0, 500, 270,15);
+	let canvas = new Canvas.Canvas(500, 270).setColor((backgroundCol||"#36393e")).printRoundedRectangle(0, 0, 500, 270,15);
 	if(backgroundImg!=undefined){canvas = canvas.printRoundedImage(backgroundImg,0,0,500,270,15);}
 	canvas = canvas.setGlobalAlpha(0.3).setColor("#000000").printRoundedRectangle(10,10,500-20,270-20,10).setGlobalAlpha(1).setColor('#FFFFFF')
 .setTextFont('20px Impact').setShadowColor('#000000').setShadowBlur(30).printCircularImage(avatar,64,64,40).setGlobalAlpha(0.4).setColor("#000000").setShadowBlur(0).printRoundedRectangle(120,79,500-120-24,25,12.5).printCircle(94,94,12).setGlobalAlpha(1).setColor(stat).printCircle(94,94,10).setShadowBlur(10)
@@ -54,9 +53,6 @@ async function loadProfile(member){
     	.toBuffer();
 	
 	return canvas;
-	}catch(err){
-	console.log(err);	
-	}
 
 }
 
