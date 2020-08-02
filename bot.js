@@ -32,6 +32,8 @@ async function loadProfile(member){
 	let xpc = Math.max(0,(data.messagesEverSent-levelXp(data.level-1))/(levelXp(data.level)-levelXp(data.level-1)));
 	let backgroundImg=undefined;
 	let backgroundCol=undefined;
+	let bio = data.bio;
+	if(data.bio!=undefined&&(data.bio.split("\n").length-1)>2) data.bio = data.bio.split("\n").join(" ");
 	if(data.back!=undefined){
 		if(validURL(data.back)){
 			try{
@@ -45,16 +47,18 @@ async function loadProfile(member){
 	let canvas = new Canvas.Canvas(500, 270).setColor((backgroundCol||"#36393e")).printRoundedRectangle(0, 0, 500, 270,15);
 	if(backgroundImg!=undefined){canvas = canvas.printRoundedImage(backgroundImg,0,0,500,270,15);}
 	canvas = canvas.setGlobalAlpha(0.3).setColor("#000000").printRoundedRectangle(10,10,500-20,270-20,10).setGlobalAlpha(1).setColor('#FFFFFF')
-.setTextFont('20px Impact').setShadowColor('#000000').setShadowBlur(30).printCircularImage(avatar,64,64,40).setGlobalAlpha(0.4).setColor("#000000").setShadowBlur(0).printRoundedRectangle(120,79,500-120-24,25,12.5).printCircle(94,94,12).setGlobalAlpha(1).setColor(stat).printCircle(94,94,10).setShadowBlur(10)
+.setTextFont('20px Impact').setShadowColor('#000000').setShadowBlur(30).printCircularImage(avatar,64,64,40).setGlobalAlpha(0.6).setColor("#000000")
+	.setShadowBlur(0).printRoundedRectangle(120,79,500-120-24,25,12.5).printCircle(91.5,91.5,15).setGlobalAlpha(1)
+	.setColor(stat).printCircle(91.5,91.5,12.5).setShadowBlur(10)
 .setColor(member.displayHexColor).printRoundedRectangle(124,83,(500-120-24-8)*xpc,17,12.5).printText(member.user.tag, 120, 45).setTextAlign('right').setColor("#cfc402").setShadowBlur(0).printText("#"+rank,500-28,45).setColor(member.displayHexColor).setTextFont('10px Impact').setShadowBlur(4).printText((xpc*100|0)+"%",500-28,75).setTextAlign('left').setShadowBlur(4).setColor("#ffffff").setTextFont('12px Impact')
     	.printText((data.pname||""), 120, 62)
 	.setShadowBlur(4).setTextFont('12px Impact')
-	.printText("Bio:",24,126).setGlobalAlpha(0.6).printWrappedText((data.bio||"No bio set."), 70, 126,500-24)
-	.setGlobalAlpha(1).printText("Level :",24,160).setGlobalAlpha(0.6).printText(data.level+"", 70, 160)
-	.setGlobalAlpha(1).printText("Gold :",24,180).setGlobalAlpha(0.6).printText(numberBeautifier(data.gold,","), 70, 180)
-	.setGlobalAlpha(1).printText("Average Daily Activity Points :",24,200).setGlobalAlpha(0.6).printText(numberBeautifier(data.messageAveragePerDay,","), 240, 200)
-	.setGlobalAlpha(1).printText("All-Time Activity Points :",24,220).setGlobalAlpha(0.6).printText(numberBeautifier(data.messagesEverSent,","), 240, 220)
-	.setGlobalAlpha(1).printText("Member since: ",24,240).setGlobalAlpha(0.6).printText(member.joinedAt.toLocaleDateString()+"", 240, 240)
+	.setColor("white").printText("Bio:",24,126).setGlobalAlpha(0.6).setColor(member.displayHexColor).printWrappedText((data.bio||"No bio set."), 70, 126,500-24-70)
+	.setColor("white").setGlobalAlpha(1).printText("Level :",24,180).setColor(member.displayHexColor).setGlobalAlpha(0.6).printText(data.level+"", 70, 180)
+	.setColor("white").setGlobalAlpha(1).printText("Gold :",240,180).setColor(member.displayHexColor).setGlobalAlpha(0.6).printText(numberBeautifier(data.gold,","), 286, 180)
+	.setColor("white").setGlobalAlpha(1).printText("Average Daily Activity Points :",24,200).setColor(member.displayHexColor).setGlobalAlpha(0.6).printText(numberBeautifier(data.messageAveragePerDay,","), 240, 200)
+	.setColor("white").setGlobalAlpha(1).printText("All-Time Activity Points :",24,220).setColor(member.displayHexColor).setGlobalAlpha(0.6).printText(numberBeautifier(data.messagesEverSent,","), 240, 220)
+	.setColor("white").setGlobalAlpha(1).printText("Member since: ",24,240).setColor(member.displayHexColor).setGlobalAlpha(0.6).printText(member.joinedAt.toLocaleDateString()+"", 240, 240)
     	.toBuffer();
 	
 	return canvas;
@@ -878,13 +882,13 @@ client.on('message',async message=>{
 		message.channel.send(new Discord.MessageEmbed().setDescription("I've been up for "+msToString(client.uptime)+"!").setColor("YELLOW"));
 	} else if(args[0]=="gold"){
 		if(["send","give","pay"].includes(args[1])){
-			if(message.mentions.members.array().length==0||message.mentions.members.array()[0].id==message.member.id){
-				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please mention a user."));
+			if(message.mentions.members.array().length==0||message.mentions.members.array()[0].id==message.member.id||message.mentions.members.array()[0].bot){
+				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please mention a correct user."));
 			} else if(parseInt(args[3])==NaN){
 				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a correct number."));
 			} else {
 				let data = await info.load(message.member.id);
-				let amount = parseInt(args[3]);
+				let amount = (parseInt(args[3])||0);
 				let receiver = message.mentions.members.array()[0];
 				if(data.gold<amount){
 					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You need **"+(amount-data.gold)+"** more gold."));	
@@ -1063,21 +1067,17 @@ client.on('message',async message=>{
 		  
 	} else if(["randommeme","meme","rmeme"].includes(args[0])){
 		request.get({
-			url: "https://api.imgflip.com/get_memes",
+			url: "https://meme-api.herokuapp.com/gimme",
 			headers: {
 				'Content-Type': 'application/json',
 				}
 			},(err,re,body)=>{
-				let memes=body.data.memes;
-				let meme=undefined;
-				do{
-				meme=memes[Math.random()*(memes.length)-1|0];
-				}while(meme==undefined)
-				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**"+meme.name+"**").setImage(meme.url));
+				let meme=JSON.parse(body);
+				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setTitle(meme.title).setImage(meme.url).setURL(meme.postLink).setFooter("r/"+meme.subreddit));
 			})
 	} else if(args[0]=="randomcat"){
 		let width=Math.random()*1800+200|0;
-		let height=width*9/16|0;
+		let height=Math.random()*1800+200|0;
 		message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Meow!**").setImage("http://placekitten.com/"+width+"/"+height+"/"));
 	}else if(args[0]=="help"){
 	
@@ -1140,7 +1140,7 @@ client.on('message',async message=>{
 				usage: "randomcat"
 			},{
 				name: "randommeme",
-				description: "Random meme from a large meme library!",
+				description: "Random meme from reddit!",
 				usage: "randommeme"
 			}]
 		}
@@ -1156,8 +1156,6 @@ client.on('message',async message=>{
 			})
 			message.channel.send(embed);
 		} else if(cmd!=undefined){
-			
-			const cmd=commands.find(t=>(t.name==args[1]));
 			var embed= new Discord.MessageEmbed().setColor("fafafa").setTitle("Command help: " + args[1]);
 			embed.addField("Description",cmd.longDescription||cmd.description);
 			embed.addField("Sub-commands",cmd.subcommands||"None.",true);
