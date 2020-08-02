@@ -17,6 +17,7 @@ function validURL(str) {
 }
 
 async function loadProfile(member){
+	try{
 	dataStorage.sort((a,b)=>{return -a.messagesEverSent+b.messagesEverSent;})
 	let stat="#09853b";
 	if(member.user.presence.status=="dnd") stat="#e64040";
@@ -53,6 +54,9 @@ async function loadProfile(member){
     	.toBuffer();
 	
 	return canvas;
+	}catch(err){
+	console.log(err);	
+	}
 
 }
 
