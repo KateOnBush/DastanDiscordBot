@@ -1071,7 +1071,7 @@ client.on('message',async message=>{
 				let memes=body.data.memes;
 				let meme=undefined;
 				while(meme==undefined)do{
-				let meme=memes[Math.random()*(memes.length)-1|0];
+				meme=memes[Math.random()*(memes.length)-1|0];
 				}
 				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**"+meme.name+"**").setImage(meme.url));
 			})
