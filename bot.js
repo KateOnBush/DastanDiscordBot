@@ -16,6 +16,11 @@ function validURL(str) {
   return !!pattern.test(str);
 }
 
+function validHEX(h){
+var a = parseInt(h,16);
+return (a.toString(16) ===h.toLowerCase());	
+}
+
 async function loadProfile(member){
 	dataStorage.sort((a,b)=>{return -a.messagesEverSent+b.messagesEverSent;})
 	let stat="#09853b";
@@ -893,12 +898,13 @@ client.on('message',async message=>{
 				let rest=message.content.replace("profile set "+args_case[2]+" ","");
 				if(["",undefined].includes(args[3])&&(message.attachements==undefined)){
 					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a color/image URL or attach an image."));	
-				} else if(!validURL(rest)&&!colors.includes(args[3])&&(message.attachements!=undefined)){
-					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a correct color/image URL."));
+				} else if((!validURL(rest)&&!colors.includes(args[3])&&!validHEX(args[3].replace("#",""))))||(message.attachements==undefined)){
+					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a correct color/image URL or attach an image."));
 				} else {
 					let data = await info.load(message.member.id);
 					data.back=rest;
 					if(colors.includes(args[3])) data.back=args[3];
+					if(validHEX(args[3].replace("#",""))) data.back="#"+args[3].replace("#",""); 
 					if(message.attachements!=undefined) data.back=message.attachements.array()[0].url;
 					await info.save(message.member.id,data);
 					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("Profile background successfully updated!"));	
