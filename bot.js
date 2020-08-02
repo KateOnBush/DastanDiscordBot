@@ -29,7 +29,7 @@ async function loadProfile(member){
 	if(member.user.presence.status=="offline") stat="#404040";
 	let data = await info.load(member.id);
 	let rank = 1+dataStorage.findIndex(t=>t.id==member.id);
-	let xpc = (data.messagesEverSent-levelXp(data.level-1))/(levelXp(data.level)-levelXp(data.level-1));
+	let xpc = Math.max(0,(data.messagesEverSent-levelXp(data.level-1))/(levelXp(data.level)-levelXp(data.level-1)));
 	let backgroundImg=undefined;
 	let backgroundCol=undefined;
 	if(data.back!=undefined){
