@@ -47,19 +47,19 @@ async function loadProfile(member){
 	let avatarCanvas =await Canvas.resolveImage(new Canvas.Canvas(80,80).printCircularImage(avatar,40,40,40).clearCircle(67.5,67.5,15).toDataURL());
 	let canvas = new Canvas.Canvas(500, 270).setColor((backgroundCol||"#36393e")).printRoundedRectangle(0, 0, 500, 270,15);
 	if(backgroundImg!=undefined){canvas = canvas.printRoundedImage(backgroundImg,0,0,500,270,15);}
-	canvas = canvas.setGlobalAlpha(0.3).setColor("#000000").printRoundedRectangle(10,10,500-20,270-20,10).setGlobalAlpha(1).setColor('#FFFFFF')
+	canvas = canvas.setGlobalAlpha(0.5).setColor("#000000").printRoundedRectangle(10,10,500-20,270-20,10).setGlobalAlpha(1).setColor('#FFFFFF')
 .setTextFont('20px Impact').setShadowColor('#000000').setShadowBlur(30).printImage(avatarCanvas,24,24,80,80).setGlobalAlpha(0.6).setColor("#000000")
 	.setShadowBlur(0).printRoundedRectangle(120,79,500-120-24,25,12.5).setGlobalAlpha(1)
 	.setColor(stat).printCircle(91.5,91.5,11).setShadowBlur(10)
 .setColor(member.displayHexColor).printRoundedRectangle(124,83,(500-120-24-8)*xpc,17,12.5).printText(member.user.tag, 120, 45).setTextAlign('right').setColor("#cfc402").setShadowBlur(0).printText("#"+rank,500-28,45).setColor(member.displayHexColor).setTextFont('10px Impact').setShadowBlur(4).printText((xpc*100|0)+"%",500-28,75).setTextAlign('left').setShadowBlur(4).setColor("#ffffff").setTextFont('12px Impact')
     	.printText((data.pname||""), 120, 62)
-	.setShadowBlur(4).setTextFont('12px Impact')
-	.setColor("white").printText("Bio:",24,126).setGlobalAlpha(0.6).setColor(member.displayHexColor).printWrappedText((data.bio||"No bio set."), 70, 126,500-24-70)
-	.setColor("white").setGlobalAlpha(1).printText("Level :",24,180).setColor(member.displayHexColor).setGlobalAlpha(0.6).printText(data.level+"", 70, 180)
-	.setColor("white").setGlobalAlpha(1).printText("Gold :",240,180).setColor(member.displayHexColor).setGlobalAlpha(0.6).printText(numberBeautifier(data.gold,","), 286, 180)
-	.setColor("white").setGlobalAlpha(1).printText("Average Daily Activity Points :",24,200).setColor(member.displayHexColor).setGlobalAlpha(0.6).printText(numberBeautifier(data.messageAveragePerDay,","), 240, 200)
-	.setColor("white").setGlobalAlpha(1).printText("All-Time Activity Points :",24,220).setColor(member.displayHexColor).setGlobalAlpha(0.6).printText(numberBeautifier(data.messagesEverSent,","), 240, 220)
-	.setColor("white").setGlobalAlpha(1).printText("Member since: ",24,240).setColor(member.displayHexColor).setGlobalAlpha(0.6).printText(member.joinedAt.toLocaleDateString()+"", 240, 240)
+	.setShadowBlur(6).setTextFont('12px Impact')
+	.setColor("white").printText("Bio:",24,126).setColor(member.displayHexColor).printWrappedText((data.bio||"No bio set."), 70, 126,500-24-70)
+	.setColor("white").printText("Level :",24,180).setColor(member.displayHexColor).printText(data.level+"", 70, 180)
+	.setColor("white").printText("Gold :",240,180).setColor(member.displayHexColor).printText(numberBeautifier(data.gold,","), 286, 180)
+	.setColor("white").printText("Average Daily Activity Points :",24,200).setColor(member.displayHexColor).printText(numberBeautifier(data.messageAveragePerDay,","), 240, 200)
+	.setColor("white").printText("All-Time Activity Points :",24,220).setColor(member.displayHexColor).printText(numberBeautifier(data.messagesEverSent,","), 240, 220)
+	.setColor("white").printText("Member since: ",24,240).setColor(member.displayHexColor).printText(member.joinedAt.toLocaleDateString()+"", 240, 240)
     	.toBuffer();
 	
 	return canvas;
