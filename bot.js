@@ -44,12 +44,13 @@ async function loadProfile(member){
 		}
 	}
 	let avatar=await Canvas.resolveImage(member.user.displayAvatarURL({format: 'png'}));
+	let avatarCanvas = new Canvas.Canvas(80,80).printCircularImage(avatar,40,40,40).clearCircle(67.5,67.5,15);
 	let canvas = new Canvas.Canvas(500, 270).setColor((backgroundCol||"#36393e")).printRoundedRectangle(0, 0, 500, 270,15);
 	if(backgroundImg!=undefined){canvas = canvas.printRoundedImage(backgroundImg,0,0,500,270,15);}
 	canvas = canvas.setGlobalAlpha(0.3).setColor("#000000").printRoundedRectangle(10,10,500-20,270-20,10).setGlobalAlpha(1).setColor('#FFFFFF')
-.setTextFont('20px Impact').setShadowColor('#000000').setShadowBlur(30).printCircularImage(avatar,64,64,40).setGlobalAlpha(0.6).setColor("#000000")
-	.setShadowBlur(0).printRoundedRectangle(120,79,500-120-24,25,12.5).printCircle(91.5,91.5,15).setGlobalAlpha(1)
-	.setColor(stat).printCircle(91.5,91.5,12.5).setShadowBlur(10)
+.setTextFont('20px Impact').setShadowColor('#000000').setShadowBlur(30).printImage(avatarCanvas,24,24,80,80).setGlobalAlpha(0.6).setColor("#000000")
+	.setShadowBlur(0).printRoundedRectangle(120,79,500-120-24,25,12.5).setGlobalAlpha(1)
+	.setColor(stat).printCircle(91.5,91.5,11).setShadowBlur(10)
 .setColor(member.displayHexColor).printRoundedRectangle(124,83,(500-120-24-8)*xpc,17,12.5).printText(member.user.tag, 120, 45).setTextAlign('right').setColor("#cfc402").setShadowBlur(0).printText("#"+rank,500-28,45).setColor(member.displayHexColor).setTextFont('10px Impact').setShadowBlur(4).printText((xpc*100|0)+"%",500-28,75).setTextAlign('left').setShadowBlur(4).setColor("#ffffff").setTextFont('12px Impact')
     	.printText((data.pname||""), 120, 62)
 	.setShadowBlur(4).setTextFont('12px Impact')
