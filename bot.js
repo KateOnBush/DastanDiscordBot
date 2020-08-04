@@ -1079,7 +1079,7 @@ client.on('message',async message=>{
 		request.get({
 			url: "https://www.tronalddump.io/random/quote",
 			headers: {
-				'Content-Type': 'application/json',
+				'Accept': 'application/json',
 				}
 			},(err,re,body)=>{
 				let meme=body;
