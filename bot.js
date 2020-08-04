@@ -862,7 +862,7 @@ client.on('message',async message=>{
 				data.gold+=message.channel.chest.value;
 				message.channel.chest.collected=true;
 				info.save(message.member.id,data).then(()=>{
-					message.channel.send(new Discord.MessageEmbed().setDescription("🌟 **You have opened the chest!** You received **"+message.channel.chest.value+"** gold!").setColor("GREEN"))
+					message.channel.send(new Discord.MessageEmbed().setDescription("🌟 **You have opened the chest!** <@!"+message.author.id+">, You received **"+message.channel.chest.value+"** gold!").setColor("GREEN"))
 				})
 			})	
 		}
@@ -1084,7 +1084,7 @@ client.on('message',async message=>{
 			},(err,re,body)=>{
 				let meme=body;
 				if((typeof meme)=="string") meme=JSON.parse(body);
-				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setTitle("Donald trump once tweeted:").setDescription(meme.value).setURL(meme._embedded.source.url).setFooter(meme._links.self.href).setAuthor("Tronald Trump.io","https://cdn-media.rtl.fr/cache/5e87Jijn7jG5WLPIuVSDmA/880v587-0/online/image/2019/1003/7799165161_donald-trump-le-2-octobre-2019.jpg"));
+				message.channel.send(new Discord.MessageEmbed().setColor("#3579e6").setTitle("Donald trump once tweeted:").setDescription(meme.value).setURL(meme._embedded.source.url).setFooter(meme._links.self.href));
 			})
 	} else if(["randommeme","meme","rmeme"].includes(args[0])){
 		request.get({
@@ -1102,10 +1102,10 @@ client.on('message',async message=>{
 		message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Meow!**").setImage("http://placekitten.com/"+width+"/"+height+"/"));
 	} else if(["leaderboard","board","list"].includes(args[0])){
 		sortMembers();
-		let embed=new Discord.MessageEmbed().setColor("AQUA").setDescription("**Leaderboard:**").addField("Rank",["🥇","🥈","🥉",4,5,6,7,8,9,10].join("\n")).addField("Member","<@!"+dataStorage.map((it,i)=>{if(i<10) return it.id}).join(">\n<@!")+">");
+		let embed=new Discord.MessageEmbed().setColor("AQUA").setDescription("**Leaderboard:**").addField("Rank",["🥇","🥈","🥉",4,5,6,7,8,9,10].join("\n")).addField("Member","<@!"+dataStorage.map((it,i)=>{if(i<10) return "<@!"+it.id+">\n"}).join(""));
 		message.channel.send(embed)
 	} else if(args[0]=="gamble"){
-		if(parseInt(args[1])==NaN){
+		if(parseInt(args[1])==NaN||["",undefined].includes(args[1])){
 			message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct amount.").setColor("RED"));
 		} else {
 			let data = await info.load(message.member.id);
@@ -1116,17 +1116,17 @@ client.on('message',async message=>{
 				let gambled = Math.random()*Math.random()*3*amount|0;
 				gambled += amount*((Math.random()*2)|0);
 				gambled -= amount;
-				let embed = new Discord.MessageEmbed().setDescription("Gambling...");
+				let embed = new Discord.MessageEmbed().setDescription("Gambling **"+amount+"**...");
 				let msg=await message.channel.send(embed)
 				await wait(3000);
 				if(gambled<0){
-					embed = new Discord.MessageEmbed().setDescription("**🌑 Oh no, bad luck!** You just lost **"+ Math.abs(gambled)+"** gold :(.").setColor("RED");	
+					embed = new Discord.MessageEmbed().setDescription("**🌑 Oh no, bad luck!** <@!"+message.author.id+">, You just lost **"+ Math.abs(gambled)+"** gold :(.").setColor("RED");	
 				}else if(gambled<amount){
-					embed = new Discord.MessageEmbed().setDescription("**💰 Not very lucky!** You gained **"+ gambled+"** gold, better luck next time.").setColor("ORANGE");		
+					embed = new Discord.MessageEmbed().setDescription("**💰 Not very lucky!** <@!"+message.author.id+">, You gained **"+ gambled+"** gold, better luck next time.").setColor("ORANGE");		
 				}else if(gambled<(amount*2)){
-					embed = new Discord.MessageEmbed().setDescription("**☄️ Lucky!!** You gained **"+ gambled+"** gold.").setColor("YELLOW");		
+					embed = new Discord.MessageEmbed().setDescription("**☄️ Lucky!!** <@!"+message.author.id+">, You gained **"+ gambled+"** gold.").setColor("YELLOW");		
 				}else{
-					embed = new Discord.MessageEmbed().setDescription("**🍀 4-leaf clover!!** You gained **"+ gambled+"** gold.").setColor("GREEN");		
+					embed = new Discord.MessageEmbed().setDescription("**🍀 4-leaf clover!!** <@!"+message.author.id+">, You gained **"+ gambled+"** gold.").setColor("GREEN");		
 				}
 				data.gold+=gambled;
 				await info.save(message.member.id,data);
