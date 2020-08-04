@@ -16,13 +16,22 @@ function validURL(str) {
   return !!pattern.test(str);
 }
 
+function wait(ms){
+	return new Promise((resolve,reject)=>{
+		setTimeout(resolve,ms);
+	});
+}
+
 function validHEX(h){
 var a = parseInt(h,16);
 return (a.toString(16) ===h.toLowerCase());	
 }
+function sortMembers(){
+	dataStorage.sort((a,b)=>{return -a.messagesEverSent+b.messagesEverSent;});
+}
 
 async function loadProfile(member){
-	dataStorage.sort((a,b)=>{return -a.messagesEverSent+b.messagesEverSent;})
+	sortMembers();
 	let stat="#09853b";
 	if(member.user.presence.status=="dnd") stat="#e64040";
 	if(member.user.presence.status=="idle") stat="#c2a711";
@@ -1066,6 +1075,17 @@ client.on('message',async message=>{
 			});
 		});
 		  
+	} else if(["tronald","donald","trump","donaldtrump"].includes(args[0])){
+		request.get({
+			url: "https://www.tronalddump.io/random/quote",
+			headers: {
+				'Content-Type': 'application/json',
+				}
+			},(err,re,body)=>{
+				let meme=body;
+				if((typeof meme)=="string") meme=JSON.parse(body);
+				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setTitle("Donald trump once tweeted:").setDescription(meme.value).setURL(meme._embedded.source.url).setFooter(meme._links.self.href).setAuthor("Tronald Trump.io","https://cdn-media.rtl.fr/cache/5e87Jijn7jG5WLPIuVSDmA/880v587-0/online/image/2019/1003/7799165161_donald-trump-le-2-octobre-2019.jpg"));
+			})
 	} else if(["randommeme","meme","rmeme"].includes(args[0])){
 		request.get({
 			url: "https://meme-api.herokuapp.com/gimme",
@@ -1076,10 +1096,44 @@ client.on('message',async message=>{
 				let meme=JSON.parse(body);
 				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setTitle(meme.title).setImage(meme.url).setURL(meme.postLink).setFooter("r/"+meme.subreddit));
 			})
-	} else if(args[0]=="randomcat"){
-		let width=Math.random()*1800+200|0;
-		let height=Math.random()*1800+200|0;
+	} else if(["randomcat"].includes(args[0])){
+		let width=(Math.random()*1800+200)|0;
+		let height=(Math.random()*1800+200)|0;
 		message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Meow!**").setImage("http://placekitten.com/"+width+"/"+height+"/"));
+	} else if(["leaderboard","board","list"].includes(args[0])){
+		sortMembers();
+		let embed=new Discord.MessageEmbed().setColor("AQUA").setDescription("**Leaderboard:**").addField("Rank",["🥇","🥈","🥉",4,5,6,7,8,9,10].join("\n")).addField("Member","<@!"+dataStorage.map((it,i)=>{if(i<10) return it.id}).join(">\n<@!")+">");
+		message.channel.send(embed)
+	} else if(args[0]=="gamble"){
+		if(parseInt(args[1])==NaN){
+			message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct amount.").setColor("RED"));
+		} else {
+			let data = await info.load(message.member.id);
+			let amount = parseInt(args[1]);
+			if(amount>data.gold){
+				message.channel.send(new Discord.MessageEmbed().setDescription("You do not have enough gold.").setColor("RED"));	
+			} else {
+				let gambled = Math.random()*Math.random()*3*amount|0;
+				gambled += amount*((Math.random()*2)|0);
+				gambled -= amount;
+				let embed = new Discord.MessageEmbed().setDescription("Gambling...");
+				let msg=await message.channel.send(embed)
+				await wait(3000);
+				if(gambled<0){
+					embed = new Discord.MessageEmbed().setDescription("**🌑 Oh no, bad luck!** You just lost **"+ Math.abs(gambled)+"** gold :(.").setColor("RED");	
+				}else if(gambled<amount){
+					embed = new Discord.MessageEmbed().setDescription("**💰 Not very lucky!** You gained **"+ gambled+"** gold, better luck next time.").setColor("ORANGE");		
+				}else if(gambled<(amount*2)){
+					embed = new Discord.MessageEmbed().setDescription("**☄️ Lucky!!** You gained **"+ gambled+"** gold.").setColor("YELLOW");		
+				}else{
+					embed = new Discord.MessageEmbed().setDescription("**🍀 4-leaf clover!!** You gained **"+ gambled+"** gold.").setColor("GREEN");		
+				}
+				data.gold+=gambled;
+				await info.save(message.member.id,data);
+				msg.edit(embed);
+				
+			}
+		}
 	}else if(args[0]=="help"){
 	
 		const commands = [{
@@ -1104,15 +1158,15 @@ client.on('message',async message=>{
 				description: "Displays your/someone's level.",
 				usage: "level [@user]"
 			},{
-				name: "gold",
-				description: "Displays your/someone's gold.",
-				usage: "gold [@user/give] (@user)"
-			},{
 				name: "color",
 				description: "Name color commands.",
 				longDescription: "This commands is used to change your name color, or to see your/someone's color.",
 				subcommands: "set, list",
 				usage: "color <set/list> (color name)"
+			},{
+				name: "leaderboard",
+				description: "Displays top 10 server members.",
+				usage: "leaderboard"
 			}]
 		},{
 			name: "Economy",
@@ -1131,10 +1185,14 @@ client.on('message',async message=>{
 				description: "Collect a dropped chest.",
 				longDescription: "Use this command to collect a chest whenever it is dropped!",
 				usage: "collect"
+			},{
+				name: "gamble",
+				description: "Gamble and if you're lucky enough, double your money :)",
+				usage: "gamble <amount>"
 			}]
 		},{
 			name: "Fun & Entertainement",
-			description: "Use your gold and gain rewards!",
+			description: "Just fun commands!",
 			commands:[{
 				name: "randomcat",
 				description: "Random cute picture of a cat!",
@@ -1143,6 +1201,10 @@ client.on('message',async message=>{
 				name: "randommeme",
 				description: "Random meme from reddit!",
 				usage: "randommeme"
+			},{
+				name: "tronald",
+				description: "Dumbest quotes Donald Trump has ever said!",
+				usage: "tronald"
 			}]
 		}
 		]
