@@ -697,7 +697,7 @@ client.on('message',async message=>{
 				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a correct number."));
 			} else {
 				let data = await info.load(message.member.id);
-				let amount = parseInt(args[3]);
+				let amount = (parseInt(args[3].split("-").join(""))||0)|0;
 				let receiver = message.mentions.members.array()[0];
 				if(data.gold<amount){
 					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You need **"+(amount-data.gold)+"** more gold."));	
@@ -707,7 +707,7 @@ client.on('message',async message=>{
 					sentData.gold+=amount;
 					await info.save(message.member.id,data);
 					await info.save(receiver.id,sentData);
-					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("**Transfer successful**\n<@!"+message.member.id+"> sent **"+amount+"** to <@!"+receiver.id+">!"));	
+					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("**Transfer successful**\n<@!"+message.member.id+"> sent **"+amount+"** gold to <@!"+receiver.id+">!"));	
 				}
 			}
 		}else{
@@ -898,7 +898,7 @@ client.on('message',async message=>{
 				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a correct number."));
 			} else {
 				let data = await info.load(message.member.id);
-				let amount = (parseInt(args[3])||0);
+				let amount = (parseInt(args[3].split("-").join(""))||0)|0;
 				let receiver = message.mentions.members.array()[0];
 				if(data.gold<amount){
 					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You need **"+(amount-data.gold)+"** more gold."));	
@@ -908,7 +908,7 @@ client.on('message',async message=>{
 					sentData.gold+=amount;
 					await info.save(message.member.id,data);
 					await info.save(receiver.id,sentData);
-					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("**Transfer successful**\n<@!"+message.member.id+"> sent **"+amount+"** to <@!"+receiver.id+">!"));	
+					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("**Transfer successful**\n<@!"+message.member.id+"> sent **"+amount+"** gold to <@!"+receiver.id+">!"));	
 				}
 			}
 		}else{
@@ -1102,21 +1102,21 @@ client.on('message',async message=>{
 		message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Meow!**").setImage("http://placekitten.com/"+width+"/"+height+"/"));
 	} else if(["leaderboard","board","list"].includes(args[0])){
 		sortMembers();
-		let embed=new Discord.MessageEmbed().setColor("AQUA").setDescription("**Leaderboard:**").addField("Rank",["🥇","🥈","🥉",4,5,6,7,8,9,10].join("\n"),true).addField("Member",+dataStorage.map((it,i)=>{if(i<10) return "<@!"+it.id+">\n"}).join(""),true);
+		let embed=new Discord.MessageEmbed().setColor("AQUA").setDescription("**Leaderboard:**").addField("Rank",["🥇","🥈","🥉",4,5,6,7,8,9,10].join("\n"),true).addField("Member",dataStorage.map((it,i)=>{if(i<10) return "<@!"+it.id+">\n"}).join(""),true);
 		message.channel.send(embed)
 	} else if(args[0]=="gamble"){
 		if(parseInt(args[1])==NaN||["",undefined].includes(args[1])){
 			message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct amount.").setColor("RED"));
 		} else {
 			let data = await info.load(message.member.id);
-			let amount = parseInt(args[1]);
+			let amount = parseInt(args[1].split("-").join(""))|0;
 			if(amount>data.gold){
 				message.channel.send(new Discord.MessageEmbed().setDescription("You do not have enough gold.").setColor("RED"));	
 			} else {
 				let gambled = Math.random()*Math.random()*3*amount|0;
 				gambled += amount*((Math.random()*2)|0);
 				gambled -= amount;
-				let embed = new Discord.MessageEmbed().setDescription("Gambling **"+amount+"**...");
+				let embed = new Discord.MessageEmbed().setDescription("Gambling **"+amount+"** ...");
 				let msg=await message.channel.send(embed)
 				await wait(3000);
 				if(gambled<0){
@@ -1128,7 +1128,6 @@ client.on('message',async message=>{
 				}else{
 					embed = new Discord.MessageEmbed().setDescription("**🍀 4-leaf clover!!** <@!"+message.author.id+">, You gained **"+ gambled+"** gold.").setColor("GREEN");		
 				}
-				data.gold-=amount;
 				data.gold+=gambled;
 				await info.save(message.member.id,data);
 				msg.edit(embed);
