@@ -247,6 +247,7 @@ async function updateProfile(member,points){
 			},86400000);
 			c.firstMessage=Date.now();
 			var t=(c.messageAveragePerDay*0.7+c.messagesSentToday*0.3);
+			c.gamblesToday=0;
 			c.messageAveragePerDay=t|0;
 			c.messagesSentToday=0;
 				
@@ -276,7 +277,7 @@ async function updateProfile(member,points){
 		if(member.roles.cache.array().find(rl=>rl.id=="732234963310608426")!=undefined){
 			mult=2;
 		}
-		c.messagesSentToday+=points*mult;
+		c.messagesSentToday+=points;
 		c.messagesEverSent+=points*mult;
 		var level=c.level;
 		let gold=c.gold;
@@ -693,7 +694,7 @@ client.on('message',async message=>{
 		if(["send","give","pay"].includes(args[1])){
 			if(message.mentions.members.array().length==0||message.mentions.members.array()[0].id==message.member.id){
 				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please mention a user."));
-			} else if(parseInt(args[3])==NaN){
+			} else if(!parseInt(args[3])){
 				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a correct number."));
 			} else {
 				let data = await info.load(message.member.id);
@@ -797,7 +798,7 @@ client.on('message',async message=>{
 	message.member.messageCombo++;
 	if(message.member.messageCombo>=10){
 		message.member.messageCombo=0;
-		updateProfile(message.member,10);
+		await updateProfile(message.member,10);
 	}
 	
 	var args=message.content.toLowerCase().split(" ");
@@ -894,7 +895,7 @@ client.on('message',async message=>{
 		if(["send","give","pay"].includes(args[1])){
 			if(message.mentions.members.array().length==0||message.mentions.members.array()[0].id==message.member.id||message.mentions.members.array()[0].bot){
 				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please mention a correct user."));
-			} else if(parseInt(args[3])==NaN){
+			} else if(!parseInt(args[3])){
 				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a correct number."));
 			} else {
 				let data = await info.load(message.member.id);
@@ -1105,25 +1106,27 @@ client.on('message',async message=>{
 		let embed=new Discord.MessageEmbed().setColor("AQUA").setDescription("**Leaderboard:**").addField("Rank",["🥇","🥈","🥉",4,5,6,7,8,9,10].join("\n"),true).addField("Member",dataStorage.map((it,i)=>{if(i<10) return "<@!"+it.id+">\n"}).join(""),true);
 		message.channel.send(embed)
 	} else if(args[0]=="gamble"){
-		if(parseInt(args[1])==NaN||["",undefined].includes(args[1])){
+		if(!parseInt(args[1])||["",undefined].includes(args[1])||parseInt(args[1])==0){
 			message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct amount.").setColor("RED"));
 		} else {
 			let data = await info.load(message.member.id);
 			let amount = parseInt(args[1].split("-").join(""))|0;
-			if(amount>data.gold){
+			if(data.gamblesToday==undefined) data.gamblesToday=0;
+			if(data.gamblesToday==5){
+				message.channel.send(new Discord.MessageEmbed().setDescription("You have already gambled 5 times today, come back later!").setColor("RED"));
+			} else if(amount>data.gold){
 				message.channel.send(new Discord.MessageEmbed().setDescription("You do not have enough gold.").setColor("RED"));	
 			} else {
-				let gambled = Math.random()*Math.random()*3*amount|0;
+				let gambled = Math.random()*Math.random()*2*amount|0;
 				gambled += amount*((Math.random()*2)|0);
 				gambled -= amount;
+				data.gamblesToday+=1;
 				let embed = new Discord.MessageEmbed().setDescription("Gambling **"+amount+"** ...");
 				let msg=await message.channel.send(embed)
 				await wait(3000);
 				if(gambled<0){
 					embed = new Discord.MessageEmbed().setDescription("**🌑 Oh no, bad luck!** <@!"+message.author.id+">, You just lost **"+ Math.abs(gambled)+"** gold :(.").setColor("RED");	
 				}else if(gambled<amount){
-					embed = new Discord.MessageEmbed().setDescription("**💰 Not very lucky!** <@!"+message.author.id+">, You gained only **"+ gambled+"** gold, better luck next time.").setColor("ORANGE");	
-				}else if(gambled<(amount*2)){
 					embed = new Discord.MessageEmbed().setDescription("**☄️ Lucky!!** <@!"+message.author.id+">, You gained **"+ gambled+"** gold.").setColor("YELLOW");		
 				}else{
 					embed = new Discord.MessageEmbed().setDescription("**🍀 4-leaf clover!!** <@!"+message.author.id+">, You gained **"+ gambled+"** gold.").setColor("GREEN");		
