@@ -6,6 +6,17 @@ const dbLink = "https://jsonbox.io/box_1b9370d46ab479194e92"
 
 const colors=["black","silver","gray","white","maroon","red","purple","fuchsia","green","lime","olive","yellow","navy","blue","teal","aqua","orange","aliceblue","antiquewhite","aquamarine","azure","beige","bisque","blanchedalmond","blueviolet","brown","burlywood","cadetblue","chartreuse","chocolate","coral","cornflowerblue","cornsilk","crimson","cyan","darkblue","darkcyan","darkgoldenrod","darkgray","darkgreen","darkgrey","darkkhaki","darkmagenta","darkolivegreen","darkorange","darkorchid","darkred","darksalmon","darkseagreen","darkslateblue","darkslategray","darkslategrey","darkturquoise","darkviolet","deeppink","deepskyblue","dimgray","dimgrey","dodgerblue","firebrick","floralwhite","forestgreen","gainsboro","ghostwhite","gold","goldenrod","greenyellow","grey","honeydew","hotpink","indianred","indigo","ivory","khaki","lavender","lavenderblush","lawngreen","lemonchiffon","lightblue","lightcoral","lightcyan","lightgoldenrodyellow","lightgray","lightgreen","lightgrey","lightpink","lightsalmon","lightseagreen","lightskyblue","lightslategray","lightslategrey","lightsteelblue","lightyellow","limegreen","linen","magenta","mediumaquamarine","mediumblue","mediumorchid","mediumpurple","mediumseagreen","mediumslateblue","mediumspringgreen","mediumturquoise","mediumvioletred","midnightblue","mintcream","mistyrose","moccasin","navajowhite","oldlace","olivedrab","orangered","orchid","palegoldenrod","palegreen","paleturquoise","palevioletred","papayawhip","peachpuff","peru","pink","plum","powderblue","rosybrown","royalblue","saddlebrown","salmon","sandybrown","seagreen","seashell","sienna","skyblue","slateblue","slategray","slategrey","snow","springgreen","steelblue","tan","thistle","tomato","turquoise","violet","wheat","whitesmoke","yellowgreen","rebeccapurple"];
 
+function getURL(url,h){
+	return new Promise((resolve,reject)=>{
+		request.get({
+			url: url,
+			headers: (h||{})
+		},(err,r,body)=>{
+			if (err) reject(err);
+			if (!err) resolve(body);
+		})
+	})
+}
 function validURL(str) {
   var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
     '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
@@ -692,6 +703,8 @@ client.on('message',async message=>{
 		
 	} else if(args[0]=="gold"){
 		if(["send","give","pay"].includes(args[1])){
+			let data = await info.load(message.member.id);
+			message.content=message.content.replace("all",data.gold).replace("half",data.gold/2|0).replace("quarter",data.gold/4|0).replace("third",data.gold/3|0);
 			if(message.mentions.members.array().length==0||message.mentions.members.array()[0].id==message.member.id){
 				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please mention a user."));
 			} else if(!parseInt(args[3])){
@@ -765,9 +778,8 @@ client.on('message',async message=>{
 	log("Message",message.member,message.cleanContent);
 	
 	if(message.channel.id=="733647169491304508"){
-		message.react("⬆️").then(()=>{
-			message.react("⬇️");
-		})	
+		await message.react("⬆️");
+		await message.react("⬇️");
 	}
 	
 	//Anti-Spam
@@ -893,6 +905,8 @@ client.on('message',async message=>{
 		message.channel.send(new Discord.MessageEmbed().setDescription("I've been up for "+msToString(client.uptime)+"!").setColor("YELLOW"));
 	} else if(args[0]=="gold"){
 		if(["send","give","pay"].includes(args[1])){
+			let data = await info.load(message.member.id);
+			message.content=message.content.replace("all",data.gold).replace("half",data.gold/2|0).replace("quarter",data.gold/4|0).replace("third",data.gold/3|0);
 			if(message.mentions.members.array().length==0||message.mentions.members.array()[0].id==message.member.id||message.mentions.members.array()[0].bot){
 				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please mention a correct user."));
 			} else if(!parseInt(args[3])){
@@ -1106,6 +1120,8 @@ client.on('message',async message=>{
 		let embed=new Discord.MessageEmbed().setColor("AQUA").setDescription("**Leaderboard:**").addField("Rank",["🥇","🥈","🥉",4,5,6,7,8,9,10].join("\n"),true).addField("Member",dataStorage.map((it,i)=>{if(i<10) return "<@!"+it.id+">\n"}).join(""),true);
 		message.channel.send(embed)
 	} else if(args[0]=="gamble"){
+		let data = await info.load(message.member.id);
+		message.content=message.content.replace("all",data.gold).replace("half",data.gold/2|0).replace("quarter",data.gold/4|0).replace("third",data.gold/3|0);
 		if(!parseInt(args[1])||["",undefined].includes(args[1])||parseInt(args[1])==0){
 			message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct amount.").setColor("RED"));
 		} else {
@@ -1137,6 +1153,28 @@ client.on('message',async message=>{
 				
 			}
 		}
+	}else if(["word","words","dictionnary","w"].includes(args[0])){
+		if(["def","definition","meaning","m","means"].includes(args[1])){
+			if(["",undefined].includes(args[2])){
+				message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a word.").setColor("RED"));
+			} else {
+				message.channel.startTyping();
+				let word = args.map((i,t)=>{ if(t>1) return i+" "; return "";}).join("");
+				let body = await getURL("http://api.datamuse.com/words?sp="+word.split(" ").join("+")+"&md=d");
+				let words=JSON.parse(body);
+				if(words.length==0){
+					message.channel.send(new Discord.MessageEmbed().setDescription("No definition for the word **"+word+"** was found.").setColor("RED"));	
+				} else {
+					let embed=new Discord.MessageEmbed().setColor("CYAN").setDescription("Definition for search: **"+word+"**");
+					words.forEach((word,i)=>{
+					if(i<6) embed.addField("Word: "+word.word,"**Definition(s):**\n"+word.defs.map(def=>"● "+def+"\n"),true)
+					})
+					await message.channel.send(embed);
+				}
+				message.channel.stopTyping();
+			}
+		}
+								  
 	}else if(args[0]=="help"){
 	
 		const commands = [{
@@ -1208,6 +1246,14 @@ client.on('message',async message=>{
 				name: "tronald",
 				description: "Dumbest quotes Donald Trump has ever said!",
 				usage: "tronald"
+			}]
+		},{
+			name: "Knowledge",
+			description: "Just fun commands!",
+			commands:[{
+				name: "word",
+				description: "Get the definition, rhymes and other useful tools about English words!",
+				usage: "word <meaning/rhyme/syllables/synonyms/antonyms> <word>"
 			}]
 		}
 		]
