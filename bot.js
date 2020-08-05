@@ -1168,7 +1168,7 @@ client.on('message',async message=>{
 				} else {
 					let embed=new Discord.MessageEmbed().setColor("#c2ed6b").setDescription("Definition for search: **"+word+"**");
 					words.forEach((word,i)=>{
-					word.defs.forEach((desc,i,t)=>{
+					if(word.defs!=undefined) word.defs.forEach((desc,i,t)=>{
 						if(desc.startsWith("n")) t[i]=desc.replace("n","*(n.)*");
 						if(desc.startsWith("adj")) t[i]=desc.replace("adj","*(adj.)*");
 						if(desc.startsWith("verb")) t[i]=desc.replace("v","*(v.)*");
