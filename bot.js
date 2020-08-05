@@ -1099,7 +1099,7 @@ client.on('message',async message=>{
 			},(err,re,body)=>{
 				let meme=body;
 				if((typeof meme)=="string") meme=JSON.parse(body);
-				message.channel.send(new Discord.MessageEmbed().setColor("#3579e6").setTitle("Donald trump once tweeted:").setDescription(meme.value).setURL(meme._embedded.source[0].url).setFooter(meme._links.self.href));
+				message.channel.send(new Discord.MessageEmbed().setColor("#72d7e0").setTitle("Donald trump once tweeted:").setDescription(meme.value).setURL(meme._embedded.source[0].url).setFooter(meme._links.self.href));
 			})
 	} else if(["randommeme","meme","rmeme"].includes(args[0])){
 		request.get({
@@ -1166,9 +1166,16 @@ client.on('message',async message=>{
 				if(words.length==0){
 					message.channel.send(new Discord.MessageEmbed().setDescription("No definition for the word **"+word+"** was found.").setColor("RED"));	
 				} else {
-					let embed=new Discord.MessageEmbed().setColor("CYAN").setDescription("Definition for search: **"+word+"**");
+					let embed=new Discord.MessageEmbed().setColor("#c2ed6b").setDescription("Definition for search: **"+word+"**");
 					words.forEach((word,i)=>{
-					if(i<6) embed.addField("Word: "+word.word,"**Definition(s):**\n"+word.defs.map(def=>"● "+def+"\n"),true)
+					let desc="No definitions available."
+					if(word.defs!=undefined) desc="Definition(s):\n"+word.defs.map(def=>"● "+def).join("\n");
+					if(desc.startsWith("n")) desc=desc.replace("n","*(n.)*");
+					if(desc.startsWith("adj")) desc=desc.replace("adj","*(adj.)*");
+					if(desc.startsWith("verb")) desc=desc.replace("v","*(v.)*");
+					if(desc.startsWith("adv")) desc=desc.replace("adv","*(adv.)*");
+					if(desc.startsWith("u")) desc=desc.replace("u","*(n/a)*");	
+					if(i<6) embed.addField("Word: "+word.word,desc,true)
 					})
 					await message.channel.send(embed);
 				}
@@ -1250,7 +1257,7 @@ client.on('message',async message=>{
 			}]
 		},{
 			name: "Knowledge",
-			description: "Just fun commands!",
+			description: "Big brain stuff!",
 			commands:[{
 				name: "word",
 				description: "Get the definition, rhymes and other useful tools about English words!",
