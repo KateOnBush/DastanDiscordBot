@@ -704,7 +704,7 @@ client.on('message',async message=>{
 	} else if(args[0]=="gold"){
 		if(["send","give","pay"].includes(args[1])){
 			let data = await info.load(message.member.id);
-			message.content=message.content.replace("all",data.gold).replace("half",data.gold/2|0).replace("quarter",data.gold/4|0).replace("third",data.gold/3|0);
+			args=args.join(" ").replace("all",data.gold).replace("half",data.gold/2|0).replace("quarter",data.gold/4|0).replace("third",data.gold/3|0).split(" ");
 			if(message.mentions.members.array().length==0||message.mentions.members.array()[0].id==message.member.id){
 				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please mention a user."));
 			} else if(!parseInt(args[3])){
@@ -906,7 +906,7 @@ client.on('message',async message=>{
 	} else if(args[0]=="gold"){
 		if(["send","give","pay"].includes(args[1])){
 			let data = await info.load(message.member.id);
-			message.content=message.content.replace("all",data.gold).replace("half",data.gold/2|0).replace("quarter",data.gold/4|0).replace("third",data.gold/3|0);
+			args=args.join(" ").replace("all",data.gold).replace("half",data.gold/2|0).replace("quarter",data.gold/4|0).replace("third",data.gold/3|0).split(" ");
 			if(message.mentions.members.array().length==0||message.mentions.members.array()[0].id==message.member.id||message.mentions.members.array()[0].bot){
 				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please mention a correct user."));
 			} else if(!parseInt(args[3])){
@@ -1121,7 +1121,7 @@ client.on('message',async message=>{
 		message.channel.send(embed)
 	} else if(args[0]=="gamble"){
 		let data = await info.load(message.member.id);
-		message.content=message.content.replace("all",data.gold).replace("half",data.gold/2|0).replace("quarter",data.gold/4|0).replace("third",data.gold/3|0);
+		args=args.join(" ").replace("all",data.gold).replace("half",data.gold/2|0).replace("quarter",data.gold/4|0).replace("third",data.gold/3|0).split(" ");
 		if(!parseInt(args[1])||["",undefined].includes(args[1])||parseInt(args[1])==0){
 			message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct amount.").setColor("RED"));
 		} else {
@@ -1159,7 +1159,8 @@ client.on('message',async message=>{
 				message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a word.").setColor("RED"));
 			} else {
 				message.channel.startTyping();
-				let word = args.map((i,t)=>{ if(t>1) return i+" "; return "";}).join("");
+				let word = args.join(" ").replace(args[0]+" "+args[1]+" ","");
+				console.log(word);
 				let body = await getURL("http://api.datamuse.com/words?sp="+word.split(" ").join("+")+"&md=d");
 				let words=JSON.parse(body);
 				if(words.length==0){
