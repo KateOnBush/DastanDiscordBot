@@ -1168,13 +1168,15 @@ client.on('message',async message=>{
 				} else {
 					let embed=new Discord.MessageEmbed().setColor("#c2ed6b").setDescription("Definition for search: **"+word+"**");
 					words.forEach((word,i)=>{
+					word.defs.forEach((desc,i,t)=>{
+						if(desc.startsWith("n")) t[i]=desc.replace("n","*(n.)*");
+						if(desc.startsWith("adj")) t[i]=desc.replace("adj","*(adj.)*");
+						if(desc.startsWith("verb")) t[i]=desc.replace("v","*(v.)*");
+						if(desc.startsWith("adv")) t[i]=desc.replace("adv","*(adv.)*");
+						if(desc.startsWith("u")) t[i]=desc.replace("u","*(n/a)*");
+					})
 					let desc="No definitions available."
 					if(word.defs!=undefined) desc="Definition(s):\n"+word.defs.map(def=>"● "+def).join("\n");
-					if(desc.startsWith("n")) desc=desc.replace("n","*(n.)*");
-					if(desc.startsWith("adj")) desc=desc.replace("adj","*(adj.)*");
-					if(desc.startsWith("verb")) desc=desc.replace("v","*(v.)*");
-					if(desc.startsWith("adv")) desc=desc.replace("adv","*(adv.)*");
-					if(desc.startsWith("u")) desc=desc.replace("u","*(n/a)*");	
 					if(i<6) embed.addField("Word: "+word.word,desc,true)
 					})
 					await message.channel.send(embed);
