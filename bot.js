@@ -1213,7 +1213,10 @@ client.on('message',async message=>{
 				if(words.length==0){
 					message.channel.send(new Discord.MessageEmbed().setDescription("No rhymes for the word **"+word+"** were found.").setColor("RED"));	
 				} else {
-					let embed=new Discord.MessageEmbed().setColor("#c2ed6b").setDescription("What rhymes with: **"+word+"**").addField(words.length+" rhymes",words.map((w,i)=>{if(i<40) return "● "+w.word+" - Syllables: "+w.numSyllables}).join("")+"\n");
+					let embed=new Discord.MessageEmbed().setColor("#c2ed6b").setDescription("What rhymes with: **"+word+"** ("+Math.max(25,words.length)+" rhymes)");
+					words.forEach((w,i)=>{
+					if(i<25) embed.addField(w.word,"Syllables: "+w.numSyllables,true);
+					})
 					await message.channel.send(embed);
 				}
 				message.channel.stopTyping();
