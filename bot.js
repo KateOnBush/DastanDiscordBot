@@ -937,8 +937,22 @@ client.on('message',async message=>{
 			})
 		}
 	} else if(args[0]=="profile"){
-		
-		if(args[1]=="set"){
+		if(args[1]=="clear"){
+			let data=await info.load(message.member.id);
+			if(args[2]=="bio"){
+				data.bio=undefined;
+				message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("Bio successfully cleared!"));
+			} else if(args[2]=="name"){
+				data.pname=undefined;
+				message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("Profile name successfully cleared!"));
+			} else if(args[2]=="back"||args[2]=="background"){
+				data.back=undefined;
+				message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("Profile background successfully cleared!"));
+			} else {
+				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify: **name**, **bio**, **background**."));	
+			}
+			await info.save(message.member.id,data);
+		} else if(args[1]=="set"){
 			if(args[2]=="bio"){
 				if(["",undefined].includes(args[3])){
 					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a bio."));	
@@ -1140,6 +1154,7 @@ client.on('message',async message=>{
 				let embed = new Discord.MessageEmbed().setDescription("Gambling **"+amount+"** ...");
 				let msg=await message.channel.send(embed)
 				await wait(3000);
+				let data = await info.load(message.member.id);
 				if(gambled<0){
 					embed = new Discord.MessageEmbed().setDescription("**🌑 Oh no, bad luck!** <@!"+message.author.id+">, You just lost **"+ Math.abs(gambled)+"** gold :(.").setColor("RED");	
 				}else if(gambled<amount){
@@ -1167,18 +1182,38 @@ client.on('message',async message=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("No definition for the word **"+word+"** was found.").setColor("RED"));	
 				} else {
 					let embed=new Discord.MessageEmbed().setColor("#c2ed6b").setDescription("Definition for search: **"+word+"**");
+					let hehe=word;
 					words.forEach((word,i)=>{
 					if(word.defs!=undefined) word.defs.forEach((desc,i,t)=>{
-						if(desc.startsWith("n")) t[i]=desc.replace("n","*(n.)*");
-						if(desc.startsWith("adj")) t[i]=desc.replace("adj","*(adj.)*");
-						if(desc.startsWith("verb")) t[i]=desc.replace("v","*(v.)*");
-						if(desc.startsWith("adv")) t[i]=desc.replace("adv","*(adv.)*");
-						if(desc.startsWith("u")) t[i]=desc.replace("u","*(n/a)*");
+						if(desc.startsWith("n")) t[i]=desc.replace("n","*(n.)* ");
+						if(desc.startsWith("adj")) t[i]=desc.replace("adj","*(adj.)* ");
+						if(desc.startsWith("v")) t[i]=desc.replace("v","*(v.)* ");
+						if(desc.startsWith("adv")) t[i]=desc.replace("adv","*(adv.)* ");
+						if(desc.startsWith("u")) t[i]=desc.replace("u","*(n/a)* ");
 					})
 					let desc="No definitions available."
+					let n=6;
+					if(hehe.includes(word)) n=1;
 					if(word.defs!=undefined) desc="Definition(s):\n"+word.defs.map(def=>"● "+def).join("\n");
-					if(i<6) embed.addField("Word: "+word.word,desc,true)
+					if(i<n) embed.addField("Word: "+word.word,desc,true)
 					})
+					await message.channel.send(embed);
+				}
+				message.channel.stopTyping();
+			}
+		} else if(["rhy","rhyme","rhymes"].includes(args[1])){
+			if(["",undefined].includes(args[2])){
+				message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a word.").setColor("RED"));
+			} else {
+				message.channel.startTyping();
+				let word = args.join(" ").replace(args[0]+" "+args[1]+" ","");
+				console.log(word);
+				let body = await getURL("https://api.datamuse.com/words?rel_rhy"+word.split(" ").join("+"));
+				let words=JSON.parse(body);
+				if(words.length==0){
+					message.channel.send(new Discord.MessageEmbed().setDescription("No rhymes for the word **"+word+"** were found.").setColor("RED"));	
+				} else {
+					let embed=new Discord.MessageEmbed().setColor("#c2ed6b").setDescription("What rhymes with: **"+word+"**").addField(words.length+" rhymes",words.map((w,i)=>{if(i<40) return "● "+w.word+" - Syllables: "+w.numSyllables}).join("")+"\n");
 					await message.channel.send(embed);
 				}
 				message.channel.stopTyping();
@@ -1203,7 +1238,8 @@ client.on('message',async message=>{
 				name: "profile",
 				description: "Displays your/someone's full profile.",
 				longDescription: "Use this command to display someone's full profile, or to edit your own profile.",
-				usage: "profile [@user/set] (name/bio/background)"
+				usage: "profile [@user/set/clear] (name/bio/background) (value)",
+				subcommands: "set, clear"
 			},{
 				name: "level",
 				description: "Displays your/someone's level.",
@@ -1230,7 +1266,8 @@ client.on('message',async message=>{
 			},{
 				name: "gold",
 				description: "Displays your/someone's gold.",
-				usage: "gold [@user/give] (@user)"
+				usage: "gold [@user/give] (@user)",
+				subcommands: "give"
 			},{
 				name: "collect",
 				description: "Collect a dropped chest.",
@@ -1263,7 +1300,8 @@ client.on('message',async message=>{
 			commands:[{
 				name: "word",
 				description: "Get the definition, rhymes and other useful tools about English words!",
-				usage: "word <meaning/rhyme/syllables/synonyms/antonyms> <word>"
+				usage: "word <meaning/rhyme/syllables/synonyms/antonyms> <word>",
+				subcommands: "meaning, rhyme, syllables, synonyms, antonyms"
 			}]
 		}
 		]
