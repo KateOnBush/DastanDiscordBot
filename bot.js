@@ -1173,7 +1173,6 @@ client.on('message',async message=>{
 			if(["",undefined].includes(args[2])){
 				message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a word.").setColor("RED"));
 			} else {
-				message.channel.startTyping();
 				let word = args.join(" ").replace(args[0]+" "+args[1]+" ","");
 				console.log(word);
 				let body = await getURL("http://api.datamuse.com/words?sp="+word.split(" ").join("+")+"&md=d");
@@ -1199,13 +1198,11 @@ client.on('message',async message=>{
 					})
 					await message.channel.send(embed);
 				}
-				message.channel.stopTyping();
 			}
 		} else if(["rhy","rhyme","rhymes"].includes(args[1])){
 			if(["",undefined].includes(args[2])){
 				message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a word.").setColor("RED"));
 			} else {
-				message.channel.startTyping();
 				let word = args.join(" ").replace(args[0]+" "+args[1]+" ","");
 				console.log(word);
 				let body = await getURL("https://api.datamuse.com/words?rel_rhy="+word.split(" ").join("+"));
@@ -1219,13 +1216,11 @@ client.on('message',async message=>{
 					})
 					await message.channel.send(embed);
 				}
-				message.channel.stopTyping();
 			}
 		} else if(["syn","synonym","synonyms","like"].includes(args[1])){
 			if(["",undefined].includes(args[2])){
 				message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a word.").setColor("RED"));
 			} else {
-				message.channel.startTyping();
 				let word = args.join(" ").replace(args[0]+" "+args[1]+" ","");
 				console.log(word);
 				let body = await getURL("https://api.datamuse.com/words?rel_syn="+word.split(" ").join("+"));
@@ -1236,13 +1231,11 @@ client.on('message',async message=>{
 					let embed=new Discord.MessageEmbed().setColor("#c2ed6b").setDescription("Synonyms for: **"+word+"**").addField(words.length+" synonyms",words.map(w=>w.word).join(", "));
 					await message.channel.send(embed);
 				}
-				message.channel.stopTyping();
 			}
 		} else if(["ant","antonym","antonyms","opposite"].includes(args[1])){
 			if(["",undefined].includes(args[2])){
 				message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a word.").setColor("RED"));
 			} else {
-				message.channel.startTyping();
 				let word = args.join(" ").replace(args[0]+" "+args[1]+" ","");
 				console.log(word);
 				let body = await getURL("https://api.datamuse.com/words?rel_ant="+word.split(" ").join("+"));
@@ -1253,13 +1246,11 @@ client.on('message',async message=>{
 					let embed=new Discord.MessageEmbed().setColor("#c2ed6b").setDescription("Antonyms for: **"+word+"**").addField(words.length+" antonyms",words.map(w=>w.word).join(", "));
 					await message.channel.send(embed);
 				}
-				message.channel.stopTyping();
 			}
 		} else if(["sc","syllable","syl","syllables","syllablecount"].includes(args[1])){
 			if(["",undefined].includes(args[2])){
 				message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a word.").setColor("RED"));
 			} else {
-				message.channel.startTyping();
 				let word = args.join(" ").replace(args[0]+" "+args[1]+" ","");
 				console.log(word);
 				let body = await getURL("http://api.datamuse.com/words?sp="+word.split(" ").join("+")+"&md=s");
@@ -1275,7 +1266,6 @@ client.on('message',async message=>{
 					})
 					await message.channel.send(embed);
 				}
-				message.channel.stopTyping();
 			}
 		}
 								  
