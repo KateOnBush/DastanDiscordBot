@@ -1208,7 +1208,7 @@ client.on('message',async message=>{
 				message.channel.startTyping();
 				let word = args.join(" ").replace(args[0]+" "+args[1]+" ","");
 				console.log(word);
-				let body = await getURL("https://api.datamuse.com/words?rel_rhy"+word.split(" ").join("+"));
+				let body = await getURL("https://api.datamuse.com/words?rel_rhy="+word.split(" ").join("+"));
 				let words=JSON.parse(body);
 				if(words.length==0){
 					message.channel.send(new Discord.MessageEmbed().setDescription("No rhymes for the word **"+word+"** were found.").setColor("RED"));	
