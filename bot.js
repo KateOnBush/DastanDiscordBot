@@ -1185,11 +1185,11 @@ client.on('message',async message=>{
 					let hehe=word;
 					words.forEach((word,i)=>{
 					if(word.defs!=undefined) word.defs.forEach((desc,i,t)=>{
-						if(desc.startsWith("n")) t[i]=desc.replace("n","*(n.)* ");
-						if(desc.startsWith("adj")) t[i]=desc.replace("adj","*(adj.)* ");
-						if(desc.startsWith("v")) t[i]=desc.replace("v","*(v.)* ");
-						if(desc.startsWith("adv")) t[i]=desc.replace("adv","*(adv.)* ");
-						if(desc.startsWith("u")) t[i]=desc.replace("u","*(n/a)* ");
+						if(desc.startsWith("n")) t[i]=desc.replace("n","*(n.)* —");
+						if(desc.startsWith("adj")) t[i]=desc.replace("adj","*(adj.)* —");
+						if(desc.startsWith("v")) t[i]=desc.replace("v","*(v.)* —");
+						if(desc.startsWith("adv")) t[i]=desc.replace("adv","*(adv.)* —");
+						if(desc.startsWith("u")) t[i]=desc.replace("u","*(n/a)* —");
 					})
 					let desc="No definitions available."
 					let n=6;
@@ -1213,9 +1213,65 @@ client.on('message',async message=>{
 				if(words.length==0){
 					message.channel.send(new Discord.MessageEmbed().setDescription("No rhymes for the word **"+word+"** were found.").setColor("RED"));	
 				} else {
-					let embed=new Discord.MessageEmbed().setColor("#c2ed6b").setDescription("What rhymes with: **"+word+"** ("+Math.max(25,words.length)+" rhymes)");
+					let embed=new Discord.MessageEmbed().setColor("#c2ed6b").setDescription("What rhymes with: **"+word+"** ("+Math.min(25,words.length)+" rhymes)");
 					words.forEach((w,i)=>{
-					if(i<25) embed.addField(w.word,"Syllables: "+w.numSyllables,true);
+					if(i<25) embed.addField("Word: "+w.word,"Syllables: "+w.numSyllables,true);
+					})
+					await message.channel.send(embed);
+				}
+				message.channel.stopTyping();
+			}
+		} else if(["syn","synonym","synonyms","like"].includes(args[1])){
+			if(["",undefined].includes(args[2])){
+				message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a word.").setColor("RED"));
+			} else {
+				message.channel.startTyping();
+				let word = args.join(" ").replace(args[0]+" "+args[1]+" ","");
+				console.log(word);
+				let body = await getURL("https://api.datamuse.com/words?rel_syn="+word.split(" ").join("+"));
+				let words=JSON.parse(body);
+				if(words.length==0){
+					message.channel.send(new Discord.MessageEmbed().setDescription("No synonyms for the word **"+word+"** were found.").setColor("RED"));	
+				} else {
+					let embed=new Discord.MessageEmbed().setColor("#c2ed6b").setDescription("Synonyms for: **"+word+"**").addField(words.length+" synonyms",words.map(w=>w.word).join(", "));
+					await message.channel.send(embed);
+				}
+				message.channel.stopTyping();
+			}
+		} else if(["ant","antonym","antonyms","opposite"].includes(args[1])){
+			if(["",undefined].includes(args[2])){
+				message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a word.").setColor("RED"));
+			} else {
+				message.channel.startTyping();
+				let word = args.join(" ").replace(args[0]+" "+args[1]+" ","");
+				console.log(word);
+				let body = await getURL("https://api.datamuse.com/words?rel_ant="+word.split(" ").join("+"));
+				let words=JSON.parse(body);
+				if(words.length==0){
+					message.channel.send(new Discord.MessageEmbed().setDescription("No antonyms for the word **"+word+"** were found.").setColor("RED"));	
+				} else {
+					let embed=new Discord.MessageEmbed().setColor("#c2ed6b").setDescription("Antonyms for: **"+word+"**").addField(words.length+" antonyms",words.map(w=>w.word).join(", "));
+					await message.channel.send(embed);
+				}
+				message.channel.stopTyping();
+			}
+		} else if(["sc","syllable","syl","syllables","syllablecount"].includes(args[1])){
+			if(["",undefined].includes(args[2])){
+				message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a word.").setColor("RED"));
+			} else {
+				message.channel.startTyping();
+				let word = args.join(" ").replace(args[0]+" "+args[1]+" ","");
+				console.log(word);
+				let body = await getURL("http://api.datamuse.com/words?sp="+word.split(" ").join("+")+"&md=s");
+				let words=JSON.parse(body);
+				if(words.length==0){
+					message.channel.send(new Discord.MessageEmbed().setDescription("No information about the word **"+word+"** was found.").setColor("RED"));	
+				} else {
+					let embed=new Discord.MessageEmbed().setColor("#c2ed6b").setDescription("Syllable count for search: **"+word+"**");
+					let hehe=word;
+					words.forEach((word,i)=>{
+					let desc="Syllable count: "+word.numSyllables;
+					embed.addField("Word: "+word.word,desc,true)
 					})
 					await message.channel.send(embed);
 				}
