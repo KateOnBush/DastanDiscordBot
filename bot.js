@@ -1123,7 +1123,7 @@ client.on('message',async message=>{
 		message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Meow!**").setImage("http://placekitten.com/"+width+"/"+height+"/"));
 	} else if(["leaderboard","board","list"].includes(args[0])){
 		sortMembers();
-		let embed=new Discord.MessageEmbed().setColor("AQUA").setDescription("**Leaderboard:**").addField("Rank",["🥇","🥈","🥉",4,5,6,7,8,9,10].join("\n"),true).addField("Member",dataStorage.map((it,i)=>{if(i<10) return "<@!"+it.id+">\n"}).join(""),true);
+		let embed=new Discord.MessageEmbed().setColor("AQUA").setDescription("**Leaderboard:**").addField("Rank",["🥇","🥈","🥉","**4**","**5**","**6**","**7**","**8**","**9**","**10**"].join("\n"),true).addField("Member",dataStorage.map((it,i)=>{if(i<10) return "<@!"+it.id+">\n"}).join(""),true).addField("Points",dataStorage.map((it,i)=>{if(i<10) return numberBeautifier(it.messagesEverSent,",")+" pts. (Level "+it.level+")\n"}).join(""),true);
 		message.channel.send(embed)
 	} else if(args[0]=="gamble"){
 		let data = await info.load(message.member.id);
@@ -1138,7 +1138,7 @@ client.on('message',async message=>{
 			} else if(amount>data.gold){
 				message.channel.send(new Discord.MessageEmbed().setDescription("You do not have enough gold.").setColor("RED"));	
 			} else {
-				let gambled = Math.random()*Math.random()*2*amount|0;
+				let gambled = Math.random()*(1-Math.random())*2*amount|0;
 				gambled += amount*((Math.random()*2)|0);
 				gambled -= amount;
 				data.gamblesToday+=1;
@@ -1273,6 +1273,22 @@ client.on('message',async message=>{
 			let body=await getURL("http://numbersapi.com/"+number);
 			message.channel.send(new Discord.MessageEmbed().setColor("RANDOM").setDescription("**Fact about number "+number+":**\n\n"+body));
 		}
+	}else if(["stats","statistics","info","botinfo"]){
+		 
+		let embed= new Discord.MessageEmbed().setColor("BLUE")
+		.setAuthor("Aouabot",client.user.displayAvatarURL())
+		.setDescription("💎 Hello! I'm Aouabot, a private bot made by <@!123413327094218753>, i am still in developement, but if you want to suggest any ideas, please do so!\nHere are some useful info:")
+		.addField("Members",message.guild.memberCount,true)
+		.addField("Channels",message.guild.channels.cache.size,true)
+		.addField("Roles",message.guild.roles.cache.size,true)
+		.addField("Bots",message.guild.members.cache.filter(t=>!t.user.bot).size,true)
+		.addField("Library","Discord.js",true)
+		.addField("Developer","<@!123413327094218753>",true)
+		.addField("Made at",client.user.createdAt.toLocaleString(),true)
+		.addField("Region",message.guild.region,true)
+		.addField("Memory Usage",process.memoryUsage().heapUsed / 1024 / 1024 + " MB",true);
+		message.channel.send(embed);
+		
 	}else if(args[0]=="help"){
 	
 		const commands = [{
@@ -1282,6 +1298,10 @@ client.on('message',async message=>{
 				name: "ping",
 				description: "Shows the bot's latency.",
 				usage: "ping" 
+			},{
+				name: "stats",
+				description: "Info and stats about the bot.",
+				usage: "stats" 
 			},{
 				name: "uptime",
 				description: "Shows the bot's uptime.",
