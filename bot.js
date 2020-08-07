@@ -1287,7 +1287,7 @@ client.on('message',async message=>{
 		.addField("Developer","<@!123413327094218753>",true)
 		.addField("Made at",client.user.createdAt.toLocaleString(),true)
 		.addField("Region",message.guild.region,true)
-		.addField("Memory Usage",memoryUsage + " MB",true);
+		.addField("Memory Usage",(process.memoryUsage().heapUsed / 1024 / 1024|0) + " MB",true);
 		message.channel.send(embed);
 		
 	}else if(args[0]=="help"){
@@ -1596,7 +1596,7 @@ client.on('guildMemberAdd',member=>{
 	if((member.lastLeft!=undefined)&&(member.lastLeft<Date.now()+60*10000)) member.kick().then(member=>{
 		member.user.send("You need to wait 10 minutes before joining again.")
 	}) 
-	log(new Discord.MessageEmbed().setAuthor(member.user.nametag,member.user.displayAvatarURL()).setColor("BLUE").setDescription("New member").addField("Member","<@!"+member.id+">").setFooter("Member ID: "+member.id).setTimestamp());
+	log(new Discord.MessageEmbed().setAuthor(member.user.tag,member.user.displayAvatarURL()).setColor("BLUE").setDescription("New member").addField("Member","<@!"+member.id+">").setFooter("Member ID: "+member.id).setTimestamp());
 	var startRoles=["728018741174075412","728212856046223480","728035160448041021","728018742965174382","728031955685343312","728214239784861776","728032333671825479","729438972161556610"];
 	var welcome_channel=member.guild.channels.cache.get("728008557911605340");
 	welcome_channel.send(new Discord.MessageEmbed().addField("Hey hey hey!","We've been waiting for you!").setTitle("Welcome " + member.displayName + "!").setThumbnail(member.user.displayAvatarURL()));
@@ -1606,7 +1606,7 @@ client.on('guildMemberAdd',member=>{
 });
 
 client.on('guildMemberRemove',member=>{
-	log(new Discord.MessageEmbed().setAuthor(member.user.nametag,member.user.displayAvatarURL()).setColor("ORANGE").setDescription("Member left").addField("Member",member.user.nametag).setFooter("Member ID: "+member.id).setTimestamp());
+	log(new Discord.MessageEmbed().setAuthor(member.user.tag,member.user.displayAvatarURL()).setColor("ORANGE").setDescription("Member left").addField("Member",member.user.nametag).setFooter("Member ID: "+member.id).setTimestamp());
 });
 
 client.on('guildMemberRemove',member=>{
@@ -1963,7 +1963,5 @@ request.get({
 // THIS  MUST  BE  THIS  WAY
 treble.login(process.env.MUSIC2);
 pitch.login(process.env.MUSIC1);
-
-const memoryUsage=process.memoryUsage().heapUsed / 1024 / 1024|0;
 
 
