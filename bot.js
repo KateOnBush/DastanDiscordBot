@@ -416,7 +416,8 @@ client.on('ready',()=>{
 			type: "WATCHING",
 			url: null
 		}});
-	rawlog(new Discord.MessageEmbed().setColor("GREEN").setDescription("**Ready!**"))
+	log(new Discord.MessageEmbed().setColor("GREEN").setDescription("**Ready!**"))
+	client.channels.cache.get("728025726556569631").send(new Discord.MessageEmbed().setColor("GREEN").setDescription("Ready!"))
 	console.log("Ready!")
 	setTimeout(dropChest,50000);
 	eventReminder();
