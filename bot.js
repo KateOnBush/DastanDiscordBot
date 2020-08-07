@@ -87,12 +87,8 @@ async function loadProfile(member){
 }
 
 //Logs
-function rawlog(d){
+function log(d){
 	client.channels.resolve("729155101746528286").send(d);
-}
-function log(event,member,content){
-	if(content==""||content==undefined) content="Empty message/Attachement";
-	client.channels.resolve("729155101746528286").send(new Discord.MessageEmbed().setDescription("**Event:** "+event).addField("Member","<@!"+member.id+">",true).addField("Action/Content",content,true).setTimestamp().setColor("BLUE"));
 }
 function adminlog(event,member,content,reason){
 	client.channels.resolve("729155101746528286").send(new Discord.MessageEmbed().setDescription("**Event:** "+event).addField("Member","<@!"+member.id+">",true).addField("Action/Content",content,true).setTimestamp().setColor("ORANGE").addField("Reason",(reason||"Unspecified"),true));
@@ -482,7 +478,6 @@ client.on('raw',event=>{
 			const react = message.reactions.cache.get(emojiKey);
 			const member = message.guild.members.resolve(data.user_id);
 			if(member.user.bot==true) return;
-			log("Reaction Add",member,react.emoji.name);
 			if(react.message.channel.id=="728022865622073446"){
 				react.message.channel.messages.fetch({limit: 2}).then(messages=>{
 					if(messages.array()[0].embeds[0]==undefined) return;
@@ -531,7 +526,6 @@ client.on('raw',event=>{
 			const react = message.reactions.cache.get(emojiKey);
 			const member = message.guild.members.resolve(data.user_id);
 			if(member.user.bot==true) return;
-			log("Reaction Remove",member,react.emoji.name);
 			if(react.message.channel.id=="728022865622073446"){
 				react.message.channel.messages.fetch({limit: 2}).then(messages=>{
 					if(messages.array()[0].embeds[0]==undefined) return;
@@ -774,8 +768,6 @@ client.on('message',async message=>{
 	
 	//Normal messages
 	if(message.author.bot) return;
-	
-	log("Message",message.member,message.cleanContent);
 	
 	if(message.channel.id=="733647169491304508"){
 		await message.react("⬆️");
@@ -1536,7 +1528,7 @@ client.on("voiceStateUpdate",async (o,n)=>{
 	if(n.member.user.bot) return;
 	if(n.channel==o.channel) return;
 	if(n.channel!=null){
-		log("Voice channel join",n.member,"Joined voice channel: "+n.channel.name);
+		log(new Discord.MessageEmbed().setColor("GREEN").setDescription("Voice channel join").addField("Member","<@!"+o.member.id+">",true).addField("Joined voice channel",n.channel.name,true).setFooter("Channel ID: "+n.channel.id).setTimestamp());
 		if(vcs.includes(n.channel.id)){
 			n.member.roles.remove(["729502041122013195","729502308634853456"]).then(m=>{
 			m.roles.add("729502041122013195");
@@ -1557,7 +1549,7 @@ client.on("voiceStateUpdate",async (o,n)=>{
 		},60000)
 	} 
 	if(o.channel!=null){
-		log("Voice channel leave",o.member,"Left voice channel: "+o.channel.name);
+		log(new Discord.MessageEmbed().setColor("RED").setDescription("Voice channel leave").addField("Member","<@!"+o.member.id+">",true).addField("Left voice channel",o.channel.name,true).setFooter("Channel ID: "+o.channel.id).setTimestamp());
 		if(vcs.includes(o.channel.id)){
 			n.member.guild.channels.cache.get("729354613064728636").send(new Discord.MessageEmbed().setDescription("<@!"+o.member.id+"> left **" + o.channel.name + "**").setColor("RED"));
 			n.member.roles.remove(["729502041122013195","729502308634853456"]);
@@ -1568,6 +1560,12 @@ client.on("voiceStateUpdate",async (o,n)=>{
 	}
 	
 });
+client.on('messageUpdate',(om,nm)=>{
+	log(new Discord.MessageEmbed().setColor("BLUE").setDescription("Message Edit").addField("Member","<@!"+nm.member.id+">",true).addField("Channel","<#"+nm.channel.id+">",true).addField("Old content",(om.cleanContent||"Empty message.")).addField("New content",(nm.cleanContent||"Empty message.")).setFooter("Message ID: "+nm.id).setTimestamp());
+})
+client.on('messageDelete',(dm)=>{
+	log(new Discord.MessageEmbed().setColor("ORANGE").setDescription("Message Deleted").addField("Member","<@!"+dm.member.id+">",true).addField("Channel","<#"+dm.channel.id+">",true).addField("Content",(dm.cleanContent||"Empty message.")).setFooter("Message ID: "+dm.id).setTimestamp(),{files: dm.attachments.array()});
+})
 
 ///Welcoming
 client.on('guildMemberAdd',member=>{
@@ -1575,17 +1573,17 @@ client.on('guildMemberAdd',member=>{
 	if((member.lastLeft!=undefined)&&(member.lastLeft<Date.now()+60*10000)) member.kick().then(member=>{
 		member.user.send("You need to wait 10 minutes before joining again.")
 	}) 
-	log("Server ioin",member,"Joined the server");
+	log(new Discord.MessageEmbed().setColor("BLUE").setDescription("New member").addField("Member","<@!"+member.id+">").setFooter("Member ID: "+member.id).setTimestamp());
 	var startRoles=["728018741174075412","728212856046223480","728035160448041021","728018742965174382","728031955685343312","728214239784861776","728032333671825479","729438972161556610"];
 	var welcome_channel=member.guild.channels.cache.get("728008557911605340");
 	welcome_channel.send(new Discord.MessageEmbed().addField("Hey hey hey!","We've been waiting for you!").setTitle("Welcome " + member.displayName + "!").setThumbnail(member.user.displayAvatarURL()));
 	member.roles.add(startRoles);
-	member.send(new Discord.MessageEmbed().setTitle("Welcome " + member.displayName + " to " + member.guild.name + "!").setDescription("Make sure to read rules! Then you can customize your profile by choosing a color in #color and picking some roles in #role-self-assign, have fun <3!").setColor("fafafa"));
+	member.send(new Discord.MessageEmbed().setTitle("Welcome " + member.displayName + " to " + member.guild.name + "!").setDescription("Make sure to read rules! Then you can customize your profile by choosing a color in #commands and picking some roles in #role-self-assign, have fun <3!").setColor("fafafa"));
 	
 });
 
 client.on('guildMemberRemove',member=>{
-	log("Server leave",member,"Left the server");
+	log(new Discord.MessageEmbed().setColor("ORANGE").setDescription("Member left").addField("Member",member.user.nametag).setFooter("Member ID: "+member.id).setTimestamp());
 });
 
 client.on('guildMemberRemove',member=>{
