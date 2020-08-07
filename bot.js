@@ -1528,7 +1528,7 @@ client.on("voiceStateUpdate",async (o,n)=>{
 	if(n.member.user.bot) return;
 	if(n.channel==o.channel) return;
 	if(n.channel!=null){
-		log(new Discord.MessageEmbed().setColor("GREEN").setDescription("Voice channel join").addField("Member","<@!"+o.member.id+">",true).addField("Joined voice channel",n.channel.name,true).setFooter("Channel ID: "+n.channel.id).setTimestamp());
+		log(new Discord.MessageEmbed().setAuthor(o.member.user.tag,o.member.user.displayAvatarURL()).setColor("GREEN").setDescription("Voice channel join").addField("Member","<@!"+o.member.id+">",true).addField("Joined voice channel",n.channel.name,true).setFooter("Channel ID: "+n.channel.id).setTimestamp());
 		if(vcs.includes(n.channel.id)){
 			n.member.roles.remove(["729502041122013195","729502308634853456"]).then(m=>{
 			m.roles.add("729502041122013195");
@@ -1549,7 +1549,7 @@ client.on("voiceStateUpdate",async (o,n)=>{
 		},60000)
 	} 
 	if(o.channel!=null){
-		log(new Discord.MessageEmbed().setColor("RED").setDescription("Voice channel leave").addField("Member","<@!"+o.member.id+">",true).addField("Left voice channel",o.channel.name,true).setFooter("Channel ID: "+o.channel.id).setTimestamp());
+		log(new Discord.MessageEmbed().setAuthor(o.member.user.tag,o.member.user.displayAvatarURL()).setColor("RED").setDescription("Voice channel leave").addField("Member","<@!"+o.member.id+">",true).addField("Left voice channel",o.channel.name,true).setFooter("Channel ID: "+o.channel.id).setTimestamp());
 		if(vcs.includes(o.channel.id)){
 			n.member.guild.channels.cache.get("729354613064728636").send(new Discord.MessageEmbed().setDescription("<@!"+o.member.id+"> left **" + o.channel.name + "**").setColor("RED"));
 			n.member.roles.remove(["729502041122013195","729502308634853456"]);
@@ -1562,11 +1562,11 @@ client.on("voiceStateUpdate",async (o,n)=>{
 });
 client.on('messageUpdate',(om,nm)=>{
 	if(nm.author.bot) return;
-	log(new Discord.MessageEmbed().setColor("BLUE").setDescription("Message Edit").addField("Member","<@!"+nm.member.id+">",true).addField("Channel","<#"+nm.channel.id+">",true).addField("Old content",(om.cleanContent||"Empty message.")).addField("New content",(nm.cleanContent||"Empty message.")).setFooter("Message ID: "+nm.id).setTimestamp());
+	log(new Discord.MessageEmbed().setAuthor(nm.author.tag,nm.author.displayAvatarURL()).setColor("BLUE").setDescription("Message Edit").addField("Member","<@!"+nm.member.id+">",true).addField("Channel","<#"+nm.channel.id+">",true).addField("Old content",(om.cleanContent||"Empty message.")).addField("New content",(nm.cleanContent||"Empty message.")).setFooter("Message ID: "+nm.id).setTimestamp());
 })
 client.on('messageDelete',(dm)=>{
 	if(dm.author.bot) return;
-	log(new Discord.MessageEmbed().setColor("ORANGE").setDescription("Message Deleted").addField("Member","<@!"+dm.member.id+">",true).addField("Channel","<#"+dm.channel.id+">",true).addField("Content",(dm.cleanContent||"Empty message.")).setFooter("Message ID: "+dm.id).setTimestamp(),{files: dm.attachments.array()});
+	log(new Discord.MessageEmbed().setAuthor(dm.author.tag,dm.author.displayAvatarURL()).setColor("ORANGE").setDescription("Message Deleted").addField("Member","<@!"+dm.member.id+">",true).addField("Channel","<#"+dm.channel.id+">",true).addField("Content",(dm.cleanContent||"Empty message.")).setFooter("Message ID: "+dm.id).setTimestamp().setImage((dm.attachments.array()[0]||{url: undefined}).url));
 })
 
 ///Welcoming
@@ -1575,7 +1575,7 @@ client.on('guildMemberAdd',member=>{
 	if((member.lastLeft!=undefined)&&(member.lastLeft<Date.now()+60*10000)) member.kick().then(member=>{
 		member.user.send("You need to wait 10 minutes before joining again.")
 	}) 
-	log(new Discord.MessageEmbed().setColor("BLUE").setDescription("New member").addField("Member","<@!"+member.id+">").setFooter("Member ID: "+member.id).setTimestamp());
+	log(new Discord.MessageEmbed().setAuthor(member.user.nametag,member.user.displayAvatarURL()).setColor("BLUE").setDescription("New member").addField("Member","<@!"+member.id+">").setFooter("Member ID: "+member.id).setTimestamp());
 	var startRoles=["728018741174075412","728212856046223480","728035160448041021","728018742965174382","728031955685343312","728214239784861776","728032333671825479","729438972161556610"];
 	var welcome_channel=member.guild.channels.cache.get("728008557911605340");
 	welcome_channel.send(new Discord.MessageEmbed().addField("Hey hey hey!","We've been waiting for you!").setTitle("Welcome " + member.displayName + "!").setThumbnail(member.user.displayAvatarURL()));
@@ -1585,7 +1585,7 @@ client.on('guildMemberAdd',member=>{
 });
 
 client.on('guildMemberRemove',member=>{
-	log(new Discord.MessageEmbed().setColor("ORANGE").setDescription("Member left").addField("Member",member.user.nametag).setFooter("Member ID: "+member.id).setTimestamp());
+	log(new Discord.MessageEmbed().setAuthor(member.user.nametag,member.user.displayAvatarURL()).setColor("ORANGE").setDescription("Member left").addField("Member",member.user.nametag).setFooter("Member ID: "+member.id).setTimestamp());
 });
 
 client.on('guildMemberRemove',member=>{
