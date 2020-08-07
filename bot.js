@@ -1139,7 +1139,6 @@ client.on('message',async message=>{
 		if(!parseInt(args[1])||["",undefined].includes(args[1])||parseInt(args[1])==0){
 			message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct amount.").setColor("RED"));
 		} else {
-			let data = await info.load(message.member.id);
 			let amount = parseInt(args[1].split("-").join(""))|0;
 			if(data.gamblesToday==undefined) data.gamblesToday=0;
 			if(data.gamblesToday==5){
@@ -1269,6 +1268,19 @@ client.on('message',async message=>{
 			}
 		}
 								  
+	}else if(["rfact","randomfact"].includes(args[0])){
+		let body = await getURL("https://uselessfacts.jsph.pl/random.json?language=en");
+		let fact=JSON.parse(body);
+		message.channel.send(new Discord.MessageEmbed().setColor("RANDOM").setDescription("**Random useless fact:**\n\n"+fact.text).setFooter("Source: "+fact.source));
+	}else if(["nfact","numberfact","numfact"].includes(args[0])){
+		if(!parseInt(args[1])){
+			let body = await getURL("http://numbersapi.com/random");
+			message.channel.send(new Discord.MessageEmbed().setColor("RANDOM").setDescription("**Random number fact:**\n\n"+body));	
+		} else {
+			let number=parseInt(args[1]);
+			let body=await getURL("http://numbersapi.com/"+number);
+			message.channel.send(new Discord.MessageEmbed().setColor("RANDOM").setDescription("**Fact about number "+number+":**\n\n"+body));
+		}
 	}else if(args[0]=="help"){
 	
 		const commands = [{
@@ -1348,9 +1360,18 @@ client.on('message',async message=>{
 			description: "Big brain stuff!",
 			commands:[{
 				name: "word",
-				description: "Get the definition, rhymes and other useful tools about English words!",
+				description: "Get the definition, rhymes and other useful info about English words!",
 				usage: "word <meaning/rhyme/syllables/synonyms/antonyms> <word>",
 				subcommands: "meaning, rhyme, syllables, synonyms, antonyms"
+			},{
+				name: "randomfact",
+				description: "Random useless fact :)",
+				usage: "randomfact"
+			},{
+				name: "numberfact",
+				description: "Random fact about numbers!",
+				longDescription: "Random fact about numbers! you can specify a number to get a fact about it",
+				usage: "randomfact [number]"
 			}]
 		}
 		]
