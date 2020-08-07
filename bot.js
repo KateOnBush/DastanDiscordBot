@@ -1273,7 +1273,7 @@ client.on('message',async message=>{
 			let body=await getURL("http://numbersapi.com/"+number);
 			message.channel.send(new Discord.MessageEmbed().setColor("RANDOM").setDescription("**Fact about number "+number+":**\n\n"+body));
 		}
-	}else if(["stats","statistics","info","botinfo"]){
+	}else if(["stats","statistics","info","botinfo"].includes(args[0])){
 		 
 		let embed= new Discord.MessageEmbed().setColor("BLUE")
 		.setAuthor("Aouabot",client.user.displayAvatarURL())
@@ -1281,12 +1281,12 @@ client.on('message',async message=>{
 		.addField("Members",message.guild.memberCount,true)
 		.addField("Channels",message.guild.channels.cache.size,true)
 		.addField("Roles",message.guild.roles.cache.size,true)
-		.addField("Bots",message.guild.members.cache.filter(t=>!t.user.bot).size,true)
+		.addField("Bots",message.guild.members.cache.filter(t=>t.user.bot).size,true)
 		.addField("Library","Discord.js",true)
 		.addField("Developer","<@!123413327094218753>",true)
 		.addField("Made at",client.user.createdAt.toLocaleString(),true)
 		.addField("Region",message.guild.region,true)
-		.addField("Memory Usage",process.memoryUsage().heapUsed / 1024 / 1024 + " MB",true);
+		.addField("Memory Usage",memoryUsage + " MB",true);
 		message.channel.send(embed);
 		
 	}else if(args[0]=="help"){
@@ -1963,5 +1963,6 @@ request.get({
 treble.login(process.env.MUSIC2);
 pitch.login(process.env.MUSIC1);
 
+const memoryUsage=process.memoryUsage().heapUsed / 1024 / 1024|0;
 
 
