@@ -1561,9 +1561,11 @@ client.on("voiceStateUpdate",async (o,n)=>{
 	
 });
 client.on('messageUpdate',(om,nm)=>{
+	if(nm.author.bot) return;
 	log(new Discord.MessageEmbed().setColor("BLUE").setDescription("Message Edit").addField("Member","<@!"+nm.member.id+">",true).addField("Channel","<#"+nm.channel.id+">",true).addField("Old content",(om.cleanContent||"Empty message.")).addField("New content",(nm.cleanContent||"Empty message.")).setFooter("Message ID: "+nm.id).setTimestamp());
 })
 client.on('messageDelete',(dm)=>{
+	if(dm.author.bot) return;
 	log(new Discord.MessageEmbed().setColor("ORANGE").setDescription("Message Deleted").addField("Member","<@!"+dm.member.id+">",true).addField("Channel","<#"+dm.channel.id+">",true).addField("Content",(dm.cleanContent||"Empty message.")).setFooter("Message ID: "+dm.id).setTimestamp(),{files: dm.attachments.array()});
 })
 
