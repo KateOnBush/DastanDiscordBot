@@ -1153,13 +1153,13 @@ client.on('message',async message=>{
 				let embed = new Discord.MessageEmbed().setDescription("Gambling **"+amount+"** ...");
 				let msg=await message.channel.send(embed)
 				await wait(3000);
-				let data = await info.load(message.member.id);
+				data = await info.load(message.member.id);
 				if(gambled<0){
 					embed = new Discord.MessageEmbed().setDescription("**🌑 Oh no, bad luck!** <@!"+message.author.id+">, You just lost **"+ Math.abs(gambled)+"** gold :(.").setColor("RED");	
 				}else if(gambled<amount){
 					embed = new Discord.MessageEmbed().setDescription("**☄️ Lucky!!** <@!"+message.author.id+">, You gained **"+ gambled+"** gold.").setColor("YELLOW");		
 				}else{
-					embed = new Discord.MessageEmbed().setDescription("**🍀 4-leaf clover!!** <@!"+message.author.id+">, You gained **"+ gambled+"** gold.").setColor("GREEN");		
+					embed = new Discord.MessageEmbed().setDescription("**🍀 Four-leaf clover!!** <@!"+message.author.id+">, You gained **"+ gambled+"** gold.").setColor("GREEN");		
 				}
 				data.gold+=gambled;
 				await info.save(message.member.id,data);
