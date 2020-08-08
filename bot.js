@@ -913,11 +913,11 @@ client.on('message',async message=>{
 						mod: message.member.id
 					});
 					await message.react('🚪');
-					await m.kick();
 					let embed = new Discord.MessageEmbed().setDescription("<@"+m.id+">, you have been kicked by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
 					await m.send(embed);
 					let embed2 = new Discord.MessageEmbed().setDescription("<@"+m.id+"> was been kicked by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
 					let msg = await message.channel.send(embed2);
+					await m.kick();
 					await wait(10000);
 					msg.delete()
 					
@@ -940,11 +940,11 @@ client.on('message',async message=>{
 					await message.react('⛔');
 					let embed = new Discord.MessageEmbed().setDescription("<@"+m.id+">, you have been perma-banned by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
 					let embed2 = new Discord.MessageEmbed().setDescription("<@"+m.id+"> was been perma-banned by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
-					await m.ban();
 					await m.send(embed);
 					let msg = await message.channel.send(embed2);
+					await m.ban();
 					await wait(10000);
-					msg.delete()
+					msg.delete();
 					
 				} else {
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct member.").setColor("RED"));	
@@ -972,11 +972,11 @@ client.on('message',async message=>{
 							message.guild.members.unban(m.id);
 						},data.tempban-Date.now())
 						await message.react('⛔');
-						await m.ban();
 						let embed = new Discord.MessageEmbed().setDescription("<@"+m.id+">, you have been banned temporarily for "+tstr+" by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
 						let embed2 = new Discord.MessageEmbed().setDescription("<@"+m.id+"> has been banned temporarily for "+tstr+" by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
 						await m.send(embed);
 						let msg = await message.channel.send(embed2);
+						await m.ban();
 						await wait(10000);
 						msg.delete()
 					}catch(err){
