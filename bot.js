@@ -873,9 +873,9 @@ client.on('message',async message=>{
 					let data = await info.load(m);
 					if(data.record){
 						let filter=args[3];
-						let records=data.record;
+						let records=data.records;
 						if(["warns","mutes","bans"].includes(filter)) records=data.record.filter(t=>(t.type+"s")===filter);
-						let embed=new Discord.MessageEmbed().setDescription("<@"+m.id+">'s record:\n\n"+records.map(r=>"["+(new Date(r.timestamp).toLocaleString())+"] <@!"+r.mod+"> "+r.name+" - "+(r.reason||"Reason Unspecified")).join("\n")).setColor("ORANGE")
+						let embed=new Discord.MessageEmbed().setDescription("<@"+m.id+">'s record:\n\n"+records.map(r=>"`"+(new Date(r.timestamp).toLocaleString())+"` <@!"+r.mod+"> "+r.name+" - "+(r.reason||"Reason Unspecified")).join("\n")).setColor("ORANGE")
 					} else {
 						message.channel.send(new Discord.MessageEmbed().setDescription("<@"+m.id+">'s record is clean!").setColor("GREEN"));	
 					}
@@ -886,7 +886,7 @@ client.on('message',async message=>{
 				let m=message.mentions.members.first();
 				if(m&&!m.user.bot){
 					let reason=undefined;
-					if(args[3]) reason=args.join(" ").replace(args[0]+" "+args[1]+" "+args[2]+" ","");
+					if(args[3]) reason=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
 					adminlog("Warn",message.member,"Warned.",m,reason);
 					await addRecord(m,{
 						name: "Warn",
@@ -899,7 +899,7 @@ client.on('message',async message=>{
 					let embed = new Discord.MessageEmbed().setDescription("<@"+m.id+">, you have been warned!\n**Reason:** "+(reason||"Unspecified"));
 					let msg=await message.channel.send(embed);
 					await message.author.send(embed);
-					await wait(4000);
+					await wait(10000);
 					msg.delete();
 					
 				} else {
