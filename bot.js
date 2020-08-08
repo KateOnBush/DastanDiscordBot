@@ -91,7 +91,7 @@ function log(d){
 	client.channels.resolve("729155101746528286").send(d);
 }
 function adminlog(event,mod,content,subject,reason){
-	client.channels.resolve("729155101746528286").send(new Discord.MessageEmbed().setDescription("**Event:** "+event).addField("Mod/Admin","<@!"+mod.id+">",true).addField("Action/Content",content,true).addField("Subject","<@!"+subject.id+">",true).setTimestamp().setColor("ORANGE").addField("Reason",(reason||"Unspecified")));
+	client.channels.resolve("729744865776107550").send(new Discord.MessageEmbed().setDescription("**Event:** "+event).addField("Mod/Admin","<@!"+mod.id+">",true).addField("Action/Content",content,true).addField("Subject","<@!"+subject.id+">",true).setTimestamp().setColor("ORANGE").addField("Reason",(reason||"Unspecified")));
 }
 function dropChest(){
 	let c=client.channels.cache.get("728025726556569631");
@@ -871,7 +871,7 @@ client.on('message',async message=>{
 				if(m&&!m.user.bot){
 					adminlog("Records Check",message.member,"Checked records.",m);
 					let data = await info.load(m);
-					if(data.record){
+					if(data.records){
 						let filter=args[3];
 						let records=data.records;
 						if(["warns","mutes","bans"].includes(filter)) records=data.record.filter(t=>(t.type+"s")===filter);
