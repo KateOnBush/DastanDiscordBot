@@ -441,7 +441,7 @@ client.on('ready',async ()=>{
 		if(user.tempban){
 			if(user.tempban<Date.now()&&bans.get(user.id)){
 				client.guilds.cache.array()[0].members.unban(user.id)	
-			} else if((user.tempban-Date.now())<3600*24*1000){
+			} else if((user.tempban-Date.now())<3600*24*1000*2){
 				setTimeout(function(){
 					client.guilds.cache.array()[0].members.unban(user.id)
 				},user.tempban-Date.now())
@@ -450,7 +450,7 @@ client.on('ready',async ()=>{
 		if(user.mute){
 			if(user.mute<Date.now()&&mutes.get(user.id)){
 				client.guilds.cache.array()[0].member(user.id).roles.remove("728216095835815976");
-			} else if((user.mute-Date.now())<3600*24*1000){
+			} else if((user.mute-Date.now())<3600*24*1000*2){
 				setTimeout(function(){
 					client.guilds.cache.array()[0].member(user.id).roles.remove("728216095835815976");
 				},user.mute-Date.now())
@@ -968,7 +968,7 @@ client.on('message',async message=>{
 						let data=await info.load(m.id);
 						data.tempban=Date.now()+seconds*1000;
 						await info.save(m.id,data);
-						if((data.tempban-Date.now()/1000)<3600*24*2) setTimeout(function(){
+						if(((data.tempban-Date.now())/1000)<3600*24*2) setTimeout(function(){
 							message.guild.members.unban(m.id);
 						},data.tempban-Date.now())
 						await message.react('⛔');
@@ -1006,7 +1006,7 @@ client.on('message',async message=>{
 						let data=await info.load(m.id);
 						data.mute=Date.now()+seconds*1000;
 						await info.save(m.id,data);
-						if((data.mute-Date.now()/1000)<3600*24*2) setTimeout(function(){
+						if(((data.mute-Date.now())/1000)<3600*24*2) setTimeout(function(){
 							m.roles.remove("728216095835815976");
 						},data.mute-Date.now())
 						await message.react('⛓️');
