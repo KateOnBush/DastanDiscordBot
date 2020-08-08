@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 const Canvas = require('canvas-constructor');
 const client = new Discord.Client();
 const request = require('request');
-const dbLink = "https://jsonbox.io/box_1b9370d46ab479194e92"
+const dbLink = process.env.DBLINK;
 
 const colors=["black","silver","gray","white","maroon","red","purple","fuchsia","green","lime","olive","yellow","navy","blue","teal","aqua","orange","aliceblue","antiquewhite","aquamarine","azure","beige","bisque","blanchedalmond","blueviolet","brown","burlywood","cadetblue","chartreuse","chocolate","coral","cornflowerblue","cornsilk","crimson","cyan","darkblue","darkcyan","darkgoldenrod","darkgray","darkgreen","darkgrey","darkkhaki","darkmagenta","darkolivegreen","darkorange","darkorchid","darkred","darksalmon","darkseagreen","darkslateblue","darkslategray","darkslategrey","darkturquoise","darkviolet","deeppink","deepskyblue","dimgray","dimgrey","dodgerblue","firebrick","floralwhite","forestgreen","gainsboro","ghostwhite","gold","goldenrod","greenyellow","grey","honeydew","hotpink","indianred","indigo","ivory","khaki","lavender","lavenderblush","lawngreen","lemonchiffon","lightblue","lightcoral","lightcyan","lightgoldenrodyellow","lightgray","lightgreen","lightgrey","lightpink","lightsalmon","lightseagreen","lightskyblue","lightslategray","lightslategrey","lightsteelblue","lightyellow","limegreen","linen","magenta","mediumaquamarine","mediumblue","mediumorchid","mediumpurple","mediumseagreen","mediumslateblue","mediumspringgreen","mediumturquoise","mediumvioletred","midnightblue","mintcream","mistyrose","moccasin","navajowhite","oldlace","olivedrab","orangered","orchid","palegoldenrod","palegreen","paleturquoise","palevioletred","papayawhip","peachpuff","peru","pink","plum","powderblue","rosybrown","royalblue","saddlebrown","salmon","sandybrown","seagreen","seashell","sienna","skyblue","slateblue","slategray","slategrey","snow","springgreen","steelblue","tan","thistle","tomato","turquoise","violet","wheat","whitesmoke","yellowgreen","rebeccapurple"];
 
@@ -855,7 +855,7 @@ client.on('message',async message=>{
 			message.channel.send(embed);
 		} else if(message.member.roles.cache.array().find(t=>t.id=="728034436997709834"||t.id=="728034751780356096")){ //Moderator/Admin
 			
-			if(args[1]=="record"){
+			if(["record","records","rec"].includes(args[1])){
 				let m=message.mentions.members.first();
 				if(m&&!m.user.bot){
 					adminlog("Records Check",message.member,"Checked records.",m);
@@ -865,7 +865,7 @@ client.on('message',async message=>{
 						let records=data.records;
 						if(["warns","mutes","bans"].includes(filter)) records=data.records.filter(t=>(t.type+"s")===filter);
 						let embed=new Discord.MessageEmbed().setDescription("<@"+m.id+">'s record:").setColor("ORANGE")
-						.addField("Time",(records.map(r=>"`"+new Date(r.timestamp).toLocaleString()+"`     <@!"+r.mod+">      "+r.name+" - "+(r.reason||"Reason Unspecified")).join("\n")||"N/A"),true);
+						.addField("Records",(records.map(r=>"`"+new Date(r.timestamp).toLocaleString()+"`     <@!"+r.mod+">      "+r.name+" - "+(r.reason||"Reason Unspecified")).join("\n")||"N/A"),true);
 						if(["warns","mutes","bans"].includes(filter)) embed=embed.setDescription("<@"+m.id+">'s "+filter+":")
 						message.channel.send(embed);
 					} else {
@@ -1685,8 +1685,10 @@ client.on('messageDelete',(dm)=>{
 })
 
 ///Welcoming
-client.on('guildMemberAdd',member=>{
+client.on('guildMemberAdd',async member=>{
 
+	let data=await info.load(member.id);
+	if(data.mute&&data.mute>Date.now()) await member.roles.add("728216095835815976");
 	if((member.lastLeft!=undefined)&&(member.lastLeft<Date.now()+60*10000)) member.kick().then(member=>{
 		member.user.send("You need to wait 10 minutes before joining again.")
 	}) 
@@ -1724,8 +1726,8 @@ const options = {
 	leaveOnEmpty: false,
 	leaveOnStop: false
 }
-treble.player = new Player(treble, "AIzaSyAT-lCRVKfYrprwdKqk69TszCfoh1jqqjM", options);
-pitch.player = new Player(pitch, "AIzaSyAT-lCRVKfYrprwdKqk69TszCfoh1jqqjM", options);
+treble.player = new Player(treble, process.env.YOUTUBEKEY, options);
+pitch.player = new Player(pitch, process.env.YOUTUBEKEY, options);
 
 treble.on("ready",()=>{
 	treble.channels.resolve("729155101746528286").send(new Discord.MessageEmbed().setColor("GREEN").setDescription("**Ready!**"));
