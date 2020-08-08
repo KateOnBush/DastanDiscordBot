@@ -120,13 +120,15 @@ function dropChest(){
 }
 
 function msToString(ms){
-	var weeks=((ms/1000)/604800)|0;
-	var days=((ms/1000)-(weeks*604800))/86400|0;
-	var hours=((ms/1000)-(weeks*604800)-(days*86400))/3600|0;
-	var minutes=((ms/1000)-(weeks*604800)-(days*86400)-(hours*3600))/60|0;
-	var seconds=((ms/1000)-(weeks*604800)-(days*86400)-(hours*3600)-(minutes*60))|0;
-	let s = `${weeks>0 ? `**${weeks}** weeks, ` : '' }` + `${days>0 ? `**${days}** days, ` : '' }` + `${hours>0 ? `**${hours}** hours, ` : '' }` + `${minutes>0 ? `**${minutes}** minutes and ` : '' }` + `**${seconds}** seconds`;
-	return s.replace(" and **0** seconds","");
+	var years=(ms/1000)/31536000|0;
+	var months=((ms/1000)-(years*31536000))/2678400|0;
+	var weeks=((ms/1000)-(years*31536000)-(months*2678400))/604800|0;
+	var days=((ms/1000)-(years*31536000)-(months*2678400)-(weeks*604800))/86400|0;
+	var hours=((ms/1000)-(years*31536000)-(months*2678400)-(weeks*604800)-(days*86400))/3600|0;
+	var minutes=((ms/1000)-(years*31536000)-(months*2678400)-(weeks*604800)-(days*86400)-(hours*3600))/60|0;
+	var seconds=((ms/1000)-(years*31536000)-(months*2678400)-(weeks*604800)-(days*86400)-(hours*3600)-(minutes*60))|0;
+	let s = `${years>0 ? `**${years}** years, ` : '' }` + `${months>0 ? `**${months}** months, ` : '' }` + `${weeks>0 ? `**${weeks}** weeks, ` : '' }` + `${days>0 ? `**${days}** days, ` : '' }` + `${hours>0 ? `**${hours}** hours, ` : '' }` + `${minutes>0 ? `**${minutes}** minutes and ` : '' }` + `**${seconds}** seconds`;
+	return s.replace(" and **0** seconds","").replace(", **0** seconds","");
 }
 function timeformatToSeconds(f){
 	return eval(f.replace("s","+").replace("m","*60+").replace("h","*3600+").replace("d","*3600*24+").replace("w","*3600*24*7+").replace("mo","*3600*24*30+").replace("y","*3600*24*365+")+"0");	
@@ -304,26 +306,6 @@ async function updateProfile(member,points){
 		return await info.save(member.id,c);
 }
 
-async function mute(member,seconds){
-	var data = await info.load(member.id);
-	if(data.mutedTo==undefined) data.mutedTo=0;
-	data.mutedTo=Math.max(Date.now(),data.mutedTo)+seconds*1000;
-	await member.roles.add("728216095835815976");
-	await info.save(member.id,data);
-	setTimeout(function(){
-		member.roles.remove("728216095835815976");
-	},seconds*1000);
-	return true;
-}
-
-async function unmute(member){
-	var data = await info.load(member.id);
-	data.mutedTo=0;
-	await member.roles.remove("728216095835815976");
-	await info.save(member.id,data);
-	return true;
-}
-
 var info = {
 	exists: false,
 	init: async function(data){
@@ -407,7 +389,7 @@ client.on('message',message=>{
 client.on('error',err=>{
 	log("Error encountered: `"+err+"`");
 });
-client.on('ready',()=>{
+client.on('ready',async ()=>{
 	client.user.setPresence({
 		status: "online",
 		afk: false,
@@ -421,21 +403,6 @@ client.on('ready',()=>{
 	console.log("Ready!")
 	setTimeout(dropChest,50000);
 	eventReminder();
-	client.guilds.cache.array()[0].roles.fetch("728216095835815976").then(role=>{
-		role.members.array().forEach(member=>{
-			info.load(member.id).then(data=>{
-				if(![0,undefined].includes(data.mutedTo)) {
-					if(Date.now()>data.mutedTo) {
-						member.roles.remove("728216095835815976");
-					} else {
-						setTimeout(function(){
-							member.roles.remove("728216095835815976");
-						},data.mutedTo-Date.now());
-					}
-				}
-			});
-		});
-	});
 	client.guilds.cache.array()[0].members.fetch().then(members=>{
 		members.array().forEach(member=>{
 			info.load(member.id).then(data=>{
@@ -468,6 +435,28 @@ client.on('ready',()=>{
 			});
 		});
 	});
+	let bans=client.guilds.cache.array()[0].fetchBans();
+	let mutes=client.guilds.cache.array()[0].roles.cache.get("728216095835815976").members;
+	dataStorage.forEach(async user=>{
+		if(user.tempban){
+			if(user.tempban<Date.now()&&bans.get(user.id)){
+				client.guilds.cache.array()[0].members.unban(user.id)	
+			} else if((user.tempban-Date.now())<3600*24*1000){
+				setTimeout(function(){
+					client.guilds.cache.array()[0].members.unban(user.id)
+				},user.tempban-Date.now())
+			}
+		}
+		if(user.mute){
+			if(user.mute<Date.now()&&mutes.get(user.id)){
+				client.guilds.cache.array()[0].member(user.id).roles.remove("728216095835815976");
+			} else if((user.mute-Date.now())<3600*24*1000){
+				setTimeout(function(){
+					client.guilds.cache.array()[0].member(user.id).roles.remove("728216095835815976");
+				},user.mute-Date.now())
+			}
+		}
+	})
 })
 
 client.on('raw',event=>{
@@ -864,7 +853,7 @@ client.on('message',async message=>{
 				.setTimestamp().setAuthor(message.author.tag,message.author.displayAvatarURL());
 			}
 			message.channel.send(embed);
-		} else if(message.member.roles.cache.array().find(r=>r.id==="728034751780356096")){ //Moderator
+		} else if(message.member.roles.cache.array().find(t=>t.id=="728034436997709834"||t.id=="728034751780356096")){ //Moderator/Admin
 			
 			if(args[1]=="record"){
 				let m=message.mentions.members.first();
@@ -889,7 +878,7 @@ client.on('message',async message=>{
 				}
 			} else if(args[1]=="warn"){
 				let m=message.mentions.members.first();
-				if(m&&!m.user.bot){
+				if(m&&!m.user.bot&&!m.roles.cache.array().find(t=>t.id=="728034436997709834"||t.id=="728034751780356096")){
 					let reason=undefined;
 					if(args[3]) reason=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
 					adminlog("Warn",message.member,"Warned.",m,reason);
@@ -901,11 +890,168 @@ client.on('message',async message=>{
 						mod: message.member.id
 					});
 					await message.react('⚠️');
-					let embed = new Discord.MessageEmbed().setDescription("<@"+m.id+">, you have been warned!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
+					let embed = new Discord.MessageEmbed().setDescription("<@"+m.id+">, you have been warned by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
 					let msg=await message.channel.send(embed);
 					await m.send(embed);
 					await wait(10000);
 					msg.delete();
+					
+				} else {
+					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct member.").setColor("RED"));	
+				}
+			} else if(args[1]=="kick"){
+				let m=message.mentions.members.first();
+				if(m&&!m.user.bot&&m.kickable){
+					let reason=undefined;
+					if(args[3]) reason=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
+					adminlog("Kick",message.member,"Kicked.",m,reason);
+					await addRecord(m,{
+						name: "Kick",
+						type: "ban",
+						timestamp: Date.now(),
+						reason: reason,
+						mod: message.member.id
+					});
+					await message.react('🚪');
+					await m.kick();
+					let embed = new Discord.MessageEmbed().setDescription("<@"+m.id+">, you have been kicked by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
+					await m.send(embed);
+					let embed2 = new Discord.MessageEmbed().setDescription("<@"+m.id+"> was been kicked by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
+					let msg = await message.channel.send(embed2);
+					await wait(10000);
+					msg.delete()
+					
+				} else {
+					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct member.").setColor("RED"));	
+				}
+			} else if(args[1]=="ban"){
+				let m=message.mentions.members.first();
+				if(m&&!m.user.bot&&m.bannable){
+					let reason=undefined;
+					if(args[3]) reason=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
+					adminlog("Perma Ban",message.member,"Banned.",m,reason);
+					await addRecord(m,{
+						name: "Perma-ban",
+						type: "ban",
+						timestamp: Date.now(),
+						reason: reason,
+						mod: message.member.id
+					});
+					await message.react('⛔');
+					let embed = new Discord.MessageEmbed().setDescription("<@"+m.id+">, you have been perma-banned by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
+					let embed2 = new Discord.MessageEmbed().setDescription("<@"+m.id+"> was been perma-banned by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
+					await m.ban();
+					await m.send(embed);
+					let msg = await message.channel.send(embed2);
+					await wait(10000);
+					msg.delete()
+					
+				} else {
+					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct member.").setColor("RED"));	
+				}
+			} else if(args[1]=="tempban"){
+				let m=message.mentions.members.first();
+				if(m&&!m.user.bot&&m.bannable){
+					try{
+						let seconds=timeformatToSeconds(args[3]);
+						let tstr=msToString(seconds*1000);
+						let reason=undefined;
+						if(args[4]) reason=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" "args_case[3]+" ","");
+						adminlog("Temp Ban",message.member,"Banned for "+tstr+".",m,reason);
+						await addRecord(m,{
+							name: "Temp-ban for "+tstr,
+							type: "ban",
+							timestamp: Date.now(),
+							reason: reason,
+							mod: message.member.id
+						});
+						let data=await info.load(m.id);
+						data.tempban=Date.now()+seconds*1000;
+						await info.save(m.id,data);
+						if((data.tempban-Date.now()/1000)<3600*24*2) setTimeout(function(){
+							message.guild.members.unban(m.id);
+						},data.tempban-Date.now())
+						await message.react('⛔');
+						await m.ban();
+						let embed = new Discord.MessageEmbed().setDescription("<@"+m.id+">, you have been banned temporarily for "+tstr+" by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
+						let embed2 = new Discord.MessageEmbed().setDescription("<@"+m.id+"> has been banned temporarily for "+tstr+" by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
+						await m.send(embed);
+						let msg = await message.channel.send(embed2);
+						await wait(10000);
+						msg.delete()
+					}catch(err){
+						message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct time").setColor("RED"));
+					}
+						
+					
+				} else {
+					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct member.").setColor("RED"));	
+				}
+			} else if(args[1]=="mute"){
+				let m=message.mentions.members.first();
+				if(m&&!m.user.bot&&!m.roles.cache.array().find(t=>t.id=="728034436997709834"||t.id=="728034751780356096")){
+					try{
+						let seconds=timeformatToSeconds(args[3]);
+						let tstr=msToString(seconds*1000);
+						let reason=undefined;
+						if(args[4]) reason=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" "args_case[3]+" ","");
+						adminlog("Mute",message.member,"Muted for "+tstr+".",m,reason);
+						await addRecord(m,{
+							name: "Mute for "+tstr,
+							type: "mute",
+							timestamp: Date.now(),
+							reason: reason,
+							mod: message.member.id
+						});
+						let data=await info.load(m.id);
+						data.mute=Date.now()+seconds*1000;
+						await info.save(m.id,data);
+						if((data.mute-Date.now()/1000)<3600*24*2) setTimeout(function(){
+							m.roles.remove("728216095835815976");
+						},data.mute-Date.now())
+						await message.react('⛓️');
+						m.roles.add("728216095835815976");
+						let embed = new Discord.MessageEmbed().setDescription("<@"+m.id+">, you have been muted for "+tstr+" by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
+						let embed2 = new Discord.MessageEmbed().setDescription("<@"+m.id+"> has been muted for "+tstr+" by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
+						await m.send(embed);
+						let msg = await message.channel.send(embed2);
+						await wait(10000);
+						msg.delete()
+					}catch(err){
+						message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct time").setColor("RED"));
+					}
+						
+					
+				} else {
+					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct member.").setColor("RED"));	
+				}
+			} else if(args[1]=="unmute"){
+				let m=message.mentions.members.first();
+				if(m&&!m.user.bot&&!m.roles.cache.array().find(t=>t.id=="728034436997709834"||t.id=="728034751780356096")){
+					if(m.roles.cache.array().find(t=>t.id=="728216095835815976")){
+						let reason=undefined;
+						if(args[3]) reason=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
+						adminlog("Unmute",message.member,"Unmute.",m,reason);
+						await addRecord(m,{
+							name: "Unmute",
+							type: "mute",
+							timestamp: Date.now(),
+							reason: reason,
+							mod: message.member.id
+						});
+						let data=await info.load(m.id);
+						data.mute=0;
+						await info.save(m.id,data);
+						await message.react('✅');
+						m.roles.remove("728216095835815976");
+						let embed = new Discord.MessageEmbed().setDescription("<@"+m.id+">, you have been unmuted by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
+						let msg=await message.channel.send(embed);
+						await m.send(embed);
+						await wait(10000);
+						msg.delete();
+					} else {
+						message.channel.send(new Discord.MessageEmbed().setDescription("This member is not muted.").setColor("RED"));
+					}
 					
 				} else {
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct member.").setColor("RED"));	
