@@ -876,6 +876,7 @@ client.on('message',async message=>{
 						let records=data.records;
 						if(["warns","mutes","bans"].includes(filter)) records=data.record.filter(t=>(t.type+"s")===filter);
 						let embed=new Discord.MessageEmbed().setDescription("<@"+m.id+">'s record:\n\n"+records.map(r=>"`"+(new Date(r.timestamp).toLocaleString())+"` <@!"+r.mod+"> "+r.name+" - "+(r.reason||"Reason Unspecified")).join("\n")).setColor("ORANGE")
+						message.channel.send(embed);
 					} else {
 						message.channel.send(new Discord.MessageEmbed().setDescription("<@"+m.id+">'s record is clean!").setColor("GREEN"));	
 					}
@@ -896,9 +897,9 @@ client.on('message',async message=>{
 						mod: message.member.id
 					});
 					await message.react('⚠️');
-					let embed = new Discord.MessageEmbed().setDescription("<@"+m.id+">, you have been warned!\n**Reason:** "+(reason||"Unspecified"));
+					let embed = new Discord.MessageEmbed().setDescription("<@"+m.id+">, you have been warned!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
 					let msg=await message.channel.send(embed);
-					await message.author.send(embed);
+					await m.send(embed);
 					await wait(10000);
 					msg.delete();
 					
