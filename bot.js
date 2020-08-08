@@ -90,8 +90,8 @@ async function loadProfile(member){
 function log(d){
 	client.channels.resolve("729155101746528286").send(d);
 }
-function adminlog(event,member,content,reason){
-	client.channels.resolve("729155101746528286").send(new Discord.MessageEmbed().setDescription("**Event:** "+event).addField("Member","<@!"+member.id+">",true).addField("Action/Content",content,true).setTimestamp().setColor("ORANGE").addField("Reason",(reason||"Unspecified"),true));
+function adminlog(event,mod,content,subject,reason){
+	client.channels.resolve("729155101746528286").send(new Discord.MessageEmbed().setDescription("**Event:** "+event).addField("Mod/Admin","<@!"+mod.id+">",true).addField("Action/Content",content,true).addField("Subject","<@!"+subject.id+">",true).setTimestamp().setColor("ORANGE").addField("Reason",(reason||"Unspecified")));
 }
 function dropChest(){
 	let c=client.channels.cache.get("728025726556569631");
@@ -806,55 +806,106 @@ client.on('message',async message=>{
 		await updateProfile(message.member,10);
 	}
 	
+	message.content=message.content.split(" ").filter(t=>t!=="").join(" ");
 	var args=message.content.toLowerCase().split(" ");
 	var args_case=message.content.split(" ");
 	//Global commands
-	if(args[0]=="admin"&&message.member.hasPermission("MANAGE_MESSAGES")){
+	if(args[0]=="mod"&&message.member.hasPermission("MANAGE_MESSAGES")){
+		let addRecord = async function(subject,event){
+			let data=await info.load(subject.id);
+			if(data.records==undefined) data.records=[];
+			data.records.push(event);
+			return await info.save(subject.id,data);
+		}
 		let commands=[{
 			name: "warn",
-			type: "mod",
 			description: "Warn a member.",
 			usage: "warn <@user> [reason]"
 		},{
 			name: "mute",
-			type: "mod",
 			description: "Mute a member.",
 			usage: "mute <@user> <time> [reason]"
 		},{
 			name: "unmute",
-			type: "mod",
 			description: "Unmute a member.",
 			usage: "unmute <@user> [reason]"
 		},{
 			name: "record",
-			type: "mod",
 			description: "Show a member's record.",
 			usage: "record <@user>"
 		},{
+			name: "kick",
+			description: "Kick a member.",
+			usage: "kick <@user> [reason]"
+		},{
 			name: "tempban",
-			type: "admin",
 			description: "Temporarily ban a member.",
 			usage: "tempban <@user> <time> [reason]"
 		},{
+			name: "ban",
+			description: "Permanently ban a member.",
+			usage: "tempban <@user> <time> [reason]"
+		},{
 			name: "event",
-			type: "admin",
-			description: "Manage events",
+			description: "Manage events (if you're a mod and you want to host an event, please get authorisation first)",
 			usage: "event <create,delete,set> (name,desc,time,type) (id)"
 		}];
 		if(args[1]=="help"){
-			let embed=new Discord.MessageEmbed().setColor("BLUE").setTitle("Administrative commands help:")
-			.addField("Admin Commands",commands.filter(t=>t.type==="admin").map(t=>"**"+t.name+"** — "+t.description).join("\n"),true)
-			.addField("Mod Commands",commands.filter(t=>t.type==="mod").map(t=>"**"+t.name+"** — "+t.description).join("\n"),true)
+			let embed=new Discord.MessageEmbed().setColor("BLUE").setTitle("Moderation commands help:")
+			.addField("Command list",commands.map(t=>"`"+t.name+"` — "+t.description).join("\n"),true)
 			.setTimestamp().setAuthor(message.author.tag,message.author.displayAvatarURL());
 			if(args[2]&&commands.find(t=>t.name===args[2])){
 				let cmd=commands.find(t=>t.name===args[2]);
-				embed=new Discord.MessageEmbed().setColor("Blue").setTitle("Command help: "+cmd.name)
+				embed=new Discord.MessageEmbed().setColor("BLUE").setTitle("Command help: "+cmd.name)
 				.addField("Description",cmd.description)
 				.addField("Command for",cmd.type,true)
 				.addField("Usage",cmd.usage,true)
 				.setTimestamp().setAuthor(message.author.tag,message.author.displayAvatarURL());
 			}
 			message.channel.send(embed);
+		} else if(message.member.roles.cache.array().find(r=>r.id==="728034751780356096")){ //Moderator
+			
+			if(args[1]=="record"){
+				let m=message.mentions.members.first();
+				if(m&&!m.user.bot){
+					adminlog("Records Check",message.member,"Checked records.",m);
+					let data = await info.load(m);
+					if(data.record){
+						let filter=args[3];
+						let records=data.record;
+						if(["warns","mutes","bans"].includes(filter)) records=data.record.filter(t=>(t.type+"s")===filter);
+						let embed=new Discord.MessageEmbed().setDescription("<@"+m.id+">'s record:\n\n"+records.map(r=>"["+(new Date(r.timestamp).toLocaleString())+"] <@!"+r.mod+"> "+r.name+" - "+(r.reason||"Reason Unspecified")).join("\n")).setColor("ORANGE")
+					} else {
+						message.channel.send(new Discord.MessageEmbed().setDescription("<@"+m.id+">'s record is clean!").setColor("GREEN"));	
+					}
+				} else {
+					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct member.").setColor("RED"));	
+				}
+			} else if(args[1]=="warn"){
+				let m=message.mentions.members.first();
+				if(m&&!m.user.bot){
+					let reason=undefined;
+					if(args[3]) reason=args.join(" ").replace(args[0]+" "+args[1]+" "+args[2]+" ","");
+					adminlog("Warn",message.member,"Warned.",m,reason);
+					await addRecord(m,{
+						name: "Warn",
+						type: "warn",
+						timestamp: Date.now(),
+						reason: reason,
+						mod: message.member.id
+					});
+					await message.react('⚠️');
+					let embed = new Discord.MessageEmbed().setDescription("<@"+m.id+">, you have been warned!\n**Reason:** "+(reason||"Unspecified"));
+					let msg=await message.channel.send(embed);
+					await message.user.send(embed);
+					await wait(4000);
+					msg.delete();
+					
+				} else {
+					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct member.").setColor("RED"));	
+				}
+			}
+			
 		}
 		
 	}
