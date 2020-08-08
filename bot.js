@@ -842,13 +842,13 @@ client.on('message',async message=>{
 			usage: "event <create,delete,set> (name,desc,time,type) (id)"
 		}];
 		if(args[1]=="help"){
-			let embed=new Discord.MessageEmbed().setColor("BLUE").setDescription("Administrative commands help:")
+			let embed=new Discord.MessageEmbed().setColor("BLUE").setTitle("Administrative commands help:")
 			.addField("Admin Commands",commands.filter(t=>t.type==="admin").map(t=>"**"+t.name+"** — "+t.description).join("\n"),true)
-			.addField("Admin Commands",commands.filter(t=>t.type==="mod").map(t=>"**"+t.name+"** — "+t.description).join("\n"),true)
+			.addField("Mod Commands",commands.filter(t=>t.type==="mod").map(t=>"**"+t.name+"** — "+t.description).join("\n"),true)
 			.setTimestamp().setAuthor(message.author.tag,message.author.displayAvatarURL());
 			if(args[2]&&commands.find(t=>t.name===args[2])){
 				let cmd=commands.find(t=>t.name===args[2]);
-				embed=new Discord.MessageEmbed().setColor("Blue").setDescription("Command help: "+cmd.name)
+				embed=new Discord.MessageEmbed().setColor("Blue").setTitle("Command help: "+cmd.name)
 				.addField("Description",cmd.description)
 				.addField("Command for",cmd.type,true)
 				.addField("Usage",cmd.usage,true)
@@ -1162,7 +1162,7 @@ client.on('message',async message=>{
 			} else if(amount>data.gold){
 				message.channel.send(new Discord.MessageEmbed().setDescription("You do not have enough gold.").setColor("RED"));	
 			} else {
-				let gambled = Math.random()*(1-Math.random())*2*amount|0;
+				let gambled = Math.random()*2*amount|0;
 				gambled += amount*((Math.random()*2)|0);
 				gambled -= amount;
 				data.gamblesToday+=1;
