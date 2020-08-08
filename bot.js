@@ -994,7 +994,7 @@ client.on('message',async message=>{
 						let seconds=timeformatToSeconds(args[3]);
 						let tstr=msToString(seconds*1000);
 						let reason=undefined;
-						if(args[4]) reason=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" "args_case[3]+" ","");
+						if(args[4]) reason=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" "+args_case[3]+" ","");
 						adminlog("Mute",message.member,"Muted for "+tstr+".",m,reason);
 						await addRecord(m,{
 							name: "Mute for "+tstr,
