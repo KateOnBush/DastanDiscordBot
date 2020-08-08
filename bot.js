@@ -874,8 +874,12 @@ client.on('message',async message=>{
 					if(data.records){
 						let filter=args[3];
 						let records=data.records;
-						if(["warns","mutes","bans"].includes(filter)) records=data.record.filter(t=>(t.type+"s")===filter);
-						let embed=new Discord.MessageEmbed().setDescription("<@"+m.id+">'s record:\n\n"+records.map(r=>"`"+(new Date(r.timestamp).toLocaleString())+"` <@!"+r.mod+"> "+r.name+" - "+(r.reason||"Reason Unspecified")).join("\n")).setColor("ORANGE")
+						if(["warns","mutes","bans"].includes(filter)) records=data.records.filter(t=>(t.type+"s")===filter);
+						let embed=new Discord.MessageEmbed().setDescription("<@"+m.id+">'s record:").setColor("ORANGE")
+						.addField("Time",(records.map(r=>"`"+new Date(r.timestamp).toLocaleString()+"`").join("\n")||"N/A"),true)
+						.addField("Mod/Admin",(records.map(r=>"<@!"+r.mod+">").join("\n")||"N/A"),true)
+						.addField("Events",(records.map(r=>r.name+" - "+(r.reason||"Reason Unspecified")).join("\n")||"No records."),true);
+						if(["warns","mutes","bans"].includes(filter)) embed=embed.setDescription("<@"+m.id+">'s "+filter+":")
 						message.channel.send(embed);
 					} else {
 						message.channel.send(new Discord.MessageEmbed().setDescription("<@"+m.id+">'s record is clean!").setColor("GREEN"));	
