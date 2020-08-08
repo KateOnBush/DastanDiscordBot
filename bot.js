@@ -1677,6 +1677,7 @@ client.on("voiceStateUpdate",async (o,n)=>{
 });
 client.on('messageUpdate',(om,nm)=>{
 	if(nm.author.bot) return;
+	if(nm.content===om.content) return;
 	log(new Discord.MessageEmbed().setAuthor(nm.author.tag,nm.author.displayAvatarURL()).setColor("BLUE").setDescription("Message Edit").addField("Member","<@!"+nm.member.id+">",true).addField("Channel","<#"+nm.channel.id+">",true).addField("Old content",(om.cleanContent||"Empty message.")).addField("New content",(nm.cleanContent||"Empty message.")).setFooter("Message ID: "+nm.id).setTimestamp());
 })
 client.on('messageDelete',(dm)=>{
@@ -2041,7 +2042,9 @@ async function musicMessage(message){
 		}
 	}
 }
-
+process.on("unhandledRejection", error => {
+	log(new Discord.MessageEmbed().setColor("RED").setTitle("Unhandled Promise Rejection").setDescription(error.toString()).setTimestamp());
+});
 
 let dataStorage=[];
 request.get({
