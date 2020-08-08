@@ -815,7 +815,8 @@ client.on('message',async message=>{
 			let data=await info.load(subject.id);
 			if(data.records==undefined) data.records=[];
 			data.records.push(event);
-			return await info.save(subject.id,data);
+			await info.save(subject.id,data);
+			return true;
 		}
 		let commands=[{
 			name: "warn",
@@ -897,7 +898,7 @@ client.on('message',async message=>{
 					await message.react('⚠️');
 					let embed = new Discord.MessageEmbed().setDescription("<@"+m.id+">, you have been warned!\n**Reason:** "+(reason||"Unspecified"));
 					let msg=await message.channel.send(embed);
-					await message.user.send(embed);
+					await message.author.send(embed);
 					await wait(4000);
 					msg.delete();
 					
