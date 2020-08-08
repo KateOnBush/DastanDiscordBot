@@ -441,7 +441,7 @@ client.on('ready',async ()=>{
 		if(user.tempban){
 			if(user.tempban<Date.now()&&bans.get(user.id)){
 				client.guilds.cache.array()[0].members.unban(user.id)	
-			} else if((user.tempban-Date.now())<3600*24*1000*2){
+			} else if(((user.tempban-Date.now())<3600*24*1000*2)&&(user.tempban-Date.now()>0)){
 				setTimeout(function(){
 					client.guilds.cache.array()[0].members.unban(user.id)
 				},user.tempban-Date.now())
@@ -2043,7 +2043,7 @@ async function musicMessage(message){
 	}
 }
 process.on("unhandledRejection", error => {
-	log(new Discord.MessageEmbed().setColor("RED").setTitle("Unhandled Promise Rejection").setDescription(error.toString()).setTimestamp());
+	log(new Discord.MessageEmbed().setColor("RED").setDescription("**Unhandled Promise Rejection:**\n\n"+error.toString()).setTimestamp());
 });
 
 let dataStorage=[];
