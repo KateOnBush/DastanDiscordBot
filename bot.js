@@ -97,7 +97,7 @@ function log(d){
 	client.channels.resolve("729155101746528286").send(d);
 }
 function adminlog(event,mod,content,subject,reason){
-	client.channels.resolve("729744865776107550").send(new Discord.MessageEmbed().setDescription("**Event:** "+event).addField("Mod/Admin","<@!"+mod.id+">",true).addField("Action/Content",content,true).addField("Subject","<@!"+subject.id+">",true).setTimestamp().setColor("ORANGE").addField("Reason",(reason||"Unspecified")));
+	client.channels.resolve("729744865776107550").send(new Discord.MessageEmbed().setDescription("**Event:** "+event).addField("Mod/Admin","<@!"+mod.id+">",true).addField("Action/Content",content,true).addField("Subject","<@!"+subject.id+">",true).setTimestamp().setColor("BLUE").addField("Reason",(reason||"Unspecified")));
 }
 function dropChest(){
 	let c=client.channels.cache.get("728025726556569631");
@@ -457,7 +457,7 @@ client.on('ready',async ()=>{
 			if(user.mute<Date.now()&&mutes.get(user.id)){
 				client.guilds.cache.array()[0].member(user.id).roles.remove("728216095835815976");
 			} else if((user.mute-Date.now())<3600*24*1000*2){
-				setTimeout(function(){
+				setTimeout(async function(){
 					client.guilds.cache.array()[0].member(user.id).roles.remove("728216095835815976");
 				},user.mute-Date.now())
 			}
@@ -853,6 +853,10 @@ client.on('message',async message=>{
 			description: "Permanently ban a member.",
 			usage: "tempban <@user> <time> [reason]"
 		},{
+			name: "clearchat",
+			description: "Clear the chat",
+			usage: "clear <message count>"
+		},{
 			name: "event",
 			description: "Manage events (if you're a mod and you want to host an event, please get authorisation first)",
 			usage: "event <create,delete,set> (name,desc,time,type) (id)"
@@ -887,6 +891,17 @@ client.on('message',async message=>{
 					message.channel.send(embed);
 				} else {
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct member.").setColor("RED"));	
+				}
+			} else if(args[1]=="clearchat"){
+				if(parseInt(args[2])){
+					try{
+						await message.channel.bulkDelete(parseInt(args[2]));
+						let msg = await message.channel.send(new Discord.MessageEmbed().setDescription("**"+parseInt(args[2])+"** messages deleted!").setColor("GREEN"));
+						await wait(6000);
+						await msg.delete()
+					} else {
+						message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't delete messages! Please try again.").setColor("RED"));
+					}
 				}
 			} else if(args[1]=="warn"){
 				let m=message.mentions.members.first();
