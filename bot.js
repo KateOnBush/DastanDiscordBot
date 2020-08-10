@@ -899,7 +899,7 @@ client.on('message',async message=>{
 						let msg = await message.channel.send(new Discord.MessageEmbed().setDescription("**"+parseInt(args[2])+"** messages deleted!").setColor("GREEN"));
 						await wait(6000);
 						await msg.delete()
-					} else {
+					}catch(err){
 						message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't delete messages! Please try again.").setColor("RED"));
 					}
 				}
