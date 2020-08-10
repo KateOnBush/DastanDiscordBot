@@ -1683,8 +1683,26 @@ client.on("voiceStateUpdate",async (o,n)=>{
 			await n.member.guild.channels.cache.get("729354613064728636").send(new Discord.MessageEmbed().setDescription("<@!"+o.member.id+"> left **" + o.channel.name + "**").setColor("RED"));
 			await n.member.roles.remove(["729502041122013195","729502308634853456"]);
 		} else if(mvcs.includes(o.channel.id)){
-			if(o.channel.members.array().find(i=>i.id=="730404483519086605")&&o.channel.members.size==1) pitch.player.stop(o.channel.guild.id);
-			if(o.channel.members.array().find(i=>i.id=="730406806316384309")&&o.channel.members.size==1) treble.player.stop(o.channel.guild.id);
+			if(o.channel.members.array().find(i=>i.id=="730404483519086605")&&o.channel.members.size==1) pitch.player.stop(o.channel.guild.id).then(()=>{
+			pitch.user.setPresence({
+						status: "online",
+						afk: false,
+						activity: {
+							name: "",
+							type: "PLAYING",
+							url: null
+						}});
+			}).catch();
+			if(o.channel.members.array().find(i=>i.id=="730406806316384309")&&o.channel.members.size==1) treble.player.stop(o.channel.guild.id).then(()=>{
+			treble.user.setPresence({
+						status: "online",
+						afk: false,
+						activity: {
+							name: "",
+							type: "PLAYING",
+							url: null
+						}});
+			}).catch();
 			await n.member.guild.channels.cache.get("728029565607346227").send(new Discord.MessageEmbed().setDescription("<@!"+o.member.id+"> left **" + o.channel.name + "**").setColor("RED"));
 			await n.member.roles.remove(["729502041122013195","729502308634853456"]);
 		}
@@ -1705,9 +1723,9 @@ client.on('messageDelete',(dm)=>{
 client.on('guildMemberAdd',async member=>{
 
 	let data=await info.load(member.id);
-	if((data.mute)&&(data.mute>Date.now())) await member.roles.add("728216095835815976");
-	log(new Discord.MessageEmbed().setAuthor(member.user.tag,member.user.displayAvatarURL()).setColor("BLUE").setDescription("New member").addField("Member","<@!"+member.id+">").setFooter("Member ID: "+member.id).setTimestamp());
 	var startRoles=["728018741174075412","728212856046223480","728035160448041021","728018742965174382","728031955685343312","728214239784861776","728032333671825479","729438972161556610"];
+	if((data.mute)&&(data.mute>Date.now())) startRoles.push("728216095835815976");
+	log(new Discord.MessageEmbed().setAuthor(member.user.tag,member.user.displayAvatarURL()).setColor("BLUE").setDescription("New member").addField("Member","<@!"+member.id+">").setFooter("Member ID: "+member.id).setTimestamp());
 	var welcome_channel=member.guild.channels.cache.get("728008557911605340");
 	welcome_channel.send(new Discord.MessageEmbed().addField("Hey hey hey!","We've been waiting for you!").setTitle("Welcome " + member.displayName + "!").setThumbnail(member.user.displayAvatarURL()));
 	member.roles.add(startRoles);
@@ -2050,7 +2068,7 @@ async function musicMessage(message){
 	}
 }
 process.on("unhandledRejection", error => {
-	log(new Discord.MessageEmbed().setColor("RED").setDescription("**Unhandled Promise Rejection:**\n```js\n"+error.toString()+"\n```").setTimestamp());
+	log(	new Discord.MessageEmbed().setColor("RED").setDescription("**Unhandled Promise Rejection:**\n```js\n"+error.toString()+"\n```").setTimestamp());
 });
 
 let dataStorage=[];
