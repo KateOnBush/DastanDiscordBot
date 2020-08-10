@@ -5,7 +5,13 @@ const request = require('request');
 const dbLink = process.env.DBLINK;
 
 const colors=["black","silver","gray","white","maroon","red","purple","fuchsia","green","lime","olive","yellow","navy","blue","teal","aqua","orange","aliceblue","antiquewhite","aquamarine","azure","beige","bisque","blanchedalmond","blueviolet","brown","burlywood","cadetblue","chartreuse","chocolate","coral","cornflowerblue","cornsilk","crimson","cyan","darkblue","darkcyan","darkgoldenrod","darkgray","darkgreen","darkgrey","darkkhaki","darkmagenta","darkolivegreen","darkorange","darkorchid","darkred","darksalmon","darkseagreen","darkslateblue","darkslategray","darkslategrey","darkturquoise","darkviolet","deeppink","deepskyblue","dimgray","dimgrey","dodgerblue","firebrick","floralwhite","forestgreen","gainsboro","ghostwhite","gold","goldenrod","greenyellow","grey","honeydew","hotpink","indianred","indigo","ivory","khaki","lavender","lavenderblush","lawngreen","lemonchiffon","lightblue","lightcoral","lightcyan","lightgoldenrodyellow","lightgray","lightgreen","lightgrey","lightpink","lightsalmon","lightseagreen","lightskyblue","lightslategray","lightslategrey","lightsteelblue","lightyellow","limegreen","linen","magenta","mediumaquamarine","mediumblue","mediumorchid","mediumpurple","mediumseagreen","mediumslateblue","mediumspringgreen","mediumturquoise","mediumvioletred","midnightblue","mintcream","mistyrose","moccasin","navajowhite","oldlace","olivedrab","orangered","orchid","palegoldenrod","palegreen","paleturquoise","palevioletred","papayawhip","peachpuff","peru","pink","plum","powderblue","rosybrown","royalblue","saddlebrown","salmon","sandybrown","seagreen","seashell","sienna","skyblue","slateblue","slategray","slategrey","snow","springgreen","steelblue","tan","thistle","tomato","turquoise","violet","wheat","whitesmoke","yellowgreen","rebeccapurple"];
-
+let addRecord = async function(subject,event){
+	let data=await info.load(subject.id);
+	if(data.records==undefined) data.records=[];
+	data.records.push(event);
+	await info.save(subject.id,data);
+	return true;
+}
 function getURL(url,h){
 	return new Promise((resolve,reject)=>{
 		request.get({
@@ -769,12 +775,30 @@ client.on('message',async message=>{
 	if(message.author.antiSpamCount==0) message.author.antiSpamFirst=Date.now();
 	message.author.antiSpamCount+=1;
 	
-	if(Date.now()-message.author.antiSpamFirst<4000){
+	if(Date.now()-message.author.antiSpamFirst<6000){
 		if(message.author.antiSpamCount>8){
-			mute(message.member,3600).then(()=>{
-					message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+message.member.id+"> was muted for **1** hour.\n**Reason:** Spam.").setColor("RED"))
-					adminlog("Mute",message.guild.members.cache.get(client.user.id),"<@!"+message.member.id+"> for **1** hour.","Spam")
+			adminlog("Mute",client.user,"Muted for "+msToString(3600000),message.member,"Spam.");
+			await addRecord(m,{
+				name: "Mute for "+msToString(3600000),
+				type: "mute",
+				timestamp: Date.now(),
+				reason: reason,
+				mod: client.user.id
 			});
+			let data=await info.load(message.member.id);
+			data.mute=Date.now()+3600*1000;
+			await info.save(message.member.id,data);
+			if(((data.mute-Date.now())/1000)<3600*24*2) setTimeout(function(){
+				message.member.roles.remove("728216095835815976");
+			},data.mute-Date.now())
+			message.member.roles.add("728216095835815976");
+			let embed = new Discord.MessageEmbed().setDescription("<@"+message.member.id+">, you have been muted for "+msToString(3600000)+" by <@"+message.member.id+">!\n**Reason:** Spam.").setColor("YELLOW");
+			let embed2 = new Discord.MessageEmbed().setDescription("<@"+message.member.id+"> has been muted for "+msToString(3600000)+" by <@"+message.member.id+">!\n**Reason:** Spam.").setColor("YELLOW");
+			await message.member.send(embed);
+			let msg = await message.channel.send(embed2);
+			await wait(10000);
+			msg.delete();
+			
 		}else if(message.author.antiSpamCount>5){
 			message.delete().then(m=>{
 				message.channel.send("<@!"+message.author.id+">, please don't spam!");
@@ -800,13 +824,6 @@ client.on('message',async message=>{
 	var args_case=message.content.split(" ");
 	//Global commands
 	if(args[0]=="mod"&&message.member.hasPermission("MANAGE_MESSAGES")){
-		let addRecord = async function(subject,event){
-			let data=await info.load(subject.id);
-			if(data.records==undefined) data.records=[];
-			data.records.push(event);
-			await info.save(subject.id,data);
-			return true;
-		}
 		let commands=[{
 			name: "warn",
 			description: "Warn a member.",
@@ -860,17 +877,14 @@ client.on('message',async message=>{
 				if(m&&!m.user.bot){
 					adminlog("Records Check",message.member,"Checked records.",m);
 					let data = await info.load(m);
-					if(data.records){
-						let filter=args[3];
-						let records=data.records;
-						if(["warns","mutes","bans"].includes(filter)) records=data.records.filter(t=>(t.type+"s")===filter);
-						let embed=new Discord.MessageEmbed().setDescription("<@"+m.id+">'s record:").setColor("ORANGE")
-						.addField("Records",(records.map(r=>"`"+new Date(r.timestamp).toLocaleString()+"`     <@!"+r.mod+">      "+r.name+" - "+(r.reason||"Reason Unspecified")).join("\n")||"N/A"),true);
-						if(["warns","mutes","bans"].includes(filter)) embed=embed.setDescription("<@"+m.id+">'s "+filter+":")
-						message.channel.send(embed);
-					} else {
-						message.channel.send(new Discord.MessageEmbed().setDescription("<@"+m.id+">'s record is clean!").setColor("GREEN"));	
-					}
+					if(data.records==undefined) data.records=[];
+					let filter=args[3];
+					let records=data.records;
+					if(["warns","mutes","bans"].includes(filter)) records=data.records.filter(t=>(t.type+"s")===filter);
+					let embed=new Discord.MessageEmbed().setDescription("<@"+m.id+">'s record:").setColor("ORANGE")
+					.addField("Records",(records.map(r=>"`"+new Date(r.timestamp).toLocaleString()+"`     <@!"+r.mod+">      "+r.name+" - "+(r.reason||"Reason Unspecified")).join("\n")||"N/A"),true);
+					if(["warns","mutes","bans"].includes(filter)) embed=embed.setDescription("<@"+m.id+">'s "+filter+":")
+					message.channel.send(embed);
 				} else {
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct member.").setColor("RED"));	
 				}
@@ -1669,6 +1683,8 @@ client.on("voiceStateUpdate",async (o,n)=>{
 			await n.member.guild.channels.cache.get("729354613064728636").send(new Discord.MessageEmbed().setDescription("<@!"+o.member.id+"> left **" + o.channel.name + "**").setColor("RED"));
 			await n.member.roles.remove(["729502041122013195","729502308634853456"]);
 		} else if(mvcs.includes(o.channel.id)){
+			if(o.channel.members.array().find(i=>i.id=="730404483519086605")&&o.channel.members.size==1) pitch.player.stop(o.channel.guild.id);
+			if(o.channel.members.array().find(i=>i.id=="730406806316384309")&&o.channel.members.size==1) treble.player.stop(o.channel.guild.id);
 			await n.member.guild.channels.cache.get("728029565607346227").send(new Discord.MessageEmbed().setDescription("<@!"+o.member.id+"> left **" + o.channel.name + "**").setColor("RED"));
 			await n.member.roles.remove(["729502041122013195","729502308634853456"]);
 		}
@@ -1678,7 +1694,7 @@ client.on("voiceStateUpdate",async (o,n)=>{
 client.on('messageUpdate',(om,nm)=>{
 	if(nm.author.bot) return;
 	if(nm.content===om.content) return;
-	log(new Discord.MessageEmbed().setAuthor(nm.author.tag,nm.author.displayAvatarURL()).setColor("BLUE").setDescription("Message Edit").addField("Member","<@!"+nm.member.id+">",true).addField("Channel","<#"+nm.channel.id+">",true).addField("Old content",(om.cleanContent||"Empty message.")).addField("New content",(nm.cleanContent||"Empty message.")).setFooter("Message ID: "+nm.id).setTimestamp());
+	log(new Discord.MessageEmbed().setAuthor(nm.author.tag,nm.author.displayAvatarURL()).setColor("BLUE").setDescription("Message Edit").addField("Member","<@!"+nm.member.id+">",true).addField("Channel","<#"+nm.channel.id+">",true).addField("Old content",(om.content||"Empty message.")).addField("New content",(nm.content||"Empty message.")).setFooter("Message ID: "+nm.id).setTimestamp());
 })
 client.on('messageDelete',(dm)=>{
 	if(dm.author.bot) return;
@@ -1689,10 +1705,7 @@ client.on('messageDelete',(dm)=>{
 client.on('guildMemberAdd',async member=>{
 
 	let data=await info.load(member.id);
-	if(data.mute&&data.mute>Date.now()) await member.roles.add("728216095835815976");
-	if((member.lastLeft!=undefined)&&(member.lastLeft<Date.now()+60*10000)) member.kick().then(member=>{
-		member.user.send("You need to wait 10 minutes before joining again.")
-	}) 
+	if((data.mute)&&(data.mute>Date.now())) await member.roles.add("728216095835815976");
 	log(new Discord.MessageEmbed().setAuthor(member.user.tag,member.user.displayAvatarURL()).setColor("BLUE").setDescription("New member").addField("Member","<@!"+member.id+">").setFooter("Member ID: "+member.id).setTimestamp());
 	var startRoles=["728018741174075412","728212856046223480","728035160448041021","728018742965174382","728031955685343312","728214239784861776","728032333671825479","729438972161556610"];
 	var welcome_channel=member.guild.channels.cache.get("728008557911605340");
@@ -1703,14 +1716,8 @@ client.on('guildMemberAdd',async member=>{
 });
 
 client.on('guildMemberRemove',member=>{
-	log(new Discord.MessageEmbed().setAuthor(member.user.tag,member.user.displayAvatarURL()).setColor("ORANGE").setDescription("Member left").addField("Member",member.user.nametag).setFooter("Member ID: "+member.id).setTimestamp());
+	log(new Discord.MessageEmbed().setAuthor(member.user.tag,member.user.displayAvatarURL()).setColor("ORANGE").setDescription("Member left").addField("Member",member.user.tag).setFooter("Member ID: "+member.id).setTimestamp());
 });
-
-client.on('guildMemberRemove',member=>{
-	
-	member.lastLeft=Date.now();
-
-})
 
 
 // -------------------------------------------
@@ -2043,7 +2050,7 @@ async function musicMessage(message){
 	}
 }
 process.on("unhandledRejection", error => {
-	log(new Discord.MessageEmbed().setColor("RED").setDescription("**Unhandled Promise Rejection:**\n\n"+error.toString()).setTimestamp());
+	log(new Discord.MessageEmbed().setColor("RED").setDescription("**Unhandled Promise Rejection:**\n```js\n"+error.toString()+"\n```").setTimestamp());
 });
 
 let dataStorage=[];
