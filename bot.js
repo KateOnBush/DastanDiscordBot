@@ -824,13 +824,35 @@ client.on('message',async message=>{
 	var args=message.content.toLowerCase().split(" ");
 	var args_case=message.content.split(" ");
 	//Global commands
+	if(args[0]==="ows"&&message.channel.id==="729804987714109470"){
+		if(args[1]==="start"){
+			message.channel.ows=true;
+			message.channel.owstory=[];
+			message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("One word story started!"))
+		} else if(args[1]==="end"){
+			message.channel.ows=false;
+			message.channel.owstory=(message.channel.owstory||[]);
+			if(message.channel.owstory.length==1){
+				message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("One word story ended! No story recorded :/"))	
+			} else {
+				await message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("One word story ended, story:"))
+				message.channel.send(message.channel.owstory.join(" "));
+			}
+		}
+		
+		
+	} else {
+		if(message.channel.ows==true){
+			message.channel.owstory=(message.channel.owstory||[]).push(message.content);
+		}
+	}
 	if(args[0]==="nextevent"){
 		let server = await info.load("SERVER");
 		if(!server.events) server.events=[];
 		server.events.sort((a,b)=>b.time-a.time);
 		if(server.events[0]&&server.events[0].time){
 			if(server.events[0].time-Date.now()<5000){
-				message.channel.send(new Discord.MessageEmbed().setColor("CYAN").setDescription("🥳 Event **"+server.events[0].name+"** is already in progress!"));	
+				return message.channel.send(new Discord.MessageEmbed().setColor("AQUA").setDescription("🥳 Event **"+server.events[0].name+"** is already in progress!"));	
 			}
 			message.channel.send(new Discord.MessageEmbed().setColor("BLUE").setDescription("🎉 Next event starts in "+msToString(server.events[0].time-Date.now())));
 		} else {
