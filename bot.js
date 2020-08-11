@@ -32,7 +32,7 @@ if(event.time-Date.now()<5000){
 }
 return new Discord.MessageEmbed().setColor(color).setTitle(event.name).setDescription(event.desc)
 .addField("Host","<@!"+event.host+">",true).addField("Time",new Date(event.time).toString(),true)
-.addField("People coming",(event.peopleComing.map(t=>"<@!"+t.id+">").join(", ")||"No one.")).addField("Status",ti);	
+.addField("People coming",(event.peopleComing.map(t=>"<@!"+t+">").join(", ")||"No one.")).addField("Status",ti);	
 }
 
 function validURL(str) {
@@ -486,6 +486,7 @@ client.on('raw',async event=>{
 				if(!event) return;
 				if(!event.peopleComing) event.peopleComing=[];
 				if(react.emoji.name=="🎉") {
+					react.users.remove(member.id);
 					if(event.peopleComing.includes(member.id)){
 						event.peopleComing.splice(event.peopleComing.indexOf(member.id));
 						if(event.time-Date.now()<5000) member.roles.remove("730056362029219911");
@@ -498,7 +499,8 @@ client.on('raw',async event=>{
 					let embed=eventEmbed(event);
 					react.message.edit(react.message.content,embed);
 				}
-				if(react.emoji.name=="🔔") {	
+				if(react.emoji.name=="🔔") {
+					react.users.remove(member.id);
 					if(event.reminders.includes(member.id)){
 						event.reminders.splice(event.reminders.indexOf(member.id));
 						member.send(new Discord.MessageEmbed().setDescription("You turned off reminders for the event: **"+event.name+"**.").setColor("ORANGE"))
@@ -818,7 +820,19 @@ client.on('message',async message=>{
 	var args=message.content.toLowerCase().split(" ");
 	var args_case=message.content.split(" ");
 	//Global commands
-	if(args[0]=="mod"&&message.member.hasPermission("MANAGE_MESSAGES")){
+	if(args[0]==="nextevent"){
+		let server = await info.load("SERVER");
+		if(!server.events) server.events=[];
+		server.events.sort((a,b)=>b.time-a.time);
+		if(server.events[0]&&server.events[0].time){
+			if(server.events[0].time-Date.now()<5000){
+				message.channel.send(new Discord.MessageEmbed().setColor("CYAN").setTitle("Event **"+server.events[0].name+"** is already in progress!"));	
+			}
+			message.channel.send(new Discord.MessageEmbed().setColor("BLUE").setTitle("Next event starts in "+msToString(server.events[0].time-Date.now())));
+		} else {
+			message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setTitle("There are no planned events currently."));
+		}
+	} else if(args[0]=="mod"&&message.member.hasPermission("MANAGE_MESSAGES")){
 		let commands=[{
 			name: "warn",
 			description: "Warn a member.",
