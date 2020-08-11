@@ -492,7 +492,7 @@ client.on('raw',async event=>{
 				if(react.emoji.name=="🎉") {
 					react.users.remove(member.id);
 					if(event.peopleComing.includes(member.id)){
-						event.peopleComing.splice(event.peopleComing.indexOf(member.id));
+						event.peopleComing.splice(event.peopleComing.indexOf(member.id),1);
 						if(event.time-Date.now()<5000) member.roles.remove("730056362029219911");
 						member.send(new Discord.MessageEmbed().setDescription("You've left the event: **"+event.name+"**.").setColor("ORANGE"))
 					} else {
@@ -506,7 +506,7 @@ client.on('raw',async event=>{
 				if(react.emoji.name=="🔔") {
 					react.users.remove(member.id);
 					if(event.reminders.includes(member.id)){
-						event.reminders.splice(event.reminders.indexOf(member.id));
+						event.reminders.splice(event.reminders.indexOf(member.id),1);
 						member.send(new Discord.MessageEmbed().setDescription("You turned off reminders for the event: **"+event.name+"**.").setColor("ORANGE"))
 					} else {
 						event.reminders.push(member.id);
@@ -992,7 +992,7 @@ client.on('message',async message=>{
 							if(server.events.find(ev=>ev.id===args[3]).messageID) message.guild.channels.cache.get(eventChannelID).messages.fetch(server.events.find(ev=>ev.id===args[3]).messageID).then(async msg=>{
 							msg.delete()
 							}).catch(err=>{})
-							server.events.splice(server.events.findIndex(ev=>ev.id===args[3]));
+							server.events.splice(server.events.findIndex(ev=>ev.id===args[3]),1);
 							message.channel.send(new Discord.MessageEmbed().setDescription("Event with ID **"+args[3]+"** successfully deleted.").setColor("GREEN"));
 						}
 					} else {
