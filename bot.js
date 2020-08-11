@@ -23,6 +23,18 @@ function getURL(url,h){
 		})
 	})
 }
+function eventEmbed(event){
+let color ="GREEN";
+let ti="Starts in "+msToString(event.time-Date.now());
+if(event.time-Date.now()<5000){
+	color = "BLUE"
+	ti="In progress";
+}
+return new Discord.MessageEmbed().setColor(color).setTitle(event.name).setDescription(event.desc)
+.addField("Host","<@!"+event.host+">",true).addField("Time",new Date(event.time).toString(),true)
+.addField("People coming",(event.peopleComing.map(t=>"<@!"+t.id+">").join(", ")||"No one.")).addField("Status",ti);	
+}
+
 function validURL(str) {
   var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
     '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
@@ -69,6 +81,8 @@ async function loadProfile(member){
 			backgroundCol=data.back;
 		}
 	}
+	let name=member.user.username;
+	let tag=member.user.tag.replace(member.user.username,"");
 	let avatar=await Canvas.resolveImage(member.user.displayAvatarURL({format: 'png'}));
 	let avatarCanvas =await Canvas.resolveImage(new Canvas.Canvas(80,80).printCircularImage(avatar,40,40,40).clearCircle(67.5,67.5,15).toDataURL());
 	let canvas = new Canvas.Canvas(500, 270).setColor((backgroundCol||"#36393e")).printRoundedRectangle(0, 0, 500, 270,15);
@@ -77,7 +91,9 @@ async function loadProfile(member){
 .setTextFont('20px Impact').setShadowColor('#000000').setShadowBlur(30).printImage(avatarCanvas,24,24,80,80).setGlobalAlpha(0.6).setColor("#000000")
 	.setShadowBlur(0).printRoundedRectangle(120,79,500-120-24,25,12.5).setGlobalAlpha(1)
 	.setColor(stat).printCircle(91.5,91.5,11).setShadowBlur(10)
-.setColor(member.displayHexColor).printRoundedRectangle(124,83,(500-120-24-8)*xpc,17,12.5).printText(member.user.tag, 120, 45).setTextAlign('right').setColor("#cfc402").setShadowBlur(0).printText("#"+rank,500-28,45).setColor(member.displayHexColor).setTextFont('10px Impact').setShadowBlur(4).printText((xpc*100|0)+"%",500-28,75).setTextAlign('left').setShadowBlur(4).setColor("#ffffff").setTextFont('12px Impact')
+.setColor(member.displayHexColor).printRoundedRectangle(124,83,(500-120-24-8)*xpc,17,12.5);
+	let tg = canvas.measureText(name);
+	canvas = canvas.printText(name, 120, 45).setGlobalAlpha(0.5).setGlobalAlpha(1).setTextFont('13px Impact').printText(tag,120+tg.width,45).setTextFont('20px Impact').setTextAlign('right').setColor("#cfc402").setShadowBlur(0).printText("#"+rank,500-28,45).setColor(member.displayHexColor).setTextFont('10px Impact').setShadowBlur(4).printText((xpc*100|0)+"%",500-28,75).setTextAlign('left').setShadowBlur(4).setColor("#ffffff").setTextFont('12px Impact')
     	.printText((data.pname||""), 120, 62)
 	.setShadowBlur(6).setTextFont('12px Impact')
 	.setColor("white").printText("Bio:",24,126).setColor(member.displayHexColor).printWrappedText((data.bio||"No bio set."), 70, 126,500-24-70)
@@ -85,7 +101,7 @@ async function loadProfile(member){
 	.setColor("white").printText("Gold :",240,180).setColor(member.displayHexColor).printText(numberBeautifier(data.gold,","), 286, 180)
 	.setColor("white").printText("Average Daily Activity Points :",24,200).setColor(member.displayHexColor).printText(numberBeautifier(data.messageAveragePerDay,","), 240, 200)
 	.setColor("white").printText("All-Time Activity Points :",24,220).setColor(member.displayHexColor).printText(numberBeautifier(data.messagesEverSent,","), 240, 220)
-	.setColor("white").printText("Member since: ",24,240).setColor(member.displayHexColor).printText(member.joinedAt.toLocaleDateString()+"", 240, 240)
+	.setColor("white").printText("Member since: ",24,240).setColor(member.displayHexColor).printText(new Date(data.joined||member.joinedTimestamp).toLocaleDateString()+"", 240, 240)
     	.toBuffer();
 	
 	return canvas;
@@ -142,6 +158,44 @@ function timeformatToSeconds(f){
 function levelXp(level){
 return 30*level*(1+level);
 }
+
+async function eventTimer(event){
+	if(event.time-Date.now()<(3600*24*1000*2)){
+		let remind = async function(){
+			let server = await info.load("SERVER");
+			let evo = server.events.find(ev=>ev.id==event.id);
+			if(evo&&evo.time==event.time){
+				let msg= await client.channels.cache.get("728022865622073446").fetch(evo.messageID);
+				evo.reminders.forEach(p=>{
+					let mem=client.guilds.cache.first().member(p);
+					if(mem) mem.send(new Discord.MessageEmbed().setColor("BLUE").setDescription("Event **"+evo.name+"** starts in "+msToString(evo.time-Date.now())+"."));
+				});
+				msg.edit(msg.content,eventEmbed(evo));
+			}
+		}
+		let start = async function(){
+			let server = await info.load("SERVER");
+			let evo = server.events.find(ev=>ev.id==event.id);
+			if(evo&&evo.time==event.time){
+				let msg= await client.channels.cache.get("728022865622073446").fetch(evo.messageID);
+				evo.peopleComing.forEach(p=>{
+					let mem=client.guilds.cache.first().member(p);
+					mem.roles.add("730056362029219911");
+					if(mem) mem.send(new Discord.MessageEmbed().setColor("BLUE").setDescription("🥳 Event **"+evo.name+"** has started!!"));
+				});
+				msg.edit(msg.content,eventEmbed(evo));
+			}
+		}
+		let hour=3600*1000;
+		if(event.time-24*hour>Date.now()) setTimeout(remind,event.time-24*hour-Date.now())
+		if(event.time-6*hour>Date.now()) setTimeout(remind,event.time-6*hour-Date.now())
+		if(event.time-3*hour>Date.now()) setTimeout(remind,event.time-3*hour-Date.now())
+		if(event.time-1*hour>Date.now()) setTimeout(remind,event.time-1*hour-Date.now())
+		if(event.time-0.5*hour>Date.now()) setTimeout(remind,event.time-0.5*hour-Date.now())
+		if(event.time-0.25*hour>Date.now()) setTimeout(remind,event.time-0.25*hour-Date.now())
+		if(event.time>Date.now()) setTimeout(start,event.time-Date.now())
+	}
+}
 function restart(){
 	log(new Discord.MessageEmbed().setColor("ORANGE").setDescription("Restarting..."))
 	var token = '47e28c9c-9dd4-47b7-9219-d3c0d65ee334';
@@ -163,72 +217,14 @@ function restart(){
 	    }
 	)	
 }
-function eventReminder(){
-
-	client.guilds.cache.array()[0].channels.cache.get("728022865622073446").messages.fetch({limit:1}).then(ms=>{
-		let message=ms.array()[0];
-		let em=message.embeds[0];
-		if((em!=undefined)&&(em.footer!=undefined)){
-			let time=parseInt(em.footer.text.replace("!eventannounce ",""));
-			if((time!=NaN)&&(time-Date.now()>0)){
-				if(time-Date.now()>0) setTimeout(function(){
-					message.guild.roles.fetch("730598527654297771").then(role=>{
-						role.members.array().forEach(member=>{
-							member.send(new Discord.MessageEmbed().setDescription("🔔 Event is starting shortly...").setColor("PURPLE"));
-						});
-					});
-				},time-Date.now());
-				
-				if(time-Date.now()-3600*1000>0) setTimeout(function(){
-					message.guild.roles.fetch("730598527654297771").then(role=>{
-						role.members.array().forEach(member=>{
-							member.send(new Discord.MessageEmbed().setDescription("🔔 Event is starting in **1** hour!").setColor("PURPLE"));
-						});
-					});
-				},time-Date.now()-3600*1000);
-				
-				if(time-Date.now()-1800*1000>0) setTimeout(function(){
-					message.guild.roles.fetch("730598527654297771").then(role=>{
-						role.members.array().forEach(member=>{
-							member.send(new Discord.MessageEmbed().setDescription("🔔 Event is starting in **30** minutes!").setColor("PURPLE"));
-						});
-					});
-				},time-Date.now()-1800*1000);
-				
-				if(time-Date.now()-900*1000>0) setTimeout(function(){
-					message.guild.roles.fetch("730598527654297771").then(role=>{
-						role.members.array().forEach(member=>{
-							member.send(new Discord.MessageEmbed().setDescription("🔔 Event is starting in **15** minutes!").setColor("PURPLE"));
-						});
-					});
-				},time-Date.now()-900*1000);
-				
-				if(time-Date.now()-300*1000>0) setTimeout(function(){
-					message.guild.roles.fetch("730598527654297771").then(role=>{
-						role.members.array().forEach(member=>{
-							member.send(new Discord.MessageEmbed().setDescription("🔔 Event is starting in **5** minutes!").setColor("PURPLE"));
-						});
-					});
-				},time-Date.now()-300*1000);
-				
-				if(time-Date.now()-3600*3*1000>0) setTimeout(function(){
-					message.guild.roles.fetch("730598527654297771").then(role=>{
-						role.members.array().forEach(member=>{
-							member.send(new Discord.MessageEmbed().setDescription("🔔 Event is starting in **3** hours!").setColor("PURPLE"));
-						});
-					});
-				},time-Date.now()-3600*3*1000);
-			}
-		}
-	})
-	
-}
 function numberBeautifier(number,sep){
   return (number+"").split("").map((item,i,array)=>{if((array.length-i-1)%3==0&&(i!=array.length-1)) return item+sep; else return item;}).join("");
 }
-function membershipUpdate(member){
+async function membershipUpdate(member){
 		//Membership
-		var days=((Date.now()-member.joinedTimestamp)/(1000*24*3600));
+		let data=await info.load(member.id);
+		let join=(data.joined||member.joinedTimestamp);
+		var days=((Date.now()-join)/(1000*24*3600));
 		var roles=["728214239784861776","730628941429342208","728214473638412310","728214612222410784","728214677578055713","728214723182723183","728214892187746365"]
 		var change=0;
 		if(days>730){
@@ -294,6 +290,7 @@ async function updateProfile(member,points){
 		}
 		c.messagesSentToday+=points;
 		c.messagesEverSent+=points*mult;
+		if(c.joined==undefined) c.joined=member.joinedTimestamp;
 		var level=c.level;
 		let gold=c.gold;
 		while(c.messagesEverSent>levelXp(level)){
@@ -400,7 +397,7 @@ client.on('ready',async ()=>{
 		status: "online",
 		afk: false,
 		activity: {
-			name: client.guilds.cache.array()[0].members.cache.array().length+" members do nothing.",
+			name: "#commands —— help",
 			type: "WATCHING",
 			url: null
 		}});
@@ -463,9 +460,17 @@ client.on('ready',async ()=>{
 			}
 		}
 	})
+	let server = await info.load("SERVER");
+	server.events.forEach(event=>{
+		let message = undefined;
+		try{
+		if(event.messageID) message = await client.channels.cache.get("728022865622073446").fetch(event.messageID);}catch(err){}
+		if(message) message.edit(message.content,eventEmbed(event));
+		eventTimer(event);
+	})
 })
 
-client.on('raw',event=>{
+client.on('raw',async event=>{
 	if(event.t=="MESSAGE_REACTION_ADD"){
 		const data=event.d;
 		const channel = client.channels.resolve(data.channel_id);
@@ -475,21 +480,37 @@ client.on('raw',event=>{
 			const member = message.guild.members.resolve(data.user_id);
 			if(member.user.bot==true) return;
 			if(react.message.channel.id=="728022865622073446"){
-				react.message.channel.messages.fetch({limit: 2}).then(messages=>{
-					if(messages.array()[0].embeds[0]==undefined) return;
-					if(!(messages.array()[0].embeds[0].footer||{text:""}).text.includes("!eventend")){
-						if(messages.array().includes(message)){
-							if(react.emoji.name=="🎉") {
-								member.roles.add("730056362029219911");
-								member.send(new Discord.MessageEmbed().setDescription("You've joined the event!").setColor("GREEN"))
-							}
-							if(react.emoji.name=="🔔") {
-								member.roles.add("730598527654297771");
-								member.send(new Discord.MessageEmbed().setDescription("You've activated reminder for the event!").setColor("GREEN"))
-							}
-						}
+				let server = await info.load("SERVER");
+				if(!server.events) server.events=[];
+				let event = server.events.find(ev=>ev.messageID===react.message.id);
+				if(!event) return;
+				if(!event.peopleComing) event.peopleComing=[];
+				if(react.emoji.name=="🎉") {
+					if(event.peopleComing.includes(member.id)){
+						event.peopleComing.splice(event.peopleComing.indexOf(member.id));
+						if(event.time-Date.now()<5000) member.roles.remove("730056362029219911");
+						member.send(new Discord.MessageEmbed().setDescription("You've left the event: **"+event.name+"**.").setColor("ORANGE"))
+					} else {
+						event.peopleComing.push(member.id);
+						if(event.time-Date.now()<5000) member.roles.add("730056362029219911");
+						member.send(new Discord.MessageEmbed().setDescription("You've joined the event: **"+event.name+"**.").setColor("GREEN"))
 					}
-				});
+					let embed=eventEmbed(event);
+					react.message.edit(react.message.content,embed);
+				}
+				if(react.emoji.name=="🔔") {	
+					if(event.reminders.includes(member.id)){
+						event.reminders.splice(event.reminders.indexOf(member.id));
+						member.send(new Discord.MessageEmbed().setDescription("You turned off reminders for the event: **"+event.name+"**.").setColor("ORANGE"))
+					} else {
+						event.reminders.push(member.id);
+						member.send(new Discord.MessageEmbed().setDescription("You turned on reminders for for the event: **"+event.name+"**.").setColor("GREEN"))
+					}
+					let embed=eventEmbed(event);
+					react.message.edit(react.message.content,embed);
+				}
+				server.events[server.events.findIndex(ev=>ev.messageID===react.message.id)] = event;
+				info.save("SERVER",server);
 			}
 			if(react.message.channel.id!="729298706188468234") return;
 			react.users.remove(member.id);
@@ -512,32 +533,6 @@ client.on('raw',event=>{
 				} else {
 					member.roles.add(roleToAdd);
 				}
-			}
-		});
-	} else if(event.t=="MESSAGE_REACTION_REMOVE"){
-		const data=event.d;
-		const channel = client.channels.resolve(data.channel_id);
-		channel.messages.fetch(data.message_id).then(message=>{
-			const emojiKey = (data.emoji.id) ? `${data.emoji.id}` : data.emoji.name;
-			const react = message.reactions.cache.get(emojiKey);
-			const member = message.guild.members.resolve(data.user_id);
-			if(member.user.bot==true) return;
-			if(react.message.channel.id=="728022865622073446"){
-				react.message.channel.messages.fetch({limit: 2}).then(messages=>{
-					if(messages.array()[0].embeds[0]==undefined) return;
-					if(!(messages.array()[0].embeds[0].footer||{text:""}).text.includes("!eventend")){
-						if(messages.array().includes(message)){
-							if(react.emoji.name=="🎉") {
-								member.roles.remove("730056362029219911");
-								member.send(new Discord.MessageEmbed().setDescription("You've left the event!").setColor("RED"))
-							}
-							if(react.emoji.name=="🔔") {
-								member.roles.remove("730598527654297771");
-								member.send(new Discord.MessageEmbed().setDescription("You've desactivated reminder for the event!").setColor("RED"))
-							}
-						}
-					}
-				});
 			}
 		});
 	}
@@ -855,11 +850,11 @@ client.on('message',async message=>{
 		},{
 			name: "clearchat",
 			description: "Clear the chat",
-			usage: "clear <message count>"
+			usage: "clearchat <message count>"
 		},{
 			name: "event",
 			description: "Manage events (if you're a mod and you want to host an event, please get authorisation first)",
-			usage: "event <create,delete,set> (name,desc,time,type) (id)"
+			usage: "event <create,delete,set,announce> (name,desc,time/id) (id)"
 		}];
 		if(args[1]=="help"){
 			let embed=new Discord.MessageEmbed().setColor("BLUE").setTitle("Moderation commands help:")
@@ -868,15 +863,175 @@ client.on('message',async message=>{
 			if(args[2]&&commands.find(t=>t.name===args[2])){
 				let cmd=commands.find(t=>t.name===args[2]);
 				embed=new Discord.MessageEmbed().setColor("BLUE").setTitle("Command help: "+cmd.name)
-				.addField("Description",cmd.description)
-				.addField("Command for",cmd.type,true)
+				.addField("Description",cmd.description,true)
 				.addField("Usage",cmd.usage,true)
 				.setTimestamp().setAuthor(message.author.tag,message.author.displayAvatarURL());
 			}
 			message.channel.send(embed);
 		} else if(message.member.roles.cache.array().find(t=>t.id=="728034436997709834"||t.id=="728034751780356096")){ //Moderator/Admin
 			
-			if(["record","records","rec"].includes(args[1])){
+			if(["event","events"].includes(args[1])){
+				let server = await info.load("SERVER");
+				if(!server.events) server.events=[];
+				if(args[2]==="list"){
+					
+					let eventlist=server.events.map(ev=>`${ev.messageID ? `:yes:` : ':no:' }` + " `"+ev.id+"` - "+ev.name+" ("+new Date(ev.time).toLocaleDateString()+")").join("\n")
+					message.channel.send(new Discord.MessageEmbed().setColor("BLUE").setDescription("**Event list**\n\n"+eventlist))
+					
+				} else if(args[2]==="end"){
+					
+					let current=server.events.find(ev=>ev.time-Date.now()<5000);
+					if(current){
+						if(current.host===message.member.id){
+							current.peopleComing.forEach(t=>{
+								let g=message.guild.member(t);
+								if(!g) return;
+								g.roles.remove("730056362029219911");
+								g.send(new Discord.MessageEmbed().setDescription("Event **"+current.name+"** has ended! :(").setColor("ORANGE"))
+							})
+							let m=undefined;
+							try{
+								m=message.guild.channels.get("728022865622073446").fetch(current.messageID);
+							}catch(err){}
+							if(m) m.delete();
+							message.channel.send(new Discord.MessageEmbed().setDescription("Event **"+current.name+"**ended!").setColor("RED"))
+							server.events.splice(server.events.findIndex(v=>v.id===current.id));
+							
+						} else {
+							message.channel.send(new Discord.MessageEmbed().setDescription("You are not the host of the current event :(").setColor("RED"))	
+						}
+					} else {
+						message.channel.send(new Discord.MessageEmbed().setDescription("No event in progress.").setColor("RED"))	
+					}
+					
+				} else if(args[2]==="create"){
+					if(args[3]){
+						if(server.events.find(ev=>ev.id===args[3])){
+							message.channel.send(new Discord.MessageEmbed().setDescription("An event already exists with the ID **"+args[3]+"**.").setColor("RED"));	
+						} else {
+							server.events.push({
+								id: args[3],
+								createdAt: Date.now()
+							})
+							message.channel.send(new Discord.MessageEmbed().setDescription("Event with ID **"+args[3]+"** successfully created.").setColor("GREEN"));
+						}
+					} else {
+						message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct event ID.").setColor("RED"));
+					}
+				} else if(args[2]==="announce"||args[2]==="update"){
+					if(args[3]){
+						if(!server.events.find(ev=>ev.id===args[3])){
+							message.channel.send(new Discord.MessageEmbed().setDescription("No event exists with the ID **"+args[3]+"**.").setColor("RED"));	
+						} else {
+							let event=server.events.find(ev=>ev.id===args[3]);
+							let eventInd=server.events.findIndex(ev=>ev.id===args[3]);
+							let err=undefined;
+							if(!event.name) err="Name is missing.";
+							if(!event.desc) err="Description is missing.";
+							if(!event.time) err="Time is missing.";
+							if(event.time&&Date.now()>event.time) err="Event already started.";
+							if(err){
+								message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't announce/update the event: "+err).setColor("RED"));
+							} else {
+								event.host=message.member.id;
+								event.announced=Date.now();
+								event.peopleComing=(event.peopleComing||[]);
+								let role = await message.guild.roles.fetch("731828010923065405");
+								event.peopleComing.push(role.members.array());
+								eventTimer(event);
+								let embed=eventEmbed(event);
+								let mm=undefined;
+								if(event.messageID){
+									try{
+										mm=await message.guild.channels.cache.get("728022865622073446").fetch(event.messageID)
+									}catch(err){}
+								}
+								if(mm){
+									await mm.edit("<@&728223648942653451> <@&728224459487576134>",embed);
+									message.channel.send(new Discord.MessageEmbed().setDescription("Event with ID **"+args[3]+"** successfully updated!").setColor("GREEN"));
+								} else {
+									role.members.array().forEach(m=>{
+										m.send(new Discord.MessageEmbed().setDescription("🥳 You have automatically joined **"+event.name+"**!").setColor("GREEN"))
+									})
+									let msg=await message.guild.channels.cache.get("728022865622073446").send("<@&728223648942653451> <@&728224459487576134>",embed);
+									await msg.react("🎉");
+									await msg.react("🔔");
+									event.messageID=msg.id;
+									message.channel.send(new Discord.MessageEmbed().setDescription("Event with ID **"+args[3]+"** successfully announced!").setColor("GREEN"));
+								}
+							}
+							server.events[eventInd]=event;
+						}
+					} else {
+						message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct event ID.").setColor("RED"));
+					}
+				} else if(args[2]==="delete"){
+					if(args[3]){
+						if(!server.events.find(ev=>ev.id===args[3])){
+							message.channel.send(new Discord.MessageEmbed().setDescription("No event exists with the ID **"+args[3]+"**.").setColor("RED"));	
+						} else {
+							if(server.events.find(ev=>ev.id===args[3]).messageID) message.guild.channels.cache.get("728022865622073446").fetch(server.events.find(ev=>ev.id===args[3]).messageID).then(async msg=>{
+							msg.delete()
+							}).catch(err=>{})
+							server.events.splice(server.events.findIndex(ev=>ev.id===args[3]));
+							message.channel.send(new Discord.MessageEmbed().setDescription("Event with ID **"+args[3]+"** successfully deleted.").setColor("GREEN"));
+						}
+					} else {
+						message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct event ID.").setColor("RED"));
+					}
+				} else if(args[2]==="set"){
+					if(!args[3]||!["name","desc","time"].includes(args[3])){
+						message.channel.send(new Discord.MessageEmbed().setDescription("Please specify **name**, **desc**, **time**.").setColor("RED"))	
+					} else if(!args[4]){
+						message.channel.send(new Discord.MessageEmbed().setDescription("Please specify an event ID.").setColor("RED"))
+					} else if(!server.events.find(ev=>ev.id===args[4])){
+						message.channel.send(new Discord.MessageEmbed().setDescription("No event with that ID was found, please create one or check event list.").setColor("RED"))
+					} else if(server.events.find(ev=>ev.id===args[4]).time>Date.now()){
+						message.channel.send(new Discord.MessageEmbed().setDescription("Unable to edit event, it has already started.").setColor("RED"))	  
+					} else {
+						let event=server.events.find(ev=>ev.id===args[4]);
+						let eventM=undefined;
+						try{
+							if(event.messageID) eventM=await message.guild.channels.cache.get("728022865622073446").fetch(event.messageID);
+						}catch(err){
+							await message.channel.send(new Discord.MessageEmbed().setDescription("Event message was saved but couldn't find it, please re-announce the event.").setColor("RED"))
+							event.messageID=undefined;
+						}
+						if(args[3]==="name"){
+							let name = args.filter((ar,i)=>i>4).join(" ");
+							if(name&&name.length>5){
+								event.name=name;
+								message.channel.send(new Discord.MessageEmbed().setDescription("Name of event **"+args[4]+"** was updated successfully to **"+name+"**.").setColor("GREEN"))
+							} else {
+								message.channel.send(new Discord.MessageEmbed().setDescription("Event name must be longer than 5 characters.").setColor("RED"))
+							}
+						} else if(args[3]==="desc"){
+							let desc = args.filter((ar,i)=>i>4).join(" ");
+							if(desc&&desc.length>15){
+								event.desc=desc;
+								message.channel.send(new Discord.MessageEmbed().setDescription("Description of event **"+args[4]+"** was updated successfully to **"+desc+"**.").setColor("GREEN"))
+							} else {
+								message.channel.send(new Discord.MessageEmbed().setDescription("Event description must be longer than 15 characters.").setColor("RED"))
+							}
+						} else if(args[3]==="time"){
+							let time = args.filter((ar,i)=>i>4).join(" ");
+							let date = new Date(time);
+							if(!isNaN(date.getTime())&&date.getTime()>Date.now()){
+								event.time=date.getTime();
+								message.channel.send(new Discord.MessageEmbed().setDescription("Time of event **"+args[4]+"** was updated successfully to **"+date.toString()+"**.").setColor("GREEN"))
+							} else {
+								message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct date.\n**Example:** 13 aug 2020 15:00 or 15 january 2021 11:00 gmt+2").setColor("RED"))
+							}
+						}
+						
+						server.events[server.findIndex(ev=>ev.id===args[4])] = event;
+						
+					}
+				}
+				
+				await info.save("server",server);
+				
+			} else if(["record","records","rec"].includes(args[1])){
 				let m=message.mentions.members.first();
 				if(m&&!m.user.bot){
 					adminlog("Records Check",message.member,"Checked records.",m);
@@ -1377,7 +1532,7 @@ client.on('message',async message=>{
 		message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Meow!**").setImage("http://placekitten.com/"+width+"/"+height+"/"));
 	} else if(["leaderboard","board","list"].includes(args[0])){
 		sortMembers();
-		let embed=new Discord.MessageEmbed().setColor("AQUA").setDescription("**Leaderboard:**").addField("Rank",["🥇","🥈","🥉","**4**","**5**","**6**","**7**","**8**","**9**","**10**"].join("\n"),true).addField("Member",dataStorage.map((it,i)=>{if(i<10) return "<@!"+it.id+">\n"}).join(""),true).addField("Points",dataStorage.map((it,i)=>{if(i<10) return numberBeautifier(it.messagesEverSent,",")+" pts. (Level "+it.level+")\n"}).join(""),true);
+		let embed=new Discord.MessageEmbed().setColor("AQUA").setDescription("**Leaderboard:**").addField("Member",dataStorage.map((it,i)=>{if(i<10) return (["🥇","🥈","🥉","**4**","**5**","**6**","**7**","**8**","**9**","**10**"])[i] + " <@!"+it.id+"> " + numberBeautifier(it.messagesEverSent,",")+" pts. (Level "+it.level+")\n"}).join(""),true);
 		message.channel.send(embed)
 	} else if(args[0]=="gamble"){
 		let data = await info.load(message.member.id);
@@ -1392,7 +1547,8 @@ client.on('message',async message=>{
 			} else if(amount>data.gold){
 				message.channel.send(new Discord.MessageEmbed().setDescription("You do not have enough gold.").setColor("RED"));	
 			} else {
-				let gambled = Math.random()*2*amount|0;
+				let f=Math.random()*0.75+((Math.random()|0)*0.25);
+				let gambled = f*2*amount|0;
 				gambled += amount*((Math.random()*2)|0);
 				gambled -= amount;
 				data.gamblesToday+=1;
@@ -1673,25 +1829,6 @@ client.on("voiceStateUpdate",async (o,n)=>{
 	const mvcs=["728030297911853176","728029167286878240"];
 	if(n.member.user.bot) return;
 	if(n.channel==o.channel) return;
-	if(n.channel!=null){
-		log(new Discord.MessageEmbed().setAuthor(o.member.user.tag,o.member.user.displayAvatarURL()).setColor("GREEN").setDescription("Voice channel join").addField("Member","<@!"+o.member.id+">",true).addField("Joined voice channel",n.channel.name,true).setFooter("Channel ID: "+n.channel.id).setTimestamp());
-		if(vcs.includes(n.channel.id)){
-			await n.member.roles.remove(["729502041122013195","729502308634853456"])
-			await n.member.roles.add("729502041122013195");
-			await n.member.guild.channels.cache.get("729354613064728636").send(new Discord.MessageEmbed().setDescription("<@!"+n.member.id+"> joined **" + n.channel.name + "**").setColor("GREEN"));
-		} else if(mvcs.includes(n.channel.id)){
-			await n.member.roles.remove(["729502041122013195","729502308634853456"])
-			await n.member.roles.add("729502308634853456");
-			await n.member.guild.channels.cache.get("728029565607346227").send(new Discord.MessageEmbed().setDescription("<@!"+n.member.id+"> joined **" + n.channel.name + "**").setColor("GREEN"));
-		}
-		if(n.member.timer!=undefined) clearInterval(n.member.timer);
-		n.member.timer = setInterval(function(){
-		if((n.member.guild.members.cache.get(n.member.id).voice.channel==null)||(n.member.guild.members.cache.get(n.member.id).voice.channel.id=="728037836774703235")) clearInterval(n.member.timer); 
-		info.load(n.member.id).then(data=>{
-			updateProfile(n.member,Math.random()*10|0);
-		});
-		},60000)
-	} 
 	if(o.channel!=null){
 		log(new Discord.MessageEmbed().setAuthor(o.member.user.tag,o.member.user.displayAvatarURL()).setColor("RED").setDescription("Voice channel leave").addField("Member","<@!"+o.member.id+">",true).addField("Left voice channel",o.channel.name,true).setFooter("Channel ID: "+o.channel.id).setTimestamp());
 		if(vcs.includes(o.channel.id)){
@@ -1722,6 +1859,25 @@ client.on("voiceStateUpdate",async (o,n)=>{
 			await n.member.roles.remove(["729502041122013195","729502308634853456"]);
 		}
 	}
+	if(n.channel!=null){
+		log(new Discord.MessageEmbed().setAuthor(o.member.user.tag,o.member.user.displayAvatarURL()).setColor("GREEN").setDescription("Voice channel join").addField("Member","<@!"+o.member.id+">",true).addField("Joined voice channel",n.channel.name,true).setFooter("Channel ID: "+n.channel.id).setTimestamp());
+		if(vcs.includes(n.channel.id)){
+			await n.member.roles.remove(["729502041122013195","729502308634853456"])
+			await n.member.roles.add("729502041122013195");
+			await n.member.guild.channels.cache.get("729354613064728636").send(new Discord.MessageEmbed().setDescription("<@!"+n.member.id+"> joined **" + n.channel.name + "**").setColor("GREEN"));
+		} else if(mvcs.includes(n.channel.id)){
+			await n.member.roles.remove(["729502041122013195","729502308634853456"])
+			await n.member.roles.add("729502308634853456");
+			await n.member.guild.channels.cache.get("728029565607346227").send(new Discord.MessageEmbed().setDescription("<@!"+n.member.id+"> joined **" + n.channel.name + "**").setColor("GREEN"));
+		}
+		if(n.member.timer!=undefined) clearInterval(n.member.timer);
+		n.member.timer = setInterval(function(){
+		if((n.member.guild.members.cache.get(n.member.id).voice.channel==null)||(n.member.guild.members.cache.get(n.member.id).voice.channel.id=="728037836774703235")) clearInterval(n.member.timer); 
+		info.load(n.member.id).then(data=>{
+			updateProfile(n.member,Math.random()*10|0);
+		});
+		},60000)
+	} 
 	
 });
 client.on('messageUpdate',(om,nm)=>{
