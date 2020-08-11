@@ -32,7 +32,8 @@ if(event.time-Date.now()<5000){
 }
 return new Discord.MessageEmbed().setColor(color).setTitle(event.name).setDescription(event.desc)
 .addField("Host","<@!"+event.host+">",true).addField("Time",new Date(event.time).toString(),true)
-.addField("People coming",(event.peopleComing.map(t=>"<@!"+t+">").join(", ")||"No one.")).addField("Status",ti);	
+.addField("People coming",(event.peopleComing.map(t=>"<@!"+t+">").join(", ")||"No one.")).addField("Status",ti)
+.addField("How to join","React with 🎉 to join the event\n.React with 🔔 to activate reminders.");	
 }
 
 function validURL(str) {
@@ -405,7 +406,6 @@ client.on('ready',async ()=>{
 	client.channels.cache.get("728025726556569631").send(new Discord.MessageEmbed().setColor("GREEN").setDescription("Ready!"))
 	console.log("Ready!")
 	setTimeout(dropChest,50000);
-	eventReminder();
 	client.guilds.cache.array()[0].members.fetch().then(members=>{
 		members.array().forEach(member=>{
 			info.load(member.id).then(data=>{
@@ -485,6 +485,7 @@ client.on('raw',async event=>{
 				let event = server.events.find(ev=>ev.messageID===react.message.id);
 				if(!event) return;
 				if(!event.peopleComing) event.peopleComing=[];
+				if(!event.reminders) event.reminders=[];
 				if(react.emoji.name=="🎉") {
 					react.users.remove(member.id);
 					if(event.peopleComing.includes(member.id)){
@@ -2254,7 +2255,7 @@ async function musicMessage(message){
 	}
 }
 process.on("unhandledRejection", error => {
-	log(	new Discord.MessageEmbed().setColor("RED").setDescription("**Unhandled Promise Rejection:**\n```js\n"+error.toString()+"\n```").setTimestamp());
+	log(new Discord.MessageEmbed().setColor("RED").setDescription("**Unhandled Promise Rejection:**\n```js\n"+error.toString()+"\n```").setTimestamp().setFooter((error.fileName||"N/A") + " | line: "+(error.lineNumber||"N/A")));
 });
 
 let dataStorage=[];
