@@ -1049,8 +1049,7 @@ client.on('message',async message=>{
 						
 					}
 				}
-				
-				await info.save("server",server);
+				await info.save("SERVER",server);
 				
 			} else if(["record","records","rec"].includes(args[1])){
 				let m=message.mentions.members.first();
