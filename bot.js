@@ -461,7 +461,7 @@ client.on('ready',async ()=>{
 		}
 	})
 	let server = await info.load("SERVER");
-	server.events.forEach(event=>{
+	server.events.forEach(async event=>{
 		let message = undefined;
 		try{
 		if(event.messageID) message = await client.channels.cache.get("728022865622073446").fetch(event.messageID);}catch(err){}
@@ -474,7 +474,7 @@ client.on('raw',async event=>{
 	if(event.t=="MESSAGE_REACTION_ADD"){
 		const data=event.d;
 		const channel = client.channels.resolve(data.channel_id);
-		channel.messages.fetch(data.message_id).then(message=>{
+		channel.messages.fetch(data.message_id).then(async message=>{
 			const emojiKey = (data.emoji.id) ? `${data.emoji.id}` : data.emoji.name;
 			const react = message.reactions.cache.get(emojiKey);
 			const member = message.guild.members.resolve(data.user_id);
