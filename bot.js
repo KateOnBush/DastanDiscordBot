@@ -953,7 +953,7 @@ client.on('message',async message=>{
 								event.announced=Date.now();
 								event.peopleComing=(event.peopleComing||[]);
 								let role = await message.guild.roles.fetch("731828010923065405");
-								event.peopleComing.push(role.members.array());
+								role.members.array().forEach(m=>event.peopleComing.push(m.id));
 								eventTimer(event);
 								let embed=eventEmbed(event);
 								let mm=undefined;
