@@ -843,7 +843,8 @@ client.on('message',async message=>{
 		
 	} else {
 		if(message.channel.ows==true){
-			message.channel.owstory=(message.channel.owstory||[]).push(message.content);
+			message.channel.owstory=(message.channel.owstory||[]);
+			message.channel.owstory.push(message.content);
 		}
 	}
 	if(args[0]==="nextevent"){
