@@ -936,7 +936,7 @@ client.on('message',async message=>{
 					} else {
 						message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct event ID.").setColor("RED"));
 					}
-				} else if(args[2]==="announce"||args[2]==="update"){
+				} else if(["announce","update"].includes(args[2])){
 					if(args[3]){
 						if(!server.events.find(ev=>ev.id===args[3])){
 							message.channel.send(new Discord.MessageEmbed().setDescription("No event exists with the ID **"+args[3]+"**.").setColor("RED"));	
@@ -962,10 +962,13 @@ client.on('message',async message=>{
 								if(event.messageID){
 									try{
 										mm=await message.guild.channels.cache.get(eventChannelID).messages.fetch(event.messageID)
+										console.log("message found")
 									}catch(err){}
 								}
 								if(mm){
+									console.log("editing");
 									await mm.edit("<@&728223648942653451> <@&728224459487576134>",embed);
+									console.log("edited");
 									message.channel.send(new Discord.MessageEmbed().setDescription("Event with ID **"+args[3]+"** successfully updated!").setColor("GREEN"));
 								} else {
 									role.members.array().forEach(m=>{
