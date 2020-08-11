@@ -397,7 +397,7 @@ client.on('ready',async ()=>{
 		status: "online",
 		afk: false,
 		activity: {
-			name: "#commands —— help",
+			name: "#commands — help",
 			type: "WATCHING",
 			url: null
 		}});
@@ -875,7 +875,8 @@ client.on('message',async message=>{
 				if(!server.events) server.events=[];
 				if(args[2]==="list"){
 					
-					let eventlist=server.events.map(ev=>`${ev.messageID ? `:yes:` : ':no:' }` + " `"+ev.id+"` - "+ev.name+" ("+new Date(ev.time).toLocaleDateString()+")").join("\n")
+					let eventlist=server.events.map(ev=>`${ev.messageID ? `🌕` : '🌑' }` + " `"+ev.id+"` - "+(ev.name||"N/A")+" ("+new Date(ev.time).toLocaleDateString()+")").join("\n");
+					eventlist = (eventlist||"N/A.");
 					message.channel.send(new Discord.MessageEmbed().setColor("BLUE").setDescription("**Event list**\n\n"+eventlist))
 					
 				} else if(args[2]==="end"){
@@ -926,10 +927,10 @@ client.on('message',async message=>{
 							let event=server.events.find(ev=>ev.id===args[3]);
 							let eventInd=server.events.findIndex(ev=>ev.id===args[3]);
 							let err=undefined;
-							if(!event.name) err="Name is missing.";
-							if(!event.desc) err="Description is missing.";
-							if(!event.time) err="Time is missing.";
 							if(event.time&&Date.now()>event.time) err="Event already started.";
+							if(!event.time) err="Time is missing.";
+							if(!event.desc) err="Description is missing.";
+							if(!event.name) err="Name is missing.";
 							if(err){
 								message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't announce/update the event: "+err).setColor("RED"));
 							} else {
@@ -998,7 +999,7 @@ client.on('message',async message=>{
 							event.messageID=undefined;
 						}
 						if(args[3]==="name"){
-							let name = args.filter((ar,i)=>i>4).join(" ");
+							let name = args_case.filter((ar,i)=>i>4).join(" ");
 							if(name&&name.length>5){
 								event.name=name;
 								message.channel.send(new Discord.MessageEmbed().setDescription("Name of event **"+args[4]+"** was updated successfully to **"+name+"**.").setColor("GREEN"))
@@ -1006,7 +1007,7 @@ client.on('message',async message=>{
 								message.channel.send(new Discord.MessageEmbed().setDescription("Event name must be longer than 5 characters.").setColor("RED"))
 							}
 						} else if(args[3]==="desc"){
-							let desc = args.filter((ar,i)=>i>4).join(" ");
+							let desc = args_case.filter((ar,i)=>i>4).join(" ");
 							if(desc&&desc.length>15){
 								event.desc=desc;
 								message.channel.send(new Discord.MessageEmbed().setDescription("Description of event **"+args[4]+"** was updated successfully to **"+desc+"**.").setColor("GREEN"))
@@ -1014,7 +1015,7 @@ client.on('message',async message=>{
 								message.channel.send(new Discord.MessageEmbed().setDescription("Event description must be longer than 15 characters.").setColor("RED"))
 							}
 						} else if(args[3]==="time"){
-							let time = args.filter((ar,i)=>i>4).join(" ");
+							let time = args_case.filter((ar,i)=>i>4).join(" ");
 							let date = new Date(time);
 							if(!isNaN(date.getTime())&&date.getTime()>Date.now()){
 								event.time=date.getTime();
