@@ -1565,7 +1565,7 @@ client.on('message',async message=>{
 			} else if(amount>data.gold){
 				message.channel.send(new Discord.MessageEmbed().setDescription("You do not have enough gold.").setColor("RED"));	
 			} else {
-				let f=Math.random()*0.75+((Math.random()|0)*0.25);
+				let f=Math.random()*Math.random();
 				let gambled = f*2*amount|0;
 				gambled += amount*((Math.random()*2)|0);
 				gambled -= amount;
