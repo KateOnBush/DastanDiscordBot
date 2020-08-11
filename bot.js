@@ -1041,7 +1041,7 @@ client.on('message',async message=>{
 							}
 						}
 						
-						server.events[server.findIndex(ev=>ev.id===args[4])] = event;
+						server.events[server.events.findIndex(ev=>ev.id===args[4])] = event;
 						
 					}
 				}
@@ -2256,7 +2256,7 @@ async function musicMessage(message){
 	}
 }
 process.on("unhandledRejection", error => {
-	log(new Discord.MessageEmbed().setColor("RED").setDescription("**Unhandled Promise Rejection:**\n```js\n"+error.toString()+"\n```").setTimestamp().setFooter((error.fileName||"N/A") + " | line: "+(error.lineNumber||"N/A")));
+	log(new Discord.MessageEmbed().setColor("RED").setDescription("**Unhandled Promise Rejection:**\n```js\n"+error.stack+"\n```").setTimestamp());
 });
 
 let dataStorage=[];
