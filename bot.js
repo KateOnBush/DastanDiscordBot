@@ -31,10 +31,11 @@ if(event.time-Date.now()<5000){
 	color = "BLUE"
 	ti="In progress";
 }
+let peopleComing = (event.peopleComing.filter((f,i,t)=>t.indexOf(f)==i).map(t=>"<@!"+t+">").join(", ")||"No one.");
 return new Discord.MessageEmbed().setColor(color).setTitle(event.name).setDescription(event.desc)
 .addField("Host","<@!"+event.host+">",true).addField("Time",new Date(event.time).toString(),true)
-.addField("People coming",(event.peopleComing.map(t=>"<@!"+t+">").join(", ")||"No one.")).addField("Status",ti)
-.addField("How to join","React with 🎉 to join the event.\nReact with 🔔 to activate reminders.");	
+.addField("People coming",peopleComing).addField("Status",ti)
+.addField("How to join","React with 🎉 to join the event.\nReact with 🔔 to activate reminders.\nReact again to undo the action.");	
 }
 
 function validURL(str) {
@@ -182,8 +183,10 @@ async function eventTimer(event){
 				let msg= await client.channels.cache.get(eventChannelID).messages.fetch(evo.messageID);
 				evo.peopleComing.forEach(p=>{
 					let mem=client.guilds.cache.first().member(p);
-					mem.roles.add("730056362029219911");
-					if(mem) mem.send(new Discord.MessageEmbed().setColor("BLUE").setDescription("🥳 Event **"+evo.name+"** has started!!"));
+					if(mem){
+						mem.send(new Discord.MessageEmbed().setColor("BLUE").setDescription("🥳 Event **"+evo.name+"** has started!!"));
+						mem.roles.add("730056362029219911");
+					}
 				});
 				msg.edit(msg.content,eventEmbed(evo));
 			}
@@ -933,11 +936,11 @@ client.on('message',async message=>{
 							})
 							let m=undefined;
 							try{
-								m=await message.guild.channels.get(eventChannelID).messages.fetch(current.messageID);
+								m=await message.guild.channels.cache.get(eventChannelID).messages.fetch(current.messageID);
 							}catch(err){}
 							if(m) m.delete();
-							message.channel.send(new Discord.MessageEmbed().setDescription("Event **"+current.name+"**ended!").setColor("RED"))
-							server.events.splice(server.events.findIndex(v=>v.id===current.id));
+							message.channel.send(new Discord.MessageEmbed().setDescription("Event **"+current.name+"** ended!").setColor("RED"))
+							server.events.splice(server.events.findIndex(v=>v.id===current.id),1);
 							
 						} else {
 							message.channel.send(new Discord.MessageEmbed().setDescription("You are not the host of the current event :(").setColor("RED"))	
@@ -982,7 +985,7 @@ client.on('message',async message=>{
 								if(event.messageID){
 									try{
 										mm=await message.guild.channels.cache.get(eventChannelID).messages.fetch(event.messageID)
-									}catch(err){}
+									}catch(err){log("Error retreiving event message")}
 								}
 								if(mm){
 									await mm.edit("<@&728223648942653451> <@&728224459487576134>",embed);
@@ -991,7 +994,9 @@ client.on('message',async message=>{
 									event.announcedAt=Date.now();
 									event.host=message.member.id;
 									let role = await message.guild.roles.fetch("731828010923065405");
-									role.members.array().forEach(m=>event.peopleComing.push(m.id));
+									role.members.array().forEach(m=>{
+										if(!event.peopleComing.includes(m.id)) event.peopleComing.push(m.id);
+									});
 									role.members.array().forEach(m=>{
 										m.send(new Discord.MessageEmbed().setDescription("🥳 You have automatically joined **"+event.name+"**!").setColor("GREEN"))
 									})
