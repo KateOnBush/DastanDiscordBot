@@ -1003,7 +1003,7 @@ client.on('message',async message=>{
 						message.channel.send(new Discord.MessageEmbed().setDescription("Please specify an event ID.").setColor("RED"))
 					} else if(!server.events.find(ev=>ev.id===args[4])){
 						message.channel.send(new Discord.MessageEmbed().setDescription("No event with that ID was found, please create one or check event list.").setColor("RED"))
-					} else if(server.events.find(ev=>ev.id===args[4]).time>Date.now()){
+					} else if(server.events.find(ev=>ev.id===args[4]).time<Date.now()){
 						message.channel.send(new Discord.MessageEmbed().setDescription("Unable to edit event, it has already started.").setColor("RED"))	  
 					} else {
 						let event=server.events.find(ev=>ev.id===args[4]);
