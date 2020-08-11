@@ -93,7 +93,7 @@ async function loadProfile(member){
 	.setColor(stat).printCircle(91.5,91.5,11).setShadowBlur(10)
 .setColor(member.displayHexColor).printRoundedRectangle(124,83,(500-120-24-8)*xpc,17,12.5);
 	let tg = canvas.measureText(name);
-	canvas = canvas.printText(name, 120, 45).setGlobalAlpha(0.5).setGlobalAlpha(1).setTextFont('13px Impact').printText(tag,120+tg.width,45).setTextFont('20px Impact').setTextAlign('right').setColor("#cfc402").setShadowBlur(0).printText("#"+rank,500-28,45).setColor(member.displayHexColor).setTextFont('10px Impact').setShadowBlur(4).printText((xpc*100|0)+"%",500-28,75).setTextAlign('left').setShadowBlur(4).setColor("#ffffff").setTextFont('12px Impact')
+	canvas = canvas.printText(name, 120, 45).setGlobalAlpha(0.5).setTextFont('13px Impact').printText(tag,124+tg.width,45).setGlobalAlpha(1).setTextFont('20px Impact').setTextAlign('right').setColor("#cfc402").setShadowBlur(0).printText("#"+rank,500-28,45).setColor(member.displayHexColor).setTextFont('10px Impact').setShadowBlur(4).printText((xpc*100|0)+"%",500-28,75).setTextAlign('left').setShadowBlur(4).setColor("#ffffff").setTextFont('12px Impact')
     	.printText((data.pname||""), 120, 62)
 	.setShadowBlur(6).setTextFont('12px Impact')
 	.setColor("white").printText("Bio:",24,126).setColor(member.displayHexColor).printWrappedText((data.bio||"No bio set."), 70, 126,500-24-70)
@@ -1533,7 +1533,7 @@ client.on('message',async message=>{
 		message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Meow!**").setImage("http://placekitten.com/"+width+"/"+height+"/"));
 	} else if(["leaderboard","board","list"].includes(args[0])){
 		sortMembers();
-		let embed=new Discord.MessageEmbed().setColor("AQUA").setDescription("**Leaderboard:**").addField("Member",dataStorage.map((it,i)=>{if(i<10) return (["🥇","🥈","🥉","**4**","**5**","**6**","**7**","**8**","**9**","**10**"])[i] + " <@!"+it.id+"> " + numberBeautifier(it.messagesEverSent,",")+" pts. (Level "+it.level+")\n"}).join(""),true);
+		let embed=new Discord.MessageEmbed().setColor("AQUA").addField("Leaderboard",dataStorage.map((it,i)=>{if(i<10) return (["🥇","🥈","🥉","**4**","**5**","**6**","**7**","**8**","**9**","**10**"])[i] + " — <@!"+it.id+"> " + numberBeautifier(it.messagesEverSent,",")+" pts. (Level "+it.level+")\n"}).join(""),true);
 		message.channel.send(embed)
 	} else if(args[0]=="gamble"){
 		let data = await info.load(message.member.id);
