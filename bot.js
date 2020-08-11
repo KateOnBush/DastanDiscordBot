@@ -463,6 +463,7 @@ client.on('ready',async ()=>{
 		}
 	})
 	let server = await info.load("SERVER");
+	if(!server.events) server.events=[];
 	server.events.forEach(async event=>{
 		let message = undefined;
 		try{
@@ -829,11 +830,11 @@ client.on('message',async message=>{
 		server.events.sort((a,b)=>b.time-a.time);
 		if(server.events[0]&&server.events[0].time){
 			if(server.events[0].time-Date.now()<5000){
-				message.channel.send(new Discord.MessageEmbed().setColor("CYAN").setTitle("Event **"+server.events[0].name+"** is already in progress!"));	
+				message.channel.send(new Discord.MessageEmbed().setColor("CYAN").setDescription("🥳 Event **"+server.events[0].name+"** is already in progress!"));	
 			}
-			message.channel.send(new Discord.MessageEmbed().setColor("BLUE").setTitle("Next event starts in "+msToString(server.events[0].time-Date.now())));
+			message.channel.send(new Discord.MessageEmbed().setColor("BLUE").setDescription("🎉 Next event starts in "+msToString(server.events[0].time-Date.now())));
 		} else {
-			message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setTitle("There are no planned events currently."));
+			message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("⛔ There are no planned events currently."));
 		}
 	} else if(args[0]=="mod"&&message.member.hasPermission("MANAGE_MESSAGES")){
 		let commands=[{
@@ -951,26 +952,23 @@ client.on('message',async message=>{
 							if(err){
 								message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't announce/update the event: "+err).setColor("RED"));
 							} else {
-								event.host=message.member.id;
-								event.announcedAt=Date.now();
 								event.peopleComing=(event.peopleComing||[]);
-								let role = await message.guild.roles.fetch("731828010923065405");
-								role.members.array().forEach(m=>event.peopleComing.push(m.id));
 								eventTimer(event);
 								let embed=eventEmbed(event);
 								let mm=undefined;
 								if(event.messageID){
 									try{
 										mm=await message.guild.channels.cache.get(eventChannelID).messages.fetch(event.messageID)
-										console.log("message found")
 									}catch(err){}
 								}
 								if(mm){
-									console.log("editing");
 									await mm.edit("<@&728223648942653451> <@&728224459487576134>",embed);
-									console.log("edited");
 									message.channel.send(new Discord.MessageEmbed().setDescription("Event with ID **"+args[3]+"** successfully updated!").setColor("GREEN"));
 								} else {
+									event.announcedAt=Date.now();
+									event.host=message.member.id;
+									let role = await message.guild.roles.fetch("731828010923065405");
+									role.members.array().forEach(m=>event.peopleComing.push(m.id));
 									role.members.array().forEach(m=>{
 										m.send(new Discord.MessageEmbed().setDescription("🥳 You have automatically joined **"+event.name+"**!").setColor("GREEN"))
 									})
@@ -1510,7 +1508,7 @@ client.on('message',async message=>{
 		  
 		if(message.author.id!="123413327094218753") return;
 		let embed=new Discord.MessageEmbed().setDescription("Reloading database...").setColor("RED");
-		rawlog(new Discord.MessageEmbed().setColor("ORANGE").setDescription("Reloading database.."))
+		log(new Discord.MessageEmbed().setColor("ORANGE").setDescription("Reloading database.."))
 		message.channel.send(embed).then(msg=>{
 			request.get({
 				url: dbLink+'?limit=1000',
@@ -1521,7 +1519,7 @@ client.on('message',async message=>{
 				if (!err) console.log("Data loaded, no error");
 				dataStorage=JSON.parse(body);
 				msg.edit(new Discord.MessageEmbed().setDescription("Database reloaded!").setColor("GREEN"));
-				rawlog(new Discord.MessageEmbed().setColor("GREEN").setDescription("Database Reloaded!"))
+				log(new Discord.MessageEmbed().setColor("GREEN").setDescription("Database Reloaded!"))
 			});
 		});
 		  
