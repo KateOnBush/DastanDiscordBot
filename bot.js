@@ -34,7 +34,7 @@ if(event.time-Date.now()<5000){
 return new Discord.MessageEmbed().setColor(color).setTitle(event.name).setDescription(event.desc)
 .addField("Host","<@!"+event.host+">",true).addField("Time",new Date(event.time).toString(),true)
 .addField("People coming",(event.peopleComing.map(t=>"<@!"+t+">").join(", ")||"No one.")).addField("Status",ti)
-.addField("How to join","React with 🎉 to join the event\n.React with 🔔 to activate reminders.");	
+.addField("How to join","React with 🎉 to join the event.\nReact with 🔔 to activate reminders.");	
 }
 
 function validURL(str) {
@@ -456,6 +456,7 @@ client.on('ready',async ()=>{
 				client.guilds.cache.array()[0].member(user.id).roles.remove("728216095835815976");
 			} else if((user.mute-Date.now())<3600*24*1000*2){
 				setTimeout(async function(){
+					if(client.guilds.cache.array()[0].member(user.id))
 					client.guilds.cache.array()[0].member(user.id).roles.remove("728216095835815976");
 				},user.mute-Date.now())
 			}
@@ -499,7 +500,7 @@ client.on('raw',async event=>{
 						member.send(new Discord.MessageEmbed().setDescription("You've joined the event: **"+event.name+"**.").setColor("GREEN"))
 					}
 					let embed=eventEmbed(event);
-					react.message.edit(react.message.content,embed);
+					message.edit(react.message.content,embed);
 				}
 				if(react.emoji.name=="🔔") {
 					react.users.remove(member.id);
@@ -511,7 +512,7 @@ client.on('raw',async event=>{
 						member.send(new Discord.MessageEmbed().setDescription("You turned on reminders for for the event: **"+event.name+"**.").setColor("GREEN"))
 					}
 					let embed=eventEmbed(event);
-					react.message.edit(react.message.content,embed);
+					message.edit(react.message.content,embed);
 				}
 				server.events[server.events.findIndex(ev=>ev.messageID===react.message.id)] = event;
 				info.save("SERVER",server);
@@ -908,7 +909,7 @@ client.on('message',async message=>{
 							})
 							let m=undefined;
 							try{
-								m=message.guild.channels.get(eventChannelID).messages.fetch(current.messageID);
+								m=await message.guild.channels.get(eventChannelID).messages.fetch(current.messageID);
 							}catch(err){}
 							if(m) m.delete();
 							message.channel.send(new Discord.MessageEmbed().setDescription("Event **"+current.name+"**ended!").setColor("RED"))
@@ -951,7 +952,7 @@ client.on('message',async message=>{
 								message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't announce/update the event: "+err).setColor("RED"));
 							} else {
 								event.host=message.member.id;
-								event.announced=Date.now();
+								event.announcedAt=Date.now();
 								event.peopleComing=(event.peopleComing||[]);
 								let role = await message.guild.roles.fetch("731828010923065405");
 								role.members.array().forEach(m=>event.peopleComing.push(m.id));
