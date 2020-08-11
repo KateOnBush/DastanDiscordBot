@@ -189,12 +189,12 @@ async function eventTimer(event){
 			}
 		}
 		let hour=3600*1000;
-		if(event.time-24*hour>Date.now()) setTimeout(remind,event.time-24*hour-Date.now())
-		if(event.time-6*hour>Date.now()) setTimeout(remind,event.time-6*hour-Date.now())
-		if(event.time-3*hour>Date.now()) setTimeout(remind,event.time-3*hour-Date.now())
-		if(event.time-1*hour>Date.now()) setTimeout(remind,event.time-1*hour-Date.now())
-		if(event.time-0.5*hour>Date.now()) setTimeout(remind,event.time-0.5*hour-Date.now())
-		if(event.time-0.25*hour>Date.now()) setTimeout(remind,event.time-0.25*hour-Date.now())
+		if(event.time-24*hour>Date.now()) setTimeout(remind,event.time-24*hour-Date.now()-500)
+		if(event.time-6*hour>Date.now()) setTimeout(remind,event.time-6*hour-Date.now()-500)
+		if(event.time-3*hour>Date.now()) setTimeout(remind,event.time-3*hour-Date.now()-500)
+		if(event.time-1*hour>Date.now()) setTimeout(remind,event.time-1*hour-Date.now()-500)
+		if(event.time-0.5*hour>Date.now()) setTimeout(remind,event.time-0.5*hour-Date.now()-500)
+		if(event.time-0.25*hour>Date.now()) setTimeout(remind,event.time-0.25*hour-Date.now()-500)
 		if(event.time>Date.now()) setTimeout(start,event.time-Date.now())
 	}
 }
