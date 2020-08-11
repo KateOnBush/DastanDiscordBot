@@ -3,6 +3,7 @@ const Canvas = require('canvas-constructor');
 const client = new Discord.Client();
 const request = require('request');
 const dbLink = process.env.DBLINK;
+const eventChannelID="742579924149338212";
 
 const colors=["black","silver","gray","white","maroon","red","purple","fuchsia","green","lime","olive","yellow","navy","blue","teal","aqua","orange","aliceblue","antiquewhite","aquamarine","azure","beige","bisque","blanchedalmond","blueviolet","brown","burlywood","cadetblue","chartreuse","chocolate","coral","cornflowerblue","cornsilk","crimson","cyan","darkblue","darkcyan","darkgoldenrod","darkgray","darkgreen","darkgrey","darkkhaki","darkmagenta","darkolivegreen","darkorange","darkorchid","darkred","darksalmon","darkseagreen","darkslateblue","darkslategray","darkslategrey","darkturquoise","darkviolet","deeppink","deepskyblue","dimgray","dimgrey","dodgerblue","firebrick","floralwhite","forestgreen","gainsboro","ghostwhite","gold","goldenrod","greenyellow","grey","honeydew","hotpink","indianred","indigo","ivory","khaki","lavender","lavenderblush","lawngreen","lemonchiffon","lightblue","lightcoral","lightcyan","lightgoldenrodyellow","lightgray","lightgreen","lightgrey","lightpink","lightsalmon","lightseagreen","lightskyblue","lightslategray","lightslategrey","lightsteelblue","lightyellow","limegreen","linen","magenta","mediumaquamarine","mediumblue","mediumorchid","mediumpurple","mediumseagreen","mediumslateblue","mediumspringgreen","mediumturquoise","mediumvioletred","midnightblue","mintcream","mistyrose","moccasin","navajowhite","oldlace","olivedrab","orangered","orchid","palegoldenrod","palegreen","paleturquoise","palevioletred","papayawhip","peachpuff","peru","pink","plum","powderblue","rosybrown","royalblue","saddlebrown","salmon","sandybrown","seagreen","seashell","sienna","skyblue","slateblue","slategray","slategrey","snow","springgreen","steelblue","tan","thistle","tomato","turquoise","violet","wheat","whitesmoke","yellowgreen","rebeccapurple"];
 let addRecord = async function(subject,event){
@@ -166,7 +167,7 @@ async function eventTimer(event){
 			let server = await info.load("SERVER");
 			let evo = server.events.find(ev=>ev.id==event.id);
 			if(evo&&evo.time==event.time){
-				let msg= await client.channels.cache.get("728022865622073446").fetch(evo.messageID);
+				let msg= await client.channels.cache.get(eventChannelID).messages.fetch(evo.messageID);
 				evo.reminders.forEach(p=>{
 					let mem=client.guilds.cache.first().member(p);
 					if(mem) mem.send(new Discord.MessageEmbed().setColor("BLUE").setDescription("Event **"+evo.name+"** starts in "+msToString(evo.time-Date.now())+"."));
@@ -178,7 +179,7 @@ async function eventTimer(event){
 			let server = await info.load("SERVER");
 			let evo = server.events.find(ev=>ev.id==event.id);
 			if(evo&&evo.time==event.time){
-				let msg= await client.channels.cache.get("728022865622073446").fetch(evo.messageID);
+				let msg= await client.channels.cache.get(eventChannelID).messages.fetch(evo.messageID);
 				evo.peopleComing.forEach(p=>{
 					let mem=client.guilds.cache.first().member(p);
 					mem.roles.add("730056362029219911");
@@ -464,7 +465,7 @@ client.on('ready',async ()=>{
 	server.events.forEach(async event=>{
 		let message = undefined;
 		try{
-		if(event.messageID) message = await client.channels.cache.get("728022865622073446").fetch(event.messageID);}catch(err){}
+		if(event.messageID) message = await client.channels.cache.get(eventChannelID).messages.fetch(event.messageID);}catch(err){}
 		if(message) message.edit(message.content,eventEmbed(event));
 		eventTimer(event);
 	})
@@ -479,7 +480,7 @@ client.on('raw',async event=>{
 			const react = message.reactions.cache.get(emojiKey);
 			const member = message.guild.members.resolve(data.user_id);
 			if(member.user.bot==true) return;
-			if(react.message.channel.id=="728022865622073446"){
+			if(react.message.channel.id==eventChannelID){
 				let server = await info.load("SERVER");
 				if(!server.events) server.events=[];
 				let event = server.events.find(ev=>ev.messageID===react.message.id);
@@ -907,7 +908,7 @@ client.on('message',async message=>{
 							})
 							let m=undefined;
 							try{
-								m=message.guild.channels.get("728022865622073446").fetch(current.messageID);
+								m=message.guild.channels.get(eventChannelID).messages.fetch(current.messageID);
 							}catch(err){}
 							if(m) m.delete();
 							message.channel.send(new Discord.MessageEmbed().setDescription("Event **"+current.name+"**ended!").setColor("RED"))
@@ -959,7 +960,7 @@ client.on('message',async message=>{
 								let mm=undefined;
 								if(event.messageID){
 									try{
-										mm=await message.guild.channels.cache.get("728022865622073446").fetch(event.messageID)
+										mm=await message.guild.channels.cache.get(eventChannelID).messages.fetch(event.messageID)
 									}catch(err){}
 								}
 								if(mm){
@@ -969,7 +970,7 @@ client.on('message',async message=>{
 									role.members.array().forEach(m=>{
 										m.send(new Discord.MessageEmbed().setDescription("🥳 You have automatically joined **"+event.name+"**!").setColor("GREEN"))
 									})
-									let msg=await message.guild.channels.cache.get("728022865622073446").send("<@&728223648942653451> <@&728224459487576134>",embed);
+									let msg=await message.guild.channels.cache.get(eventChannelID).send("<@&728223648942653451> <@&728224459487576134>",embed);
 									await msg.react("🎉");
 									await msg.react("🔔");
 									event.messageID=msg.id;
@@ -986,7 +987,7 @@ client.on('message',async message=>{
 						if(!server.events.find(ev=>ev.id===args[3])){
 							message.channel.send(new Discord.MessageEmbed().setDescription("No event exists with the ID **"+args[3]+"**.").setColor("RED"));	
 						} else {
-							if(server.events.find(ev=>ev.id===args[3]).messageID) message.guild.channels.cache.get("728022865622073446").fetch(server.events.find(ev=>ev.id===args[3]).messageID).then(async msg=>{
+							if(server.events.find(ev=>ev.id===args[3]).messageID) message.guild.channels.cache.get(eventChannelID).messages.fetch(server.events.find(ev=>ev.id===args[3]).messageID).then(async msg=>{
 							msg.delete()
 							}).catch(err=>{})
 							server.events.splice(server.events.findIndex(ev=>ev.id===args[3]));
@@ -1008,7 +1009,7 @@ client.on('message',async message=>{
 						let event=server.events.find(ev=>ev.id===args[4]);
 						let eventM=undefined;
 						try{
-							if(event.messageID) eventM=await message.guild.channels.cache.get("728022865622073446").fetch(event.messageID);
+							if(event.messageID) eventM=await message.guild.channels.cache.get(eventChannelID).messages.fetch(event.messageID);
 						}catch(err){
 							await message.channel.send(new Discord.MessageEmbed().setDescription("Event message was saved but couldn't find it, please re-announce the event.").setColor("RED"))
 							event.messageID=undefined;
