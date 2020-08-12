@@ -163,7 +163,7 @@ return 30*level*(1+level);
 }
 
 async function eventTimer(event){
-	if(event.time-Date.now()<(3600*24*1000*2)){
+	if(event.time-Date.now()<(3600*24*1000*15)){
 		let remind = async function(){
 			let server = await info.load("SERVER");
 			let evo = server.events.find(ev=>ev.id==event.id);
@@ -192,6 +192,9 @@ async function eventTimer(event){
 			}
 		}
 		let hour=3600*1000;
+		if(event.time-14*24*hour>Date.now()) setTimeout(remind,event.time-14*24*hour-Date.now()-500)
+		if(event.time-7*24*hour>Date.now()) setTimeout(remind,event.time-7*24*hour-Date.now()-500)
+		if(event.time-3*24*hour>Date.now()) setTimeout(remind,event.time-3*24*hour-Date.now()-500)
 		if(event.time-24*hour>Date.now()) setTimeout(remind,event.time-24*hour-Date.now()-500)
 		if(event.time-6*hour>Date.now()) setTimeout(remind,event.time-6*hour-Date.now()-500)
 		if(event.time-3*hour>Date.now()) setTimeout(remind,event.time-3*hour-Date.now()-500)
@@ -999,6 +1002,7 @@ client.on('message',async message=>{
 									role.members.array().forEach(m=>{
 										m.send(new Discord.MessageEmbed().setDescription("🥳 You have automatically joined **"+event.name+"**!").setColor("GREEN"))
 									})
+									embed=eventEmbed(event);
 									let msg=await message.guild.channels.cache.get(eventChannelID).send("<@&728223648942653451> <@&728224459487576134>",embed);
 									await msg.react("🎉");
 									await msg.react("🔔");
