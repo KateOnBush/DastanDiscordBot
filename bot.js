@@ -536,9 +536,8 @@ client.on('raw',async event=>{
 			} else {
 				if(first!=undefined) member.roles.remove(first);
 				if(!react.message.content.includes("!multiple")){
-					member.roles.remove(react.message.mentions.roles).then(m=>{
-					m.roles.add(roleToAdd);
-				});
+					member.roles.remove(react.message.mentions.roles.array().filter(r=>r.id!==roleToAdd))
+					member.roles.add(roleToAdd);
 				} else {
 					member.roles.add(roleToAdd);
 				}
@@ -1593,7 +1592,7 @@ client.on('message',async message=>{
 			} else if(amount>data.gold){
 				message.channel.send(new Discord.MessageEmbed().setDescription("You do not have enough gold.").setColor("RED"));	
 			} else {
-				let f=Math.random()*Math.random();
+				let f=Math.random()*(1-Math.random());
 				let gambled = f*2*amount|0;
 				gambled += amount*((Math.random()*2)|0);
 				gambled -= amount;
@@ -1933,7 +1932,9 @@ client.on('messageUpdate',(om,nm)=>{
 })
 client.on('messageDelete',(dm)=>{
 	if(dm.author.bot) return;
-	log(new Discord.MessageEmbed().setAuthor(dm.author.tag,dm.author.displayAvatarURL()).setColor("ORANGE").setDescription("Message Deleted").addField("Member","<@!"+dm.member.id+">",true).addField("Channel","<#"+dm.channel.id+">",true).addField("Content",(dm.cleanContent||"Empty message.")).setFooter("Message ID: "+dm.id).setTimestamp().setImage((dm.attachments.array()[0]||{url: undefined}).url));
+	let embed=new Discord.MessageEmbed().setAuthor(dm.author.tag,dm.author.displayAvatarURL()).setColor("ORANGE").setDescription("Message Deleted").addField("Member","<@!"+dm.member.id+">",true).addField("Channel","<#"+dm.channel.id+">",true).addField("Content",(dm.cleanContent||"Empty message.")).setFooter("Message ID: "+dm.id).setTimestamp();
+	if(dm.attachments.array()[0]) embed=embed.setImage(dm.attachments.array()[0].url);
+	log(embed);
 })
 
 ///Welcoming
