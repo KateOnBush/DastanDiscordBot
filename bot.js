@@ -70,7 +70,7 @@ async function loadProfile(member){
 	if(member.user.presence.status=="offline") stat="#404040";
 	let data = await info.load(member.id);
 	let rank = 1+dataStorage.findIndex(t=>t.id==member.id);
-	let xpc = Math.max(0,(data.messagesEverSent-levelXp(data.level-1))/(levelXp(data.level)-levelXp(data.level-1)));
+	let xpc = Math.max(0.02,(data.messagesEverSent-levelXp(data.level-1))/(levelXp(data.level)-levelXp(data.level-1)));
 	let backgroundImg=undefined;
 	let backgroundCol=undefined;
 	let bio = data.bio;
@@ -100,10 +100,10 @@ async function loadProfile(member){
     	.printText((data.pname||""), 120, 62)
 	.setShadowBlur(6).setTextFont('12px Impact')
 	.setColor("white").printText("Bio:",24,126).setColor(member.displayHexColor).printWrappedText((data.bio||"No bio set."), 70, 126,500-24-70)
-	.setColor("white").printText("Level :",24,180).setColor(member.displayHexColor).printText(data.level+"", 70, 180)
-	.setColor("white").printText("Gold :",240,180).setColor(member.displayHexColor).printText(numberBeautifier(data.gold,","), 286, 180)
-	.setColor("white").printText("Average Daily Activity Points :",24,200).setColor(member.displayHexColor).printText(numberBeautifier(data.messageAveragePerDay,","), 240, 200)
-	.setColor("white").printText("All-Time Activity Points :",24,220).setColor(member.displayHexColor).printText(numberBeautifier(data.messagesEverSent,","), 240, 220)
+	.setColor("white").printText("Level:",24,180).setColor(member.displayHexColor).printText(data.level+"", 70, 180)
+	.setColor("white").printText("Gold:",240,180).setColor(member.displayHexColor).printText(numberBeautifier(data.gold,","), 286, 180)
+	.setColor("white").printText("Average Daily Activity Points:",24,200).setColor(member.displayHexColor).printText(numberBeautifier(data.messageAveragePerDay,","), 240, 200)
+	.setColor("white").printText("All-Time Activity Points:",24,220).setColor(member.displayHexColor).printText(numberBeautifier(data.messagesEverSent,","), 240, 220)
 	.setColor("white").printText("Member since: ",24,240).setColor(member.displayHexColor).printText(new Date(data.joined||member.joinedTimestamp).toLocaleDateString()+"", 240, 240)
     	.toBuffer();
 	
@@ -864,7 +864,7 @@ client.on('message',async message=>{
 	if(message.author.antiSpamCount==0) message.author.antiSpamFirst=Date.now();
 	message.author.antiSpamCount+=1;
 	
-	if(Date.now()-message.author.antiSpamFirst<6000){
+	if(Date.now()-message.author.antiSpamFirst<10000){
 		if(message.author.antiSpamCount>8){
 			adminlog("Mute",client.user,"Muted for "+msToString(3600000),message.member,"Spam.");
 			await addRecord(m,{
@@ -1691,7 +1691,7 @@ client.on('message',async message=>{
 			} else if(amount>data.gold){
 				message.channel.send(new Discord.MessageEmbed().setDescription("You do not have enough gold.").setColor("RED"));	
 			} else {
-				let f=Math.random()*(1-Math.random());
+				let f=Math.random()*Math.random()*Math.random();
 				let gambled = f*2*amount|0;
 				gambled += amount*((Math.random()*2)|0);
 				gambled -= amount;
@@ -1703,7 +1703,7 @@ client.on('message',async message=>{
 				if(gambled<0){
 					embed = new Discord.MessageEmbed().setDescription("**🌑 Oh no, bad luck!** <@!"+message.author.id+">, You just lost **"+ Math.abs(gambled)+"** gold :(.").setColor("RED");	
 				}else if(gambled<amount){
-					embed = new Discord.MessageEmbed().setDescription("**☄️ Lucky!!** <@!"+message.author.id+">, You gained **"+ gambled+"** gold.").setColor("YELLOW");		
+					embed = new Discord.MessageEmbed().setDescription("**☄️ Lucky!** <@!"+message.author.id+">, You gained **"+ gambled+"** gold.").setColor("CYAN");		
 				}else{
 					embed = new Discord.MessageEmbed().setDescription("**🍀 Four-leaf clover!!** <@!"+message.author.id+">, You gained **"+ gambled+"** gold.").setColor("GREEN");		
 				}
@@ -2002,6 +2002,7 @@ client.on("voiceStateUpdate",async (o,n)=>{
 			await n.member.guild.channels.cache.get("728029565607346227").send(new Discord.MessageEmbed().setDescription("<@!"+o.member.id+"> left **" + o.channel.name + "**").setColor("RED"));
 			await n.member.roles.remove(["729502041122013195","729502308634853456"]);
 		}
+		clearInterval(n.member.timer);
 	}
 	if(n.channel!=null){
 		log(new Discord.MessageEmbed().setAuthor(o.member.user.tag,o.member.user.displayAvatarURL()).setColor("GREEN").setDescription("Voice channel join").addField("Member","<@!"+o.member.id+">",true).addField("Joined voice channel",n.channel.name,true).setFooter("Channel ID: "+n.channel.id).setTimestamp());
@@ -2014,7 +2015,7 @@ client.on("voiceStateUpdate",async (o,n)=>{
 			await n.member.roles.add("729502308634853456");
 			await n.member.guild.channels.cache.get("728029565607346227").send(new Discord.MessageEmbed().setDescription("<@!"+n.member.id+"> joined **" + n.channel.name + "**").setColor("GREEN"));
 		}
-		if(n.member.timer!=undefined) clearInterval(n.member.timer);
+		clearInterval(n.member.timer);
 		n.member.timer = setInterval(function(){
 		if((n.member.guild.members.cache.get(n.member.id).voice.channel==null)||(n.member.guild.members.cache.get(n.member.id).voice.channel.id=="728037836774703235")) clearInterval(n.member.timer); 
 		info.load(n.member.id).then(data=>{
