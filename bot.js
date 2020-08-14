@@ -428,19 +428,30 @@ client.on('ready',async ()=>{
 			});
 		});
 	});
-	client.guilds.cache.array()[0].roles.fetch("732234963310608426").then(role=>{
+	client.guilds.cache.array()[0].roles.fetch("743620842495410287").then(role=>{
 		role.members.array().forEach(member=>{
 			info.load(member.id).then(data=>{
 				if(![0,undefined].includes(data.doubleXp)) {
 					if(Date.now()>data.doubleXp) {
 						member.roles.remove("732234963310608426");
 					} else {
-						setTimeout(function(){
+						if(data.doubleXp-Date.now()<3600*24*1000*3) setTimeout(function(){
 							member.roles.remove("732234963310608426");
 						},data.doubleXp-Date.now());
 					}
 				} else {
 					member.roles.remove("732234963310608426");
+				}
+				if(![0,undefined].includes(data.tripleXp)) {
+					if(Date.now()>data.tripleXp) {
+						member.roles.remove("743620842495410287");
+					} else {
+						if(data.tripleXp-Date.now()<3600*24*1000*3) setTimeout(function(){
+							member.roles.remove("743620842495410287");
+						},data.tripleXp-Date.now());
+					}
+				} else {
+					member.roles.remove("743620842495410287");
 				}
 			});
 		});
@@ -562,7 +573,7 @@ client.on('message',async message=>{
 		description: "All what you need to make your event experience better!",
 		subcommand: "events",
 		items: [{
-			name: "Event automatic joiner",
+			name: "Event Automatic Joiner",
 			description: "Automatically joins events when they are announced, you can disable/enable at any time using `autoevent` command.",
 			longDescription: "With this upgrade, whenever a new event is announced, this will allow you to automatically join it, you will then unlock the command `autoevent <on/off>`, which will give you the ability to enable/disable this perk at any time!",
 			price: 300,
@@ -570,6 +581,16 @@ client.on('message',async message=>{
 			multiple: false,
 			buy: function(member){
 				member.roles.add("731828010923065405");
+				return true;
+			}
+		},{
+			name: "Event Reward Collector",
+			description: "Collects 500 gold for you whenever an event you are in ends :)",
+			price: 2500,
+			id: 2,
+			multiple: false,
+			buy: function(member){
+				member.roles.add("743622344211300481");
 				return true;
 			}
 		}]
@@ -581,7 +602,7 @@ client.on('message',async message=>{
 			name: "Double XP - 6 hours",
 			description: "With this upgrade you get doubled xp for 6 hours!",
 			price: 120,
-			id: 2,
+			id: 3,
 			multiple: true,
 			buy: function(member){
 				info.load(member.id).then(data=>{
@@ -589,7 +610,7 @@ client.on('message',async message=>{
 					data.doubleXp=Math.max(data.doubleXp,Date.now())+3600*+6000;
 					member.roles.add("732234963310608426");
 					info.save(member.id,data)
-					setTimeout(function(){
+					if(data.doubleXp-Date.now()<3600*24*1000*3) setTimeout(function(){
 						member.roles.remove("732234963310608426");
 					},data.doubleXp-Date.now());
 				})
@@ -599,7 +620,7 @@ client.on('message',async message=>{
 			name: "Double XP - 1 day",
 			description: "With this upgrade you get doubled xp for 1 day! Level up fast today!",
 			price: 400,
-			id: 3,
+			id: 4,
 			multiple: true,
 			buy: function(member){
 				info.load(member.id).then(data=>{
@@ -607,7 +628,7 @@ client.on('message',async message=>{
 					data.doubleXp=Math.max(data.doubleXp,Date.now())+3600*24000;
 					member.roles.add("732234963310608426");
 					info.save(member.id,data)
-					setTimeout(function(){
+					if(data.doubleXp-Date.now()<3600*24*1000*3) setTimeout(function(){
 						member.roles.remove("732234963310608426");
 					},data.doubleXp-Date.now());
 				})
@@ -617,7 +638,7 @@ client.on('message',async message=>{
 			name: "Double XP - 1 week",
 			description: "With this upgrade you get doubled xp for full 7 days! Boost your experience!",
 			price: 2200,
-			id: 4,
+			id: 5,
 			multiple: true,
 			buy: function(member){
 				info.load(member.id).then(data=>{
@@ -625,9 +646,63 @@ client.on('message',async message=>{
 					data.doubleXp=Math.max(data.doubleXp,Date.now())+3600*7*24000;
 					member.roles.add("732234963310608426");
 					info.save(member.id,data)
-					setTimeout(function(){
+					if(data.doubleXp-Date.now()<3600*24*1000*3) setTimeout(function(){
 						member.roles.remove("732234963310608426");
 					},data.doubleXp-Date.now());
+				})
+				return true;
+			}
+		},{
+			name: "Triple XP - 6 hours",
+			description: "With this upgrade you get tripled xp for 6 hours! If you already have double xp, you get 4x xp!!",
+			price: 360,
+			id: 6,
+			multiple: true,
+			buy: function(member){
+				info.load(member.id).then(data=>{
+					data.tripleXp=(data.tripleXp||Date.now());
+					data.tripleXp=Math.max(data.tripleXp,Date.now())+3600*+6000;
+					member.roles.add("743620842495410287");
+					info.save(member.id,data)
+					if(data.tripleXp-Date.now()<3600*24*1000*3) setTimeout(function(){
+						member.roles.remove("743620842495410287");
+					},data.tripleXp-Date.now());
+				})
+				return true;
+			}
+		},{
+			name: "Triple XP - 1 day",
+			description: "With this upgrade you get tripled xp for 1 day! Level up fast today! If you already have double xp, you get 4x xp!!",
+			price: 1350,
+			id: 7,
+			multiple: true,
+			buy: function(member){
+				info.load(member.id).then(data=>{
+					data.tripleXp=(data.tripleXp||Date.now());
+					data.tripleXp=Math.max(data.tripleXp,Date.now())+3600*24000;
+					member.roles.add("743620842495410287");
+					info.save(member.id,data)
+					if(data.tripleXp-Date.now()<3600*24*1000*3) setTimeout(function(){
+						member.roles.remove("743620842495410287");
+					},data.tripleXp-Date.now());
+				})
+				return true;
+			}
+		},{
+			name: "Triple XP - 1 week",
+			description: "With this upgrade you get tripled xp for full 7 days! Boost your experience! If you already have double xp, you get 4x xp!!",
+			price: 9000,
+			id: 8,
+			multiple: true,
+			buy: function(member){
+				info.load(member.id).then(data=>{
+					data.tripleXp=(data.tripleXp||Date.now());
+					data.tripleXp=Math.max(data.tripleXp,Date.now())+3600*7*24000;
+					member.roles.add("743620842495410287");
+					info.save(member.id,data)
+					if(data.tripleXp-Date.now()<3600*24*1000*3) setTimeout(function(){
+						member.roles.remove("743620842495410287");
+					},data.tripleXp-Date.now());
 				})
 				return true;
 			}
@@ -748,7 +823,7 @@ client.on('message',async message=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("You already have this item!").setColor("RED"));
 				} else {
 					data.gold-=item.price;
-					if(item.multiple!=true) data.items.push(item.id)
+					if(item.inventory==true) data.items.push(item.id)
 					info.save(message.member.id,data).then(()=>{
 						item.buy(message.member);
 						
@@ -930,11 +1005,17 @@ client.on('message',async message=>{
 					let current=server.events.find(ev=>ev.time-Date.now()<5000);
 					if(current){
 						if(current.host===message.member.id){
-							current.peopleComing.forEach(t=>{
+							current.peopleComing.forEach(async t=>{
 								let g=message.guild.member(t);
 								if(!g) return;
 								g.roles.remove("730056362029219911");
-								g.send(new Discord.MessageEmbed().setDescription("Event **"+current.name+"** has ended! :(").setColor("ORANGE"))
+								await updateProfile(g,300);
+								if(g.roles.cache.get("743622344211300481")){
+								let data=await info.load(t);
+								data.gold+=500;
+								await info.save(t,data);
+								}
+								g.send(new Discord.MessageEmbed().setDescription("Event **"+current.name+"** has ended! You have gained a bit more xp!").setColor("ORANGE"))
 							})
 							let m=undefined;
 							try{
@@ -1300,11 +1381,17 @@ client.on('message',async message=>{
 		info.load(message.member.id).then(data=>{
 			if(data.dailyReward==undefined||(Date.now()-data.dailyReward>3600*24*1000)){
 				if(data.dailyReward==undefined) data.dailyReward=0; 
-				let gold=40;
-				let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("💸 You have claimed your **40** gold daily reward!");
-				if(Date.now()-data.dailyReward-3600*24*1000<10*1000){
-					gold+=160;
-					embed.setDescription(embed.description+"\n⌛ You have claimed your reward very early! You received an additional **160** gold!");
+				let gold=50;
+				let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("💸 You have claimed your **50** gold daily reward!");
+				if(Date.now()-data.dailyReward-3600*24*1000<60*1000){
+					gold+=600;
+					embed.setDescription(embed.description+"\n⌛ You have claimed your reward incredibly early! You received an additional **500** gold!");
+				}else if(Date.now()-data.dailyReward-3600*24*1000<10*60*1000){
+					gold+=300;
+					embed.setDescription(embed.description+"\n⌛ You have claimed your reward very early! You received an additional **300** gold!");
+				} else if(Date.now()-data.dailyReward-3600*24*1000<3600*1000){
+					gold+=150;
+					embed.setDescription(embed.description+"\n⌛ You have claimed your reward early! You received an additional **150** gold!");
 				}
 				data.gold+=gold;
 				data.dailyReward=Date.now(); 
