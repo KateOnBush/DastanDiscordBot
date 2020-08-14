@@ -292,12 +292,20 @@ async function updateProfile(member,points){
 					});
 				}	
 			}
+		let serverMult=1; //Server Multiplier (xp weeks)
 		let mult=1;
 		if(member.roles.cache.array().find(rl=>rl.id=="732234963310608426")!=undefined){
 			mult=2;
 		}
+		if(member.roles.cache.array().find(rl=>rl.id=="743620842495410287")!=undefined){
+			if(mult=2){
+				mult=4;	
+			} else {
+				mult=3;
+			}
+		}
 		c.messagesSentToday+=points;
-		c.messagesEverSent+=points*mult;
+		c.messagesEverSent+=points*mult*serverMult;
 		if(c.joined==undefined) c.joined=member.joinedTimestamp;
 		var level=c.level;
 		let gold=c.gold;
