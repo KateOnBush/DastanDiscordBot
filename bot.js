@@ -1175,6 +1175,7 @@ client.on('message',async message=>{
 				
 			} else if(["record","records","rec"].includes(args[1])){
 				let m=(message.mentions.members.first()||message.guild.member(args[2]));
+				if(dataStorage.find(i=>i.id==args[2])) m={id: args[2], user:{bot: false}};
 				if(m&&!m.user.bot){
 					adminlog("Records Check",message.member,"Checked records.",m);
 					let data = await info.load(m);
@@ -1317,10 +1318,10 @@ client.on('message',async message=>{
 					data.tempban=0;
 					await info.save(m,data);
 					message.react("👼");
-					let embed2 = new Discord.MessageEmbed().setDescription("User ID: **"+m+"** has been unbanned by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");let msg = await message.channel.send(embed2);
-					let mss=await message.channel.send(embed2);
+					let embed2 = new Discord.MessageEmbed().setDescription("User ID: **"+m+"** has been unbanned by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
+					let msg=await message.channel.send(embed2);
 					await wait(10000);
-					mss.delete()
+					msg.delete()
 					
 				}catch(err){
 					message.channel.send(new Discord.MessageEmbed().setDescription("The ID you specified isn't banned or doesn't exist, please try again.").setColor("RED"))
@@ -1349,10 +1350,10 @@ client.on('message',async message=>{
 						if(((data.tempban-Date.now())/1000)<3600*24*2) setTimeout(function(){
 							message.guild.members.unban(m);
 						},data.tempban-Date.now())
-						let embed2 = new Discord.MessageEmbed().setDescription("User ID: **"+m+"** has been banned temporarily for "+tstr+" by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");let msg = await message.channel.send(embed2);
-						let mss=await message.channel.send(embed2);
+						let embed2 = new Discord.MessageEmbed().setDescription("User ID: **"+m+"** has been banned temporarily for "+tstr+" by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
+						let msg=await message.channel.send(embed2);
 						await wait(10000);
-						mss.delete()
+						msg.delete()
 						
 					}catch(err){
 						message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't ban that user, please verify his ID and/or the specified time.").setColor("RED"))	   
