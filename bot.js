@@ -1178,7 +1178,7 @@ client.on('message',async message=>{
 				if(dataStorage.find(i=>i.id==args[2])) m={id: args[2], user:{bot: false}};
 				if(m&&!m.user.bot){
 					adminlog("Records Check",message.member,"Checked records.",m);
-					let data = await info.load(m);
+					let data = await info.load(m.id);
 					if(data.records==undefined) data.records=[];
 					let filter=args[3];
 					let records=data.records;
