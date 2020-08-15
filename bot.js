@@ -951,15 +951,15 @@ client.on('message',async message=>{
 		let commands=[{
 			name: "warn",
 			description: "Warn a member.",
-			usage: "warn <@user> [reason]"
+			usage: "mod warn <@user> [reason]"
 		},{
 			name: "mute",
 			description: "Mute a member.",
-			usage: "mute <@user> <time> [reason]"
+			usage: "mod mute <@user> <time> [reason]"
 		},{
 			name: "unmute",
 			description: "Unmute a member.",
-			usage: "unmute <@user> [reason]"
+			usage: "mod unmute <@user> [reason]"
 		},{
 			name: "record",
 			description: "Show a member's record.",
@@ -967,23 +967,27 @@ client.on('message',async message=>{
 		},{
 			name: "kick",
 			description: "Kick a member.",
-			usage: "kick <@user> [reason]"
+			usage: "mod kick <@user> [reason]"
 		},{
 			name: "tempban",
 			description: "Temporarily ban a member.",
-			usage: "tempban <@user> <time> [reason]"
+			usage: "mod tempban <@user> <time> [reason]"
 		},{
 			name: "ban",
 			description: "Permanently ban a member.",
-			usage: "tempban <@user> <time> [reason]"
+			usage: "mod tempban <@user> <time> [reason]"
+		},{
+			name: "unban",
+			description: "Pardon a banned member.",
+			usage: "mod unban <@user> [reason]"
 		},{
 			name: "clearchat",
 			description: "Clear the chat",
-			usage: "clearchat <message count>"
+			usage: "mod clearchat <message count>"
 		},{
 			name: "event",
 			description: "Manage events (if you're a mod and you want to host an event, please get authorisation first)",
-			usage: "event <create,delete,set,announce> (name,desc,time/id) (id)"
+			usage: "mod event <create,delete,set,announce> (name,desc,time/id) (id)"
 		}];
 		if(args[1]=="help"){
 			let embed=new Discord.MessageEmbed().setColor("BLUE").setTitle("Moderation commands help:")
@@ -1170,7 +1174,7 @@ client.on('message',async message=>{
 				await info.save("SERVER",server);
 				
 			} else if(["record","records","rec"].includes(args[1])){
-				let m=message.mentions.members.first();
+				let m=(message.mentions.members.first()||message.guild.member(args[2]));
 				if(m&&!m.user.bot){
 					adminlog("Records Check",message.member,"Checked records.",m);
 					let data = await info.load(m);
@@ -1197,7 +1201,7 @@ client.on('message',async message=>{
 					}
 				}
 			} else if(args[1]=="warn"){
-				let m=message.mentions.members.first();
+				let m=(message.mentions.members.first()||message.guild.member(args[2]));
 				if(m&&!m.user.bot&&!m.roles.cache.array().find(t=>t.id=="728034436997709834"||t.id=="728034751780356096")){
 					let reason=undefined;
 					if(args[3]) reason=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
@@ -1220,7 +1224,7 @@ client.on('message',async message=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct member.").setColor("RED"));	
 				}
 			} else if(args[1]=="kick"){
-				let m=message.mentions.members.first();
+				let m=(message.mentions.members.first()||message.guild.member(args[2]));
 				if(m&&!m.user.bot&&m.kickable){
 					let reason=undefined;
 					if(args[3]) reason=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
@@ -1245,8 +1249,32 @@ client.on('message',async message=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct member.").setColor("RED"));	
 				}
 			} else if(args[1]=="ban"){
-				let m=message.mentions.members.first();
-				if(m&&!m.user.bot&&m.bannable){
+				let m=(message.mentions.members.first()||message.guild.member(args[2])||args[2]);
+				if(typeof m=="string"){
+					try{ 
+						let reason=undefined;
+						if(args[3]) reason=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
+						await message.guild.members.ban(m);
+						await message.react('⛔');
+						adminlog("Perma Ban",message.member,"Banned.",{id: m},reason);
+						await addRecord({id: m},{
+							name: "Perma-ban",
+							type: "ban",
+							timestamp: Date.now(),
+							reason: reason,
+							mod: message.member.id
+						});
+						let embed2 = new Discord.MessageEmbed().setDescription("User ID: **"+m+"** was been perma-banned by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");
+						let msg = await message.channel.send(embed2);
+						await wait(10000);
+						msg.delete()
+						
+					}catch(err){
+						message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't ban that user, please verify his ID.").setColor("RED"))	   
+						
+					}
+					
+				} else if(m&&!m.user.bot&&m.bannable){
 					let reason=undefined;
 					if(args[3]) reason=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
 					adminlog("Perma Ban",message.member,"Banned.",m,reason);
@@ -1269,9 +1297,69 @@ client.on('message',async message=>{
 				} else {
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct member.").setColor("RED"));	
 				}
+			} else if(args[1]=="unban"){
+				let m=args[2];
+				if(!m){
+					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a user ID.").setColor("RED"))	   
+				}else try{
+					await message.guild.members.unban(m);
+					let reason=undefined;
+					if(args[3]) reason=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" ","");
+					adminlog("Ban Revoke",message.member,"Pardoned.",{id: m},reason);
+					await addRecord({id: m},{
+						name: "Pardon",
+						type: "ban",
+						timestamp: Date.now(),
+						reason: reason,
+						mod: message.member.id
+					});
+					let data=await info.load(m);
+					data.tempban=0;
+					await info.save(m,data);
+					message.react("👼");
+					let embed2 = new Discord.MessageEmbed().setDescription("User ID: **"+m+"** has been unbanned by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");let msg = await message.channel.send(embed2);
+					let msg=message.channel.send(embed2);
+					await wait(10000);
+					msg.delete()
+					
+				}catch(err){
+					message.channel.send(new Discord.MessageEmbed().setDescription("The ID you specified isn't banned or doesn't exist, please try again.").setColor("RED"))
+				}
 			} else if(args[1]=="tempban"){
-				let m=message.mentions.members.first();
-				if(m&&!m.user.bot&&m.bannable){
+				let m=(message.mentions.members.first()||message.guild.member(args[2])||args[2]);
+				if(typeof m=="string"){
+					try{ 
+						let seconds=timeformatToSeconds(args[3]);
+						let tstr=msToString(seconds*1000);
+						let reason=undefined;
+						if(args[4]) reason=args_case.join(" ").replace(args_case[0]+" "+args_case[1]+" "+args_case[2]+" "+args_case[3]+" ","");
+						await message.guild.members.ban(m);
+						await message.react('⛔');
+						adminlog("Temp Ban",message.member,"Banned for "+tstr+".",{id: m},reason);
+						await addRecord({id: m},{
+							name: "Temp-ban for "+tstr,
+							type: "ban",
+							timestamp: Date.now(),
+							reason: reason,
+							mod: message.member.id
+						});
+						let data=await info.load(m);
+						data.tempban=Date.now()+seconds*1000;
+						await info.save(m,data);
+						if(((data.tempban-Date.now())/1000)<3600*24*2) setTimeout(function(){
+							message.guild.members.unban(m);
+						},data.tempban-Date.now())
+						let embed2 = new Discord.MessageEmbed().setDescription("User ID: **"+m+"** has been banned temporarily for "+tstr+" by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");let msg = await message.channel.send(embed2);
+						let msg=message.channel.send(embed2);
+						await wait(10000);
+						msg.delete()
+						
+					}catch(err){
+						message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't ban that user, please verify his ID and/or the specified time.").setColor("RED"))	   
+						
+					}
+					
+				} else if(m&&!m.user.bot&&m.bannable){
 					try{
 						let seconds=timeformatToSeconds(args[3]);
 						let tstr=msToString(seconds*1000);
@@ -1308,7 +1396,7 @@ client.on('message',async message=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct member.").setColor("RED"));	
 				}
 			} else if(args[1]=="mute"){
-				let m=message.mentions.members.first();
+				let m=(message.mentions.members.first()||message.guild.member(args[2]));
 				if(m&&!m.user.bot&&!m.roles.cache.array().find(t=>t.id=="728034436997709834"||t.id=="728034751780356096")){
 					try{
 						let seconds=timeformatToSeconds(args[3]);
@@ -1346,7 +1434,7 @@ client.on('message',async message=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct member.").setColor("RED"));	
 				}
 			} else if(args[1]=="unmute"){
-				let m=message.mentions.members.first();
+				let m=(message.mentions.members.first()||message.guild.member(args[2]));
 				if(m&&!m.user.bot&&!m.roles.cache.array().find(t=>t.id=="728034436997709834"||t.id=="728034751780356096")){
 					if(m.roles.cache.array().find(t=>t.id=="728216095835815976")){
 						let reason=undefined;
