@@ -1350,9 +1350,9 @@ client.on('message',async message=>{
 							message.guild.members.unban(m);
 						},data.tempban-Date.now())
 						let embed2 = new Discord.MessageEmbed().setDescription("User ID: **"+m+"** has been banned temporarily for "+tstr+" by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");let msg = await message.channel.send(embed2);
-						let msg=await message.channel.send(embed2);
+						let mss=await message.channel.send(embed2);
 						await wait(10000);
-						msg.delete()
+						mss.delete()
 						
 					}catch(err){
 						message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't ban that user, please verify his ID and/or the specified time.").setColor("RED"))	   
