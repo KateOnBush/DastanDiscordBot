@@ -1318,9 +1318,9 @@ client.on('message',async message=>{
 					await info.save(m,data);
 					message.react("👼");
 					let embed2 = new Discord.MessageEmbed().setDescription("User ID: **"+m+"** has been unbanned by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");let msg = await message.channel.send(embed2);
-					let msg=message.channel.send(embed2);
+					let mss=await message.channel.send(embed2);
 					await wait(10000);
-					msg.delete()
+					mss.delete()
 					
 				}catch(err){
 					message.channel.send(new Discord.MessageEmbed().setDescription("The ID you specified isn't banned or doesn't exist, please try again.").setColor("RED"))
@@ -1350,7 +1350,7 @@ client.on('message',async message=>{
 							message.guild.members.unban(m);
 						},data.tempban-Date.now())
 						let embed2 = new Discord.MessageEmbed().setDescription("User ID: **"+m+"** has been banned temporarily for "+tstr+" by <@"+message.member.id+">!\n**Reason:** "+(reason||"Unspecified")).setColor("YELLOW");let msg = await message.channel.send(embed2);
-						let msg=message.channel.send(embed2);
+						let msg=await message.channel.send(embed2);
 						await wait(10000);
 						msg.delete()
 						
