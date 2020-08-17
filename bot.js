@@ -1784,7 +1784,7 @@ client.on('message',async message=>{
 			days: ["Mon","Tue","Wen","Thu","Sat"] 
 		},{
 			name: "Youtuber",
-			salary 300,
+			salary: 300,
 			hours: 2,
 			days: ["Mon","Tue","Wen","Thu","Fri","Sat","Sun"]
 		},{
