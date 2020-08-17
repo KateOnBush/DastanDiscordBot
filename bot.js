@@ -152,8 +152,8 @@ function msToString(ms){
 	var hours=((ms/1000)-(years*31536000)-(months*2678400)-(weeks*604800)-(days*86400))/3600|0;
 	var minutes=((ms/1000)-(years*31536000)-(months*2678400)-(weeks*604800)-(days*86400)-(hours*3600))/60|0;
 	var seconds=((ms/1000)-(years*31536000)-(months*2678400)-(weeks*604800)-(days*86400)-(hours*3600)-(minutes*60))|0;
-	let s = `${years>0 ? `**${years}** years, ` : '' }` + `${months>0 ? `**${months}** months, ` : '' }` + `${weeks>0 ? `**${weeks}** weeks, ` : '' }` + `${days>0 ? `**${days}** days, ` : '' }` + `${hours>0 ? `**${hours}** hours, ` : '' }` + `${minutes>0 ? `**${minutes}** minutes and ` : '' }` + `**${seconds}** seconds`;
-	return s.replace(" and **0** seconds","").replace(", **0** seconds","");
+	let s = `${years>0 ? `**${years}** year${years>1 ? `s` : ``}, ` : '' }` + `${months>0 ? `**${months}** month${months>1 ? `s` : ``}, ` : '' }` + `${weeks>0 ? `**${weeks}** week${weeks>1 ? `s` : ``}, ` : '' }` + `${days>0 ? `**${days}** day${days>1 ? `s` : ``}, ` : '' }` + `${hours>0 ? `**${hours}** hour${hours>1 ? `s` : ``}, ` : '' }` + `${minutes>0 ? `**${minutes}** minute${minutes>1 ? `s` : ``} and ` : '' }` + `**${seconds}** second${seconds>1 ? `s` : ``}`;
+	return s.replace(" and **0** second","").replace(", **0** second","");
 }
 function timeformatToSeconds(f){
 	return eval(f.replace("s","+").replace("m","*60+").replace("h","*3600+").replace("d","*3600*24+").replace("w","*3600*24*7+").replace("mo","*3600*24*30+").replace("y","*3600*24*365+")+"0");	
@@ -490,10 +490,14 @@ client.on('ready',async ()=>{
 	let server = await info.load("SERVER");
 	if(!server.events) server.events=[];
 	server.events.forEach(async event=>{
-		let message = undefined;
-		try{
-		if(event.messageID) message = await client.channels.cache.get(eventChannelID).messages.fetch(event.messageID);}catch(err){}
-		if(message) message.edit(message.content,eventEmbed(event));
+		let updateEvent=function(){
+			let message = undefined;
+			try{
+			if(event.messageID) message = await client.channels.cache.get(eventChannelID).messages.fetch(event.messageID);}catch(err){}
+			if(message) message.edit(message.content,eventEmbed(event));
+		}
+		updateEvent()
+		setInterval(updateEvent,3600*1000);
 		eventTimer(event);
 	})
 })
@@ -1780,7 +1784,7 @@ client.on('message',async message=>{
 			} else if(amount>data.gold){
 				message.channel.send(new Discord.MessageEmbed().setDescription("You do not have enough gold.").setColor("RED"));	
 			} else {
-				let f=Math.random()*Math.random()*Math.random();
+				let f=Math.random()*Math.random();
 				let gambled = f*2*amount|0;
 				gambled += amount*((Math.random()*2)|0);
 				gambled -= amount;
@@ -1792,7 +1796,7 @@ client.on('message',async message=>{
 				if(gambled<0){
 					embed = new Discord.MessageEmbed().setDescription("**🌑 Oh no, bad luck!** <@!"+message.author.id+">, You just lost **"+ Math.abs(gambled)+"** gold :(.").setColor("RED");	
 				}else if(gambled<amount){
-					embed = new Discord.MessageEmbed().setDescription("**☄️ Lucky!** <@!"+message.author.id+">, You gained **"+ gambled+"** gold.").setColor("CYAN");		
+					embed = new Discord.MessageEmbed().setDescription("**☄️ Lucky!** <@!"+message.author.id+">, You gained **"+ gambled+"** gold.").setColor("AQUA");		
 				}else{
 					embed = new Discord.MessageEmbed().setDescription("**🍀 Four-leaf clover!!** <@!"+message.author.id+">, You gained **"+ gambled+"** gold.").setColor("GREEN");		
 				}
