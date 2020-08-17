@@ -1771,7 +1771,7 @@ client.on('message',async message=>{
 		sortMembers();
 		let embed=new Discord.MessageEmbed().setColor("AQUA").addField("Leaderboard",dataStorage.map((it,i)=>{if(i<10) return (["🥇","🥈","🥉","**4**","**5**","**6**","**7**","**8**","**9**","**10**"])[i] + " — <@!"+it.id+"> " + numberBeautifier(it.messagesEverSent,",")+" pts. (Level "+it.level+")\n"}).join(""),true);
 		message.channel.send(embed)
-	} else if(args[0]=="jobs"){
+	} else if(args[0]==="job"||args[0]==="jobs"){
 		let jobs=[{
 			name: "Teacher",
 			salary: 100,
@@ -1798,13 +1798,21 @@ client.on('message',async message=>{
 			hours: 3,
 			days: ["Mon"]
 		}];
-		let data=await info.load(message.member.id);
-		if(data.fired==undefined) data.fired=[];
-		let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("**Available Jobs for <@!"+message.member.id+">:**");
-		jobs.forEach((job,i)=>{
-			embed.addField(job.name,"Salary: **"+job.salary+"** per hour\nTime: **"+job.hours+"** per day\nDays: **"+job.days.join("**, **")+"**",true);
-		})
-		message.channel.send(embed);
+		if(args[1]=="list"||!args[2]){
+			let data=await info.load(message.member.id);
+			if(data.fired==undefined) data.fired=[];
+			let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("**Available Jobs for <@!"+message.member.id+">:**");
+			if(data.job!=undefined){
+				let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("You're working as: **"+jobs[data.job].name+"**!");
+			} else if(data.fired.length===jobs.length){
+				embed=new Discord.MessageEmbed().setColor("RED").setDescription("You've been fired from all jobs! :( Please wait some time before you can get a job again!");
+			} else {
+				jobs.forEach((job,i)=>{
+					if(!data.fired.includes(i)) embed.addField(job.name,"**Salary**: "+job.salary+" gold per hour\n**Time**: "+job.hours+" hours per day\n**Days**: "+job.days.join(", "),true);
+				})
+			}
+			message.channel.send(embed);
+		}
 	} else if(args[0]=="gamble"){
 		let data = await info.load(message.member.id);
 		args=args.join(" ").replace("all",data.gold).replace("half",data.gold/2|0).replace("quarter",data.gold/4|0).replace("third",data.gold/3|0).split(" ");
