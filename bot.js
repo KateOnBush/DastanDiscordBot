@@ -1795,7 +1795,7 @@ client.on('message',async message=>{
 		},{
 			name: "Pilot",
 			salary: 800,
-			hours: 3
+			hours: 3,
 			days: ["Mon"]
 		}];
 		let data=await info.load(message.member.id);
