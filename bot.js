@@ -490,7 +490,7 @@ client.on('ready',async ()=>{
 	let server = await info.load("SERVER");
 	if(!server.events) server.events=[];
 	server.events.forEach(async event=>{
-		let updateEvent=function(){
+		let updateEvent=async function(){
 			let message = undefined;
 			try{
 			if(event.messageID) message = await client.channels.cache.get(eventChannelID).messages.fetch(event.messageID);}catch(err){}
