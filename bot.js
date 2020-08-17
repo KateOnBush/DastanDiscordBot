@@ -1771,6 +1771,40 @@ client.on('message',async message=>{
 		sortMembers();
 		let embed=new Discord.MessageEmbed().setColor("AQUA").addField("Leaderboard",dataStorage.map((it,i)=>{if(i<10) return (["🥇","🥈","🥉","**4**","**5**","**6**","**7**","**8**","**9**","**10**"])[i] + " — <@!"+it.id+"> " + numberBeautifier(it.messagesEverSent,",")+" pts. (Level "+it.level+")\n"}).join(""),true);
 		message.channel.send(embed)
+	} else if(args[0]=="jobs"){
+		let jobs=[{
+			name: "Teacher",
+			salary: 100,
+			hours: 6,
+			days: ["Mon","Tue","Wen","Thu","Fri"] 
+		},{
+			name: "Policeman",
+			salary: 150,
+			hours: 5,
+			days: ["Mon","Tue","Wen","Thu","Sat"] 
+		},{
+			name: "Youtuber",
+			salary 300,
+			hours: 2,
+			days: ["Mon","Tue","Wen","Thu","Fri","Sat","Sun"]
+		},{
+			name: "Drug Dealer",
+			salary: 1000,
+			hours: 2,
+			days: ["Sat","Sun"]
+		},{
+			name: "Pilot",
+			salary: 800,
+			hours: 3
+			days: ["Mon"]
+		}];
+		let data=await info.load(message.member.id);
+		if(data.fired==undefined) data.fired=[];
+		let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("**Available Jobs for <@!"+message.member.id+">:**");
+		jobs.forEach((job,i)=>{
+			embed.addField(job.name,"Salary: **"+job.salary+"** per hour\nTime: **"+job.hours+"** per day\nDays: **"+job.days.join("**, **")+"**",true);
+		})
+		message.channel.send(embed);
 	} else if(args[0]=="gamble"){
 		let data = await info.load(message.member.id);
 		args=args.join(" ").replace("all",data.gold).replace("half",data.gold/2|0).replace("quarter",data.gold/4|0).replace("third",data.gold/3|0).split(" ");
@@ -2039,11 +2073,14 @@ client.on('message',async message=>{
 			cmd=(cat.commands.find(t=>(t.name==args[1]))||cmd);
 		})
 		if(["",undefined].includes(args[1])){
-			var embed= new Discord.MessageEmbed().setColor("AQUA").setTitle("Command list").setDescription("Use `help <command>` for specific command help");
-			commands.forEach(cat=>{
-				embed.addField("__"+cat.name+"__","*"+cat.description+"*\n"+cat.commands.map((item,id)=>{return "`"+item.name+"` - "+item.description;}).join("\n"),true);
+			var embeds=[new Discord.MessageEmbed().setColor("AQUA").setTitle("Command list").setDescription("Use `help <command>` for specific command help")];
+			commands.forEach((cat,i)=>{
+				if(embeds[i/2|0]==undefined) embeds.push(new Discord.MessageEmbed().setColor("AQUA"));
+				embeds[i/2|0].addField("__"+cat.name+"__","*"+cat.description+"*\n"+cat.commands.map((item,id)=>{return "`"+item.name+"` - "+item.description;}).join("\n"),true);
 			})
-			message.channel.send(embed);
+			embeds.forEach(em=>{
+				message.channel.send(em);
+			})
 		} else if(cmd!=undefined){
 			var embed= new Discord.MessageEmbed().setColor("fafafa").setTitle("Command help: " + args[1]);
 			embed.addField("Description",cmd.longDescription||cmd.description);
