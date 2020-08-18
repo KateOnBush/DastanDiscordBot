@@ -1831,22 +1831,20 @@ client.on('message',async message=>{
 			        "You flew from Madrid to Marrakesh",
 			        "You flew from Marseille to Lisbonne",
 			        "You flew from Islamabad to Ankara"]
-		}];
+		},];
 		if(args[1]=="list"||!args[1]){
 			let data=await info.load(message.member.id);
 			if(data.fired==undefined) data.fired=[];
-			let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("**Available Jobs for <@!"+message.member.id+">:**");
+			let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("**Available jobs for <@!"+message.member.id+">:**");
 			if(data.job!=undefined){
-				embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("You're working as: **"+jobs[data.job].name+"**! If you wish to leave your job `job leave`!");
+				embed=new Discord.MessageEmbed().setColor("AQUA").setDescription("You're working as **"+jobs[data.job].name+"**. If you wish to leave your job, use `job leave`");
 			} else if(data.fired.length===jobs.length){
 				embed=new Discord.MessageEmbed().setColor("RED").setDescription("You've been fired from all jobs! :( Please wait some time before you can get a job again!");
-			} else {
-				jobs.forEach((job,i)=>{
-					if(!data.fired.includes(i)) embed.addField(job.name,"**Salary**: "+job.salary+" gold per hour\n**Time**: "+job.hours+" hours per day\n**Days**: "+job.days.join(", "),true);
-				})
-			}
+			jobs.forEach((job,i)=>{
+				embed.addField(job.name + (data.fired.includes(i)?" (Fired)":""),"**Salary**: "+job.salary+" gold per hour\n**Time**: "+job.hours+" hours per day\n**Days**: "+job.days.join(", "),true);
+			})
 			message.channel.send(embed);
-		} else if(args[2]==="work"){
+		} else if(args[1]==="work"){
 			let data=await info.load(message.member.id);
 			if(data.job==undefined){
 				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You do not have a job yet, please use `job list` to see available jobs for you and `job apply` to apply for a job!"));
@@ -1858,7 +1856,7 @@ client.on('message',async message=>{
 					data.workedToday=0;	
 				}
 				if(!jobs[data.job].days.includes(days[new Date().getDay()])){
-					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("This is a day off, please come back on "+jobs[data.job].days.join(", ")+"."));
+					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("🌥️ This is a day off, please come back on "+jobs[data.job].days.join(", ")+"."));
 				}else if(data.workedToday>=jobs[data.job].hours){
 					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You worked enough today, please come back another day."));
 				} else if(Date.now()-data.lastWorked<3600*1000){
@@ -1868,14 +1866,14 @@ client.on('message',async message=>{
 					data.lastWorked=Date.now();
 					data.workedToday+=1;
 					let work=jobs[data.job].works[Math.random()*jobs[data.job].works.length|0]
-					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("**"+work+"**! You received **"+jobs[data.job].salary+"** gold!"));
+					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("💼 **"+work+"**! You received **"+jobs[data.job].salary+"** gold!"));
 				}
 			}
 			await info.save(message.member.id,data)
 		} else if(args[1]==="leave"){
 			let data=await info.load(message.member.id);
 			if(data.job){
-				message.channel.send(new Discord.MessageEmbed().setColor("AQUA").setDescription("You just left your job: **"+jobs[data.job].name+"**. Your colleagues will miss you!"));
+				message.channel.send(new Discord.MessageEmbed().setColor("AQUA").setDescription("👋 You just left your job: **"+jobs[data.job].name+"**. Your colleagues will miss you!"));
 				data.job=undefined;
 			} else {
 				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You don't have a job."));
@@ -1888,7 +1886,7 @@ client.on('message',async message=>{
 					let job=jobs.find(j=>j.name.toLowerCase().split(" ").join("")===args.join("").replace(args[0]+args[1],""));
 					let jobID=jobs.findIndex(j=>j.name.toLowerCase().split(" ").join("")===args.join("").replace(args[0]+args[1],""));
 					if(job){
-						message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("You got the job! Congrats, you are now **"+job.name+"**!"));
+						message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("👨‍✈️ You got the job! Congrats, you are now **"+job.name+"**!"));
 						data.job=jobID;
 					} else {
 						message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Couldn't find that job, please check the spelling."));
