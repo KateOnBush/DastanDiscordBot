@@ -1774,7 +1774,7 @@ client.on('message',async message=>{
 	} else if(args[0]==="job"||args[0]==="jobs"||args[0]==="work"||args[0]==="j"){
 		let jobs=[{
 			name: "Teacher",
-			salary: 45,
+			salary: 70,
 			hours: 6,
 			days: ["Mon","Tue","Wed","Thu","Fri"],
 			works: ["You have teached a good lesson",
@@ -1786,7 +1786,7 @@ client.on('message',async message=>{
 			        "You did a cool activity for your students"]
 		},{
 			name: "Policeman",
-			salary: 55,
+			salary: 80,
 			hours: 5,
 			days: ["Mon","Tue","Wed","Thu","Sat"],
 			works: ["You arrested a robber",
@@ -1798,7 +1798,7 @@ client.on('message',async message=>{
 			        "Someone was breaking into a store, but you were there luckily"]
 		},{
 			name: "Youtuber",
-			salary: 80,
+			salary: 120,
 			hours: 2,
 			days: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
 			works: ["You recorded a vlog",
@@ -1810,7 +1810,7 @@ client.on('message',async message=>{
 			        "You featured another youtuber"]
 		},{
 			name: "Drug Dealer",
-			salary: 225,
+			salary: 280,
 			hours: 2,
 			days: ["Sat","Sun"],
 			works: ["You delt some cocaine",
@@ -1820,7 +1820,7 @@ client.on('message',async message=>{
 			        "You had a cool customer"]
 		},{
 			name: "Pilot",
-			salary: 190,
+			salary: 350,
 			hours: 3,
 			days: ["Mon"],
 			works: ["You flew from LA to Paris",
