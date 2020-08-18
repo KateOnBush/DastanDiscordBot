@@ -1853,8 +1853,9 @@ client.on('message',async message=>{
 				let days=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 				if(!data.lastWorked) data.lastWorked=0;
 				if(!data.workedToday) data.workedToday=0;
-				if(data.workedToday>=jobs[data.job].hours&&Date.now()-data.lastWorked>3600*1000*24){
-					data.workedToday=0;	
+				if(data.lastDayWorked!=new Date().toLocaleDateString()){
+					data.workedToday=0;
+					data.lastDayWorked=new Date().toLocaleDateString();
 				}
 				if(!jobs[data.job].days.includes(days[new Date().getDay()])){
 					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("🌥️ This is a day off, please come back on "+jobs[data.job].days.join(", ")+"."));
@@ -1866,6 +1867,7 @@ client.on('message',async message=>{
 					data.gold+=jobs[data.job].salary;
 					data.lastWorked=Date.now();
 					data.workedToday+=1;
+					data.lastDayWorked=new Date().toLocaleDateString();
 					let work=jobs[data.job].works[Math.random()*jobs[data.job].works.length|0]
 					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("💼 **"+work+"**! You received **"+jobs[data.job].salary+"** gold!"));
 				}
