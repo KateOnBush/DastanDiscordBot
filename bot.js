@@ -2183,7 +2183,7 @@ client.on('message',async message=>{
 			cmd=(cat.commands.find(t=>(t.name==args[1]))||cmd);
 		})
 		if(!cmd) commands.forEach(cat=>{
-			cmd=(cat.commands.find(t=>t.aliases.includes(args[1]))||cmd);
+			cmd=(cat.commands.find(t=>{if(t.aliases)t.aliases.includes(args[1])})||cmd);
 		});
 		if(["",undefined].includes(args[1])){
 			var embeds=[new Discord.MessageEmbed().setColor("AQUA").setTitle("Command list").setDescription("Use `help <command>` for specific command help")];
