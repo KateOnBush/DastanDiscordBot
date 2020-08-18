@@ -1771,39 +1771,73 @@ client.on('message',async message=>{
 		sortMembers();
 		let embed=new Discord.MessageEmbed().setColor("AQUA").addField("Leaderboard",dataStorage.map((it,i)=>{if(i<10) return (["🥇","🥈","🥉","**4**","**5**","**6**","**7**","**8**","**9**","**10**"])[i] + " — <@!"+it.id+"> " + numberBeautifier(it.messagesEverSent,",")+" pts. (Level "+it.level+")\n"}).join(""),true);
 		message.channel.send(embed)
-	} else if(args[0]==="job"||args[0]==="jobs"){
+	} else if(args[0]==="job"||args[0]==="jobs"||args[0]==="work"||args[0]==="j"){
 		let jobs=[{
 			name: "Teacher",
-			salary: 100,
+			salary: 80,
 			hours: 6,
-			days: ["Mon","Tue","Wen","Thu","Fri"] 
+			days: ["Mon","Tue","Wen","Thu","Fri"],
+			works: ["You have teached a good lesson",
+				"Your students had a surprise test",
+				"You did some boring exercises with your students",
+			        "Your students did not enjoy the lesson, but it's okay",
+			        "You had a meeting today, and it was pretty good",
+			        "Two of your students did a cool presentation",
+			        "You did a cool activity for your students"]
 		},{
 			name: "Policeman",
-			salary: 150,
+			salary: 100,
 			hours: 5,
-			days: ["Mon","Tue","Wen","Thu","Sat"] 
+			days: ["Mon","Tue","Wen","Thu","Sat"],
+			works: ["You arrested a robber",
+			        "You prevented 3 murders",
+			        "You saved a pregnant woman's life",
+			        "You almost got killed by a mafia but fortunately they got arrested",
+			        "There wasn't really any crimes this time, you just ate some donuts in your car",
+			        "You caught some drug dealers in the act",
+			        "Someone was breaking into a store, but you were there luckily"]
 		},{
 			name: "Youtuber",
-			salary: 300,
+			salary: 120,
 			hours: 2,
-			days: ["Mon","Tue","Wen","Thu","Fri","Sat","Sun"]
+			days: ["Mon","Tue","Wen","Thu","Fri","Sat","Sun"],
+			works: ["You recorded a vlog",
+			        "You did a little livestream, your fans enjoyed it",
+			        "You did a prank on your girlfriend",
+				"You recorded a funny video",
+			        "You recorded a music video",
+			        "You made a cool edit",
+			        "You featured another youtuber"]
 		},{
 			name: "Drug Dealer",
-			salary: 1000,
+			salary: 450,
 			hours: 2,
-			days: ["Sat","Sun"]
+			days: ["Sat","Sun"],
+			works: ["You delt some cocaine",
+			        "You got a lot of customers this time",
+			        "You made good sales",
+			        "You delt just a little this time, but it was enough",
+			        "You had a cool customer"]
 		},{
 			name: "Pilot",
-			salary: 800,
+			salary: 380,
 			hours: 3,
-			days: ["Mon"]
+			days: ["Mon"],
+			works: ["You flew from LA to Paris",
+			        "You had a late night flight, so tiring",
+			        "You just had fun in this flight",
+			        "You almost slept in the cockpit",
+			        "You flew from Moscow to Berlin",
+			        "You flew from Madrid to Marrakesh",
+			        "You flew from Marseille to Lisbonne",
+			        "You flew from Islamabad to Ankara"]
 		}];
 		if(args[1]=="list"||!args[2]){
 			let data=await info.load(message.member.id);
 			if(data.fired==undefined) data.fired=[];
 			let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("**Available Jobs for <@!"+message.member.id+">:**");
 			if(data.job!=undefined){
-				let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("You're working as: **"+jobs[data.job].name+"**!");
+				let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("You're working as: **"+jobs[data.job].name+"**! If you wish to leave your job `job leave`!");
 			} else if(data.fired.length===jobs.length){
 				embed=new Discord.MessageEmbed().setColor("RED").setDescription("You've been fired from all jobs! :( Please wait some time before you can get a job again!");
 			} else {
@@ -1812,6 +1846,60 @@ client.on('message',async message=>{
 				})
 			}
 			message.channel.send(embed);
+		} else if(args[2]==="work"){
+			let data=await info.load(message.member.id);
+			if(data.job==undefined){
+				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You do not have a job yet, please use `job list` to see available jobs for you and `job apply` to apply for a job!"));
+			} else {
+				let days=["Mon","Tue","Wen","Thu","Fri","Sat","Sun"];
+				if(!data.lastWorked) data.lastWorked=0;
+				if(!data.workedToday) data.workedToday=0;
+				if(data.workedToday>=jobs[data.job].hours&&Date.now()-data.lastWorked>3600*1000*24){
+					data.workedToday=0;	
+				}
+				if(!jobs[data.job].days.includes(days[new Date().getDay()])){
+					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("This is a day off, please come back on "+jobs[data.job].days.join(", ")+"."));
+				}else if(data.workedToday>=jobs[data.job].hours){
+					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You worked enough today, please come back another day."));
+				} else if(Date.now()-data.lastWorked<3600*1000){
+					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You already worked this hour, please come back in "+msToString(Date.now()-data.lastWorked)+"."));
+				} else {
+					data.gold+=jobs[data.job].salary;
+					data.lastWorked=Date.now();
+					data.workedToday+=1;
+					let work=jobs[data.job].works[Math.random()*jobs[data.job].works.length|0]
+					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("**"+work+"**! You received **"+jobs[data.job].salary+"** gold!"));
+				}
+			}
+			await info.save(message.member.id,data)
+		} else if(args[1]==="leave"){
+			let data=await info.load(message.member.id);
+			if(data.job){
+				message.channel.send(new Discord.MessageEmbed().setColor("AQUA").setDescription("You just left your job: **"+jobs[data.job].name+"**. Your colleagues will miss you!"));
+				data.job=undefined;
+			} else {
+				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You don't have a job."));
+			}
+			await info.save(message.member.id,data)
+		} else if(args[1]==="apply"){
+			let data=await info.load(message.member.id);
+			if(!data.job){
+				if(args[2]){
+					let job=jobs.find(j=>j.name.toLowerCase().split(" ").join("")===args.join("").replace(args[0]+args[1],""));
+					let jobID=jobs.findIndex(j=>j.name.toLowerCase().split(" ").join("")===args.join("").replace(args[0]+args[1],""));
+					if(job){
+						message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("You got the job! Congrats, you are now **"+job+"**!"));
+						data.job=jobID;
+					} else {
+						message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Couldn't find that job, please check the spelling."));
+					}
+				} else {
+					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a job."));	
+				}
+			} else {
+				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You already have a job."));
+			}
+			await info.save(message.member.id,data)
 		}
 	} else if(args[0]=="gamble"){
 		let data = await info.load(message.member.id);
@@ -1986,11 +2074,13 @@ client.on('message',async message=>{
 			commands:[{
 				name: "ping",
 				description: "Shows the bot's latency.",
-				usage: "ping" 
+				usage: "ping",
+				aliases: "latency"
 			},{
 				name: "stats",
 				description: "Info and stats about the bot.",
-				usage: "stats" 
+				usage: "stats" ,
+				aliases: "info, statistics, botinfo"
 			},{
 				name: "uptime",
 				description: "Shows the bot's uptime.",
@@ -2005,7 +2095,8 @@ client.on('message',async message=>{
 			},{
 				name: "level",
 				description: "Displays your/someone's level.",
-				usage: "level [@user]"
+				usage: "level [@user]",
+				aliases: "l, xp, exp, experience, progress"
 			},{
 				name: "color",
 				description: "Name color commands.",
@@ -2015,7 +2106,8 @@ client.on('message',async message=>{
 			},{
 				name: "leaderboard",
 				description: "Displays top 10 server members.",
-				usage: "leaderboard"
+				usage: "leaderboard",
+				aliases: "board, list"
 			}]
 		},{
 			name: "Economy",
@@ -2024,7 +2116,8 @@ client.on('message',async message=>{
 				name: "dailyreward",
 				description: "Claim your daily reward.",
 				longDescription: "Claim a daily **40** gold reward, if you get lucky and claim it soon enough, you may get more gold!",
-				usage: "dailyreward"
+				usage: "dailyreward",
+				aliases: "dr, daily, reward"
 			},{
 				name: "gold",
 				description: "Displays your/someone's gold.",
@@ -2039,6 +2132,11 @@ client.on('message',async message=>{
 				name: "gamble",
 				description: "Gamble and if you're lucky enough, double your money :)",
 				usage: "gamble <amount>"
+			},{
+				name: "job",
+				description: "Get a job, work, get paid!",
+				usage: "job <list/apply/work/leave> (job)",
+				aliases: "jobs, work, j"
 			}]
 		},{
 			name: "Fun & Entertainement",
@@ -2050,11 +2148,13 @@ client.on('message',async message=>{
 			},{
 				name: "randommeme",
 				description: "Random meme from reddit!",
-				usage: "randommeme"
+				usage: "randommeme",
+				aliases: "meme, rmeme"
 			},{
 				name: "tronald",
 				description: "Dumbest quotes Donald Trump has ever said!",
-				usage: "tronald"
+				usage: "tronald",
+				aliases: "donald, trump, donaldtrump"
 			}]
 		},{
 			name: "Knowledge",
@@ -2063,16 +2163,19 @@ client.on('message',async message=>{
 				name: "word",
 				description: "Get the definition, rhymes and other useful info about English words!",
 				usage: "word <meaning/rhyme/syllables/synonyms/antonyms> <word>",
-				subcommands: "meaning, rhyme, syllables, synonyms, antonyms"
+				subcommands: "meaning, rhyme, syllables, synonyms, antonyms",
+				aliases: "words, dictionnary, w"
 			},{
 				name: "randomfact",
 				description: "Random useless fact :)",
-				usage: "randomfact"
+				usage: "randomfact",
+				aliases: "rfact"
 			},{
 				name: "numberfact",
 				description: "Random fact about numbers!",
 				longDescription: "Random fact about numbers! you can specify a number to get a fact about it",
-				usage: "randomfact [number]"
+				usage: "numberfact [number]",
+				aliases: "numfact, nfact"
 			}]
 		}
 		]
@@ -2094,6 +2197,7 @@ client.on('message',async message=>{
 			embed.addField("Description",cmd.longDescription||cmd.description);
 			embed.addField("Sub-commands",cmd.subcommands||"None.",true);
 			embed.addField("Usage","*"+cmd.usage+"*",true)
+			embed.addField("Aliases",cmd.aliases||"No aliases.")
 			message.channel.send(embed);
 			
 		} else {
