@@ -1774,9 +1774,9 @@ client.on('message',async message=>{
 	} else if(args[0]==="job"||args[0]==="jobs"||args[0]==="work"||args[0]==="j"){
 		let jobs=[{
 			name: "Teacher",
-			salary: 80,
+			salary: 45,
 			hours: 6,
-			days: ["Mon","Tue","Wen","Thu","Fri"],
+			days: ["Mon","Tue","Wed","Thu","Fri"],
 			works: ["You have teached a good lesson",
 				"Your students had a surprise test",
 				"You did some boring exercises with your students",
@@ -1786,9 +1786,9 @@ client.on('message',async message=>{
 			        "You did a cool activity for your students"]
 		},{
 			name: "Policeman",
-			salary: 100,
+			salary: 55,
 			hours: 5,
-			days: ["Mon","Tue","Wen","Thu","Sat"],
+			days: ["Mon","Tue","Wed","Thu","Sat"],
 			works: ["You arrested a robber",
 			        "You prevented 3 murders",
 			        "You saved a pregnant woman's life",
@@ -1798,9 +1798,9 @@ client.on('message',async message=>{
 			        "Someone was breaking into a store, but you were there luckily"]
 		},{
 			name: "Youtuber",
-			salary: 120,
+			salary: 80,
 			hours: 2,
-			days: ["Mon","Tue","Wen","Thu","Fri","Sat","Sun"],
+			days: ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
 			works: ["You recorded a vlog",
 			        "You did a little livestream, your fans enjoyed it",
 			        "You did a prank on your girlfriend",
@@ -1810,7 +1810,7 @@ client.on('message',async message=>{
 			        "You featured another youtuber"]
 		},{
 			name: "Drug Dealer",
-			salary: 450,
+			salary: 225,
 			hours: 2,
 			days: ["Sat","Sun"],
 			works: ["You delt some cocaine",
@@ -1820,7 +1820,7 @@ client.on('message',async message=>{
 			        "You had a cool customer"]
 		},{
 			name: "Pilot",
-			salary: 380,
+			salary: 190,
 			hours: 3,
 			days: ["Mon"],
 			works: ["You flew from LA to Paris",
@@ -1850,7 +1850,7 @@ client.on('message',async message=>{
 			if(data.job==undefined){
 				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You do not have a job yet, please use `job list` to see available jobs for you and `job apply` to apply for a job!"));
 			} else {
-				let days=["Mon","Tue","Wen","Thu","Fri","Sat","Sun"];
+				let days=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 				if(!data.lastWorked) data.lastWorked=0;
 				if(!data.workedToday) data.workedToday=0;
 				if(data.workedToday>=jobs[data.job].hours&&Date.now()-data.lastWorked>3600*1000*24){
