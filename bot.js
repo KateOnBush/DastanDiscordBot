@@ -1832,12 +1832,12 @@ client.on('message',async message=>{
 			        "You flew from Marseille to Lisbonne",
 			        "You flew from Islamabad to Ankara"]
 		}];
-		if(args[1]=="list"||!args[2]){
+		if(args[1]=="list"||!args[1]){
 			let data=await info.load(message.member.id);
 			if(data.fired==undefined) data.fired=[];
 			let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("**Available Jobs for <@!"+message.member.id+">:**");
 			if(data.job!=undefined){
-				let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("You're working as: **"+jobs[data.job].name+"**! If you wish to leave your job `job leave`!");
+				embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("You're working as: **"+jobs[data.job].name+"**! If you wish to leave your job `job leave`!");
 			} else if(data.fired.length===jobs.length){
 				embed=new Discord.MessageEmbed().setColor("RED").setDescription("You've been fired from all jobs! :( Please wait some time before you can get a job again!");
 			} else {
@@ -1888,7 +1888,7 @@ client.on('message',async message=>{
 					let job=jobs.find(j=>j.name.toLowerCase().split(" ").join("")===args.join("").replace(args[0]+args[1],""));
 					let jobID=jobs.findIndex(j=>j.name.toLowerCase().split(" ").join("")===args.join("").replace(args[0]+args[1],""));
 					if(job){
-						message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("You got the job! Congrats, you are now **"+job+"**!"));
+						message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("You got the job! Congrats, you are now **"+job.name+"**!"));
 						data.job=jobID;
 					} else {
 						message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Couldn't find that job, please check the spelling."));
@@ -2183,6 +2183,9 @@ client.on('message',async message=>{
 		commands.forEach(cat=>{
 			cmd=(cat.commands.find(t=>(t.name==args[1]))||cmd);
 		})
+		if(!cmd) commands.forEach(cat=>{
+			cmd=(cat.commands.find(t=>t.aliases.includes(args[1]))||cmd);
+		});
 		if(["",undefined].includes(args[1])){
 			var embeds=[new Discord.MessageEmbed().setColor("AQUA").setTitle("Command list").setDescription("Use `help <command>` for specific command help")];
 			commands.forEach((cat,i)=>{
