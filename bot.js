@@ -1840,6 +1840,7 @@ client.on('message',async message=>{
 				embed=new Discord.MessageEmbed().setColor("AQUA").setDescription("You're working as **"+jobs[data.job].name+"**. If you wish to leave your job, use `job leave`");
 			} else if(data.fired.length===jobs.length){
 				embed=new Discord.MessageEmbed().setColor("RED").setDescription("You've been fired from all jobs! :( Please wait some time before you can get a job again!");
+			}
 			jobs.forEach((job,i)=>{
 				embed.addField(job.name + (data.fired.includes(i)?" (Fired)":""),"**Salary**: "+job.salary+" gold per hour\n**Time**: "+job.hours+" hours per day\n**Days**: "+job.days.join(", "),true);
 			})
