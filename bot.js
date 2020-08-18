@@ -1861,7 +1861,7 @@ client.on('message',async message=>{
 				}else if(data.workedToday>=jobs[data.job].hours){
 					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You worked enough today, please come back another day."));
 				} else if(Date.now()-data.lastWorked<3600*1000){
-					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You already worked this hour, please come back in "+msToString(Date.now()-data.lastWorked)+"."));
+					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You already worked this hour, please come back in "+msToString(data.lastWorked+3600*1000-Date.now())+"."));
 				} else {
 					data.gold+=jobs[data.job].salary;
 					data.lastWorked=Date.now();
