@@ -874,7 +874,7 @@ client.on('message',async message=>{
 	if(Date.now()-message.author.antiSpamFirst<10000){
 		if(message.author.antiSpamCount>8){
 			adminlog("Mute",client.user,"Muted for "+msToString(3600000),message.member,"Spam.");
-			await addRecord(m,{
+			await addRecord(message.member,{
 				name: "Mute for "+msToString(3600000),
 				type: "mute",
 				timestamp: Date.now(),
