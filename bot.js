@@ -96,7 +96,7 @@ async function loadProfile(member){
 	.setColor(stat).printCircle(91.5,91.5,11).setShadowBlur(10)
 .setColor(member.displayHexColor).printRoundedRectangle(124,83,(500-120-24-8)*xpc,17,12.5);
 	let tg = canvas.measureText(name);
-	canvas = canvas.printText(name, 120, 45).setGlobalAlpha(0.5).setTextFont('13px Impact').printText(tag,124+tg.width,45).setGlobalAlpha(1).setTextFont('20px Impact').setTextAlign('right').setColor("#cfc402").setShadowBlur(0).printText("#"+rank,500-28,45).setColor(member.displayHexColor).setTextFont('10px Impact').setShadowBlur(4).printText((xpc*100|0)+"%",500-28,75).setTextAlign('left').setShadowBlur(4).setColor("#ffffff").setTextFont('12px Impact')
+	canvas = canvas.printText(name, 120, 45).setGlobalAlpha(0.9).setTextFont('15px Impact').printText(tag,120+tg.width,45).setGlobalAlpha(1).setTextFont('20px Impact').setTextAlign('right').setColor("#cfc402").setShadowBlur(0).printText("#"+rank,500-28,45).setColor(member.displayHexColor).setTextFont('10px Impact').setShadowBlur(4).printText((xpc*100|0)+"%",500-28,75).setTextAlign('left').setShadowBlur(4).setColor("#ffffff").setTextFont('12px Impact')
     	.printText((data.pname||""), 120, 62)
 	.setShadowBlur(6).setTextFont('12px Impact')
 	.setColor("white").printText("Bio:",24,126).setColor(member.displayHexColor).printWrappedText((data.bio||"No bio set."), 70, 126,500-24-70)
@@ -491,13 +491,16 @@ client.on('ready',async ()=>{
 	if(!server.events) server.events=[];
 	server.events.forEach(async event=>{
 		let updateEvent=async function(){
+			let ser = await info.load("SERVER");
+			if(!ser.events) ser.events=[];
+			let ev=ser.events.find(v=>v.id===event.id);
 			let message = undefined;
 			try{
-			if(event.messageID) message = await client.channels.cache.get(eventChannelID).messages.fetch(event.messageID);}catch(err){}
-			if(message) message.edit(message.content,eventEmbed(event));
+			if(ev.messageID) message = await client.channels.cache.get(eventChannelID).messages.fetch(ev.messageID);}catch(err){}
+			if(message) message.edit(message.content,eventEmbed(ev));
 		}
 		updateEvent()
-		setInterval(updateEvent,3600*1000);
+		setInterval(updateEvent,60*10*1000);
 		eventTimer(event);
 	})
 })
@@ -875,7 +878,7 @@ client.on('message',async message=>{
 				name: "Mute for "+msToString(3600000),
 				type: "mute",
 				timestamp: Date.now(),
-				reason: reason,
+				reason: "Spam",
 				mod: client.user.id
 			});
 			let data=await info.load(message.member.id);
@@ -1486,7 +1489,7 @@ client.on('message',async message=>{
 				let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("💸 You have claimed your **50** gold daily reward!");
 				if(Date.now()-data.dailyReward-3600*24*1000<60*1000){
 					gold+=600;
-					embed.setDescription(embed.description+"\n⌛ You have claimed your reward incredibly early! You received an additional **500** gold!");
+					embed.setDescription(embed.description+"\n⌛ You have claimed your reward incredibly early! You received an additional **600** gold!");
 				}else if(Date.now()-data.dailyReward-3600*24*1000<10*60*1000){
 					gold+=300;
 					embed.setDescription(embed.description+"\n⌛ You have claimed your reward very early! You received an additional **300** gold!");
@@ -1615,6 +1618,9 @@ client.on('message',async message=>{
 						if(data.pname.length<4||data.pname.length>50){
 							message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Your profile name must be between 4 and 50 characters long."));
 						} else {
+							if(data.pname===message.author.username){
+								message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Dude that's literally your name, come on, come up with something more creative!"));
+							}
 							info.save(message.member.id,data).then(()=>{
 								message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("Profile name successfully updated!"));
 							})
@@ -1850,7 +1856,7 @@ client.on('message',async message=>{
 			if(data.job==undefined){
 				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You do not have a job yet, please use `job list` to see available jobs for you and `job apply` to apply for a job!"));
 			} else {
-				let days=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+				let days=["Tue","Wed","Thu","Fri","Sat","Sun","Mon"];
 				if(!data.lastWorked) data.lastWorked=0;
 				if(!data.workedToday) data.workedToday=0;
 				if(data.lastDayWorked!=new Date().toLocaleDateString()){
@@ -1878,6 +1884,7 @@ client.on('message',async message=>{
 			if(data.job){
 				message.channel.send(new Discord.MessageEmbed().setColor("AQUA").setDescription("👋 You just left your job: **"+jobs[data.job].name+"**. Your colleagues will miss you!"));
 				data.job=undefined;
+				data.leftJob=Date.now();
 			} else {
 				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You don't have a job."));
 			}
@@ -1888,7 +1895,9 @@ client.on('message',async message=>{
 				if(args[2]){
 					let job=jobs.find(j=>j.name.toLowerCase().split(" ").join("")===args.join("").replace(args[0]+args[1],""));
 					let jobID=jobs.findIndex(j=>j.name.toLowerCase().split(" ").join("")===args.join("").replace(args[0]+args[1],""));
-					if(job){
+					if(data.leftJob&&Date.now()-data.leftJob<3600*24*1000){
+						message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You just left a job, please wait "+msToString(data.leftJob+3600*24*1000-Date.now())+" to apply for another job."));
+					} else if(job){
 						message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("👨‍✈️ You got the job! Congrats, you are now **"+job.name+"**!"));
 						data.job=jobID;
 					} else {
@@ -2185,7 +2194,7 @@ client.on('message',async message=>{
 			cmd=(cat.commands.find(t=>(t.name==args[1]))||cmd);
 		})
 		if(!cmd) commands.forEach(cat=>{
-			cmd=(cat.commands.find(t=>{if(t.aliases)t.aliases.includes(args[1])})||cmd);
+			cmd=(cat.commands.find(t=>{if(t.aliases) return t.aliases.includes(args[1]);})||cmd);
 		});
 		if(["",undefined].includes(args[1])){
 			var embeds=[new Discord.MessageEmbed().setColor("AQUA").setTitle("Command list").setDescription("Use `help <command>` for specific command help")];
