@@ -96,7 +96,7 @@ async function loadProfile(member){
 	.setColor(stat).printCircle(91.5,91.5,11).setShadowBlur(10)
 .setColor(member.displayHexColor).printRoundedRectangle(124,83,(500-120-24-8)*xpc,17,12.5);
 	let tg = canvas.measureText(name);
-	canvas = canvas.printText(name, 120, 45).setGlobalAlpha(0.9).setTextFont('15px Impact').printText(tag,120+tg.width,45).setGlobalAlpha(1).setTextFont('20px Impact').setTextAlign('right').setColor("#cfc402").setShadowBlur(0).printText("#"+rank,500-28,45).setColor(member.displayHexColor).setTextFont('10px Impact').setShadowBlur(4).printText((xpc*100|0)+"%",500-28,75).setTextAlign('left').setShadowBlur(4).setColor("#ffffff").setTextFont('12px Impact')
+	canvas = canvas.printText(name, 120, 45).setGlobalAlpha(0.9).setTextFont('12px Impact').printText(tag,120+tg.width,45).setGlobalAlpha(1).setTextFont('20px Impact').setTextAlign('right').setColor("#cfc402").setShadowBlur(0).printText("#"+rank,500-28,45).setColor(member.displayHexColor).setTextFont('10px Impact').setShadowBlur(4).printText((xpc*100|0)+"%",500-28,75).setTextAlign('left').setShadowBlur(4).setColor("#ffffff").setTextFont('12px Impact')
     	.printText((data.pname||""), 120, 62)
 	.setShadowBlur(6).setTextFont('12px Impact')
 	.setColor("white").printText("Bio:",24,126).setColor(member.displayHexColor).printWrappedText((data.bio||"No bio set."), 70, 126,500-24-70)
@@ -1856,7 +1856,7 @@ client.on('message',async message=>{
 			if(data.job==undefined){
 				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You do not have a job yet, please use `job list` to see available jobs for you and `job apply` to apply for a job!"));
 			} else {
-				let days=["Tue","Wed","Thu","Fri","Sat","Sun","Mon"];
+				let days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat",];
 				if(!data.lastWorked) data.lastWorked=0;
 				if(!data.workedToday) data.workedToday=0;
 				if(data.lastDayWorked!=new Date().toLocaleDateString()){
@@ -2145,6 +2145,8 @@ client.on('message',async message=>{
 			},{
 				name: "job",
 				description: "Get a job, work, get paid!",
+				longDescription: "Use this command to get a job, work every hour on the work days, and get paid!",
+				subcommands: "list, apply, work, leave",
 				usage: "job <list/apply/work/leave> (job)",
 				aliases: "jobs, work, j"
 			}]
