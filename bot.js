@@ -254,6 +254,26 @@ async function membershipUpdate(member){
 			});
 		}	
 }
+async function levelUpdate(member){
+	let data = await info.load(member.id);
+	let l=data.level;
+	let roles=["746753260957990953","746753152610467931","746753035820204092","746754220602163281","746752934506922034","746752634794410036","746752464707125329","746751207887863840"];
+	let t=0;
+	if(l<200) t++;
+	if(l<100) t++;
+	if(l<50) t++;
+	if(l<40) t++;
+	if(l<30) t++;
+	if(l<20) t++;
+	if(l<10) t++;
+	if(l<5) t++;
+	let role=roles[t];
+	if(!member.roles.cache.get(roles[t])){
+		member.roles.remove(roles.filter((a,i)=>i!==t));
+		member.roles.add(roles[t]);
+	}
+	
+}
 async function updateProfile(member,points){
 	if(member.user.bot) return;
 	membershipUpdate(member);
@@ -322,7 +342,9 @@ async function updateProfile(member,points){
 		}
 		c.level=level;
 		c.gold=gold;
-		return await info.save(member.id,c);
+		await info.save(member.id,c);
+		await levelUpdate(member);
+		return true;
 }
 
 var info = {
@@ -490,19 +512,20 @@ client.on('ready',async ()=>{
 	let server = await info.load("SERVER");
 	if(!server.events) server.events=[];
 	server.events.forEach(async event=>{
-		let updateEvent=async function(){
-			let ser = await info.load("SERVER");
-			if(!ser.events) ser.events=[];
-			let ev=ser.events.find(v=>v.id===event.id);
+		eventTimer(event);
+	})
+	let updateEvent=async function(){
+		let ser = await info.load("SERVER");
+		if(!ser.events) ser.events=[];
+		server.events.forEach(async ev=>{
 			let message = undefined;
 			try{
 			if(ev.messageID) message = await client.channels.cache.get(eventChannelID).messages.fetch(ev.messageID);}catch(err){}
 			if(message) message.edit(message.content,eventEmbed(ev));
-		}
-		updateEvent()
-		setInterval(updateEvent,60*10*1000);
-		eventTimer(event);
-	})
+		});
+	}
+	updateEvent()
+	setInterval(updateEvent,60*5*1000);
 })
 
 client.on('raw',async event=>{
@@ -871,7 +894,7 @@ client.on('message',async message=>{
 	if(message.author.antiSpamCount==0) message.author.antiSpamFirst=Date.now();
 	message.author.antiSpamCount+=1;
 	
-	if(Date.now()-message.author.antiSpamFirst<10000){
+	if(Date.now()-message.author.antiSpamFirst<15000){
 		if(message.author.antiSpamCount>8){
 			adminlog("Mute",client.user,"Muted for "+msToString(3600000),message.member,"Spam.");
 			await addRecord(message.member,{
@@ -888,8 +911,8 @@ client.on('message',async message=>{
 				message.member.roles.remove("728216095835815976");
 			},data.mute-Date.now())
 			message.member.roles.add("728216095835815976");
-			let embed = new Discord.MessageEmbed().setDescription("<@"+message.member.id+">, you have been muted for "+msToString(3600000)+" by <@"+message.member.id+">!\n**Reason:** Spam.").setColor("YELLOW");
-			let embed2 = new Discord.MessageEmbed().setDescription("<@"+message.member.id+"> has been muted for "+msToString(3600000)+" by <@"+message.member.id+">!\n**Reason:** Spam.").setColor("YELLOW");
+			let embed = new Discord.MessageEmbed().setDescription("<@"+message.member.id+">, you have been muted for "+msToString(3600000)+"!\n**Reason:** Spam.").setColor("YELLOW");
+			let embed2 = new Discord.MessageEmbed().setDescription("<@"+message.member.id+"> has been muted for "+msToString(3600000)+"!\n**Reason:** Spam.").setColor("YELLOW");
 			await message.member.send(embed);
 			let msg = await message.channel.send(embed2);
 			await wait(10000);
@@ -906,6 +929,9 @@ client.on('message',async message=>{
 	
 		//Membership
 		membershipUpdate(message.member);
+	
+		//Levels
+		levelUpdate(message.member);
 		
 	
 	if(message.member.messageCombo==undefined) message.member.messageCombo=0;
@@ -945,7 +971,7 @@ client.on('message',async message=>{
 	if(args[0]==="nextevent"){
 		let server = await info.load("SERVER");
 		if(!server.events) server.events=[];
-		server.events.sort((a,b)=>b.time-a.time);
+		server.events.sort((a,b)=>a.time-b.time);
 		if(server.events[0]&&server.events[0].time){
 			if(server.events[0].time-Date.now()<5000){
 				return message.channel.send(new Discord.MessageEmbed().setColor("AQUA").setDescription("🥳 Event **"+server.events[0].name+"** is already in progress!"));	
@@ -1679,7 +1705,8 @@ client.on('message',async message=>{
 		});
 		  
 	}else if(args[0]=="color"){
-		const roles=["729438971456651394","729438974854168636","729438972161556610","729437918078435358","729421506328657950","729437914542505985","729437921802846239","729421500137865261","729421492835844207","729421510804242492","729421484560482379","729421488431562752","729421479846084648","729421473810219079","729421468752150689","729421463614128238","729395073904672860","729392489617948783"]
+		
+		const roles=["729438971456651394","729438974854168636","729438972161556610","746749391297314977","729437918078435358","729421506328657950","729437914542505985","729437921802846239","729421500137865261","746749508154556457","746748743025426445","729421492835844207","729421510804242492","746748376170627125","729421484560482379","746748271602565120","746748856468766741","746749037532676126","729421488431562752","729421479846084648","729421473810219079","746749181032398859","729421468752150689","729421463614128238","729395073904672860","729392489617948783"]
 		if(args[1]=="list"){
 			var cnt="";
 			roles.forEach(t=>{
@@ -1837,7 +1864,7 @@ client.on('message',async message=>{
 			        "You flew from Madrid to Marrakesh",
 			        "You flew from Marseille to Lisbonne",
 			        "You flew from Islamabad to Ankara"]
-		},];
+		}];
 		if(args[1]=="list"||!args[1]){
 			let data=await info.load(message.member.id);
 			if(data.fired==undefined) data.fired=[];
