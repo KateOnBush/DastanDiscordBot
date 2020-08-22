@@ -269,8 +269,8 @@ async function levelUpdate(member){
 	if(l<5) t++;
 	let role=roles[t];
 	if(!member.roles.cache.get(roles[t])){
-		member.roles.remove(roles.filter((a,i)=>i!==t));
-		member.roles.add(roles[t]);
+		await member.roles.remove(roles.filter((a,i)=>i!=t));
+		await member.roles.add(roles[t]);
 	}
 	
 }
