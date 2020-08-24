@@ -36,7 +36,7 @@ const achievements = {
 		if(!data.achievements) data.achievements=[];
 		return this.list.filter((ac,i)=>{
 			let a=data.achievements.find(t=>t.id==ac.id);
-			if(a&&a.steps>=(ac.steps/2)&&a.steps!=ac.steps) return true;
+			if(a&&a.steps>=(ac.steps/2)&&a.steps<ac.steps) return true;
 			return false;
 		})
 		
@@ -381,6 +381,7 @@ async function updateProfile(member,points){
 				var change=0; //Dead
 				if(t>350){
 					change=6; //Insanely Active
+					achievements.progress(member,"ACTIVE",1)
 				} else if(t>175){
 					change=5; //Very Active
 				} else if(t>70){
@@ -420,6 +421,7 @@ async function updateProfile(member,points){
 			gold+=50;
 			if(level%5==0) gold+=200;
 		}
+		if(level=2) achievements.progress(member,"LEVEL_UP",1)
 		if(level>c.level){
 			const message=new Discord.MessageEmbed().setDescription("🎊 **Congratulations <@!"+member.id+">!** You reached level **"+level+"**!").setColor("GREEN");
 			message.setDescription(message.description + "\nYou have received **"+(gold-c.gold)+"** gold!");
@@ -1813,6 +1815,7 @@ client.on('message',async message=>{
 						message.member.roles.add(chosenRole).then(mm=>{
 							message.channel.send(new Discord.MessageEmbed().setDescription("Your color is now **"+args[2]+"**").setColor(chosenRole.color)).then(mmm=>{
 							message.channel.stopTyping();
+							achievements.progress(message.member,"COLOR",1)
 							});
 							
 						});
@@ -2407,6 +2410,9 @@ client.on("voiceStateUpdate",async (o,n)=>{
 		if((n.member.guild.members.cache.get(n.member.id).voice.channel==null)||(n.member.guild.members.cache.get(n.member.id).voice.channel.id=="728037836774703235")) clearInterval(n.member.timer); 
 		info.load(n.member.id).then(data=>{
 			updateProfile(n.member,Math.random()*10|0);
+			achievements.progress(n.member,"VC1",1)
+			achievements.progress(n.member,"VC2",1)
+			achievements.progress(n.member,"VC3",1)
 		});
 		},60000)
 	} 
@@ -2518,6 +2524,7 @@ async function musicMessage(message){
 			if(isPlaying){
 				chosenclient.player.addToQueue(message.guild.id,message.content.replace(args_case[0],""),"<@!"+message.member.id+">").then(songPlayer=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("**Added to queue:** "+songPlayer.song.name+" (Requested by "+songPlayer.song.requestedBy+")").setColor("AQUA"))
+					achievements.progress(message.member,"MUSIC",1)
 					message.channel.stopTyping();
 				}).catch(err=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't find the song, maybe try with more details?").setColor("RED"))
@@ -2526,6 +2533,7 @@ async function musicMessage(message){
 			} else {
 				chosenclient.player.play(message.member.voice.channel,message.content.replace(args_case[0],""),"<@!"+message.member.id+">").then(song=>{
 				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.song.name + " (Requested by " + song.song.requestedBy+")"))
+				achievements.progress(message.member,"MUSIC",1)
 				message.channel.stopTyping();
 				chosenclient.player.songStarted=Date.now()/1000;
 				if(message.guild.id=="728008557244448788") chosenclient.user.setPresence({
