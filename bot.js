@@ -16,10 +16,10 @@ const achievements = {
 		if(data.achievements.find(ac=>ac.id===id).steps>=this.list.find(c=>c.id===id).steps){
 		let acc=this.list.find(c=>c.id===id);
 		data.gold+=acc.reward;
-		return (member.lastMessage.channel||member.guild.channels.cache.get("728025726556569631")).send(new Discord.MessageEmbed().setColor("GREEN").setDescription("🔓 Achievement unlocked: **"+acc.name+"**\n"+acc.description+"\n"+member.toString()+", you received **"+acc.reward+"** gold!"));
+		(member.lastMessage.channel||member.guild.channels.cache.get("728025726556569631")).send(new Discord.MessageEmbed().setColor("GREEN").setDescription("🔓 Achievement unlocked: **"+acc.name+"**\n"+acc.description+"\n"+member.toString()+", you received **"+acc.reward+"** gold!"));
 		}
 		await info.save(member.id,data);
-		return false;
+		return true;
 	},
 	getDone: async function(member){
 		let data=await info.load(member.id);
@@ -88,7 +88,7 @@ const achievements = {
 		description: "Listen to music for the first time!",
 		id: "MUSIC",
 		steps: 1,
-		reward: 1200
+		reward: 80
 	}]
 }
 const colors=["black","silver","gray","white","maroon","red","purple","fuchsia","green","lime","olive","yellow","navy","blue","teal","aqua","orange","aliceblue","antiquewhite","aquamarine","azure","beige","bisque","blanchedalmond","blueviolet","brown","burlywood","cadetblue","chartreuse","chocolate","coral","cornflowerblue","cornsilk","crimson","cyan","darkblue","darkcyan","darkgoldenrod","darkgray","darkgreen","darkgrey","darkkhaki","darkmagenta","darkolivegreen","darkorange","darkorchid","darkred","darksalmon","darkseagreen","darkslateblue","darkslategray","darkslategrey","darkturquoise","darkviolet","deeppink","deepskyblue","dimgray","dimgrey","dodgerblue","firebrick","floralwhite","forestgreen","gainsboro","ghostwhite","gold","goldenrod","greenyellow","grey","honeydew","hotpink","indianred","indigo","ivory","khaki","lavender","lavenderblush","lawngreen","lemonchiffon","lightblue","lightcoral","lightcyan","lightgoldenrodyellow","lightgray","lightgreen","lightgrey","lightpink","lightsalmon","lightseagreen","lightskyblue","lightslategray","lightslategrey","lightsteelblue","lightyellow","limegreen","linen","magenta","mediumaquamarine","mediumblue","mediumorchid","mediumpurple","mediumseagreen","mediumslateblue","mediumspringgreen","mediumturquoise","mediumvioletred","midnightblue","mintcream","mistyrose","moccasin","navajowhite","oldlace","olivedrab","orangered","orchid","palegoldenrod","palegreen","paleturquoise","palevioletred","papayawhip","peachpuff","peru","pink","plum","powderblue","rosybrown","royalblue","saddlebrown","salmon","sandybrown","seagreen","seashell","sienna","skyblue","slateblue","slategray","slategrey","snow","springgreen","steelblue","tan","thistle","tomato","turquoise","violet","wheat","whitesmoke","yellowgreen","rebeccapurple"];
@@ -421,7 +421,7 @@ async function updateProfile(member,points){
 			gold+=50;
 			if(level%5==0) gold+=200;
 		}
-		if(level=2) achievements.progress(member,"LEVEL_UP",1)
+		if(level==2) achievements.progress(member,"LEVEL_UP",1)
 		if(level>c.level){
 			const message=new Discord.MessageEmbed().setDescription("🎊 **Congratulations <@!"+member.id+">!** You reached level **"+level+"**!").setColor("GREEN");
 			message.setDescription(message.description + "\nYou have received **"+(gold-c.gold)+"** gold!");
