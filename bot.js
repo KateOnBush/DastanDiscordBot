@@ -36,7 +36,7 @@ const achievements = {
 		if(!data.achievements) data.achievements=[];
 		return this.list.filter((ac,i)=>{
 			let a=data.achievements.find(t=>t.id==ac.id);
-			if(a&&a.steps>=(ac.steps/2)) return true;
+			if(a&&a.steps>=(ac.steps/2)&&a.steps!=ac.steps) return true;
 			return false;
 		})
 		
@@ -663,7 +663,7 @@ client.on('raw',async event=>{
 			react.users.remove(member.id);
 			const roleToAdd=react.message.mentions.roles.array().find(e=>{return message.content.includes(react.emoji.name + " - <@&" + e.id + ">")});
 			const first=react.message.mentions.roles.array().find(e=>{return message.content.includes("0️⃣ - <@&" + e.id + ">")});
-			const hasClickedRole=member.roles.cache.array().includes(roleToAdd);
+			const hasClickedRole=member.roles.cache.array().map(r=>r.id).includes(roleToAdd.id);
 			if(hasClickedRole){
 				member.roles.remove(roleToAdd);
 			} else if((react.emoji.name=="0️⃣")&&(first!=undefined)){
@@ -673,13 +673,13 @@ client.on('raw',async event=>{
 				});
 			
 			} else {
-				if(first!=undefined) member.roles.remove(first);
+				if(first!=undefined) await member.roles.remove(first);
 				if(!react.message.content.includes("!multiple")){
-					member.roles.remove(react.message.mentions.roles.array().filter(r=>r.id!==roleToAdd))
-					member.roles.add(roleToAdd);
+					await member.roles.remove(react.message.mentions.roles.array().filter(r=>r.id!==roleToAdd))
+					await member.roles.add(roleToAdd);
 					achievements.progress(member,"ROLES",1)
 				} else {
-					member.roles.add(roleToAdd);
+					await member.roles.add(roleToAdd);
 					achievements.progress(member,"ROLES",1)
 				}
 			}
@@ -983,7 +983,7 @@ client.on('message',async message=>{
 	if(message.author.antiSpamCount==0) message.author.antiSpamFirst=Date.now();
 	message.author.antiSpamCount+=1;
 	
-	if(Date.now()-message.author.antiSpamFirst<15000){
+	if(Date.now()-message.author.antiSpamFirst<8000){
 		if(message.author.antiSpamCount>8){
 			adminlog("Mute",client.user,"Muted for "+msToString(3600000),message.member,"Spam.");
 			await addRecord(message.member,{
@@ -2243,6 +2243,11 @@ client.on('message',async message=>{
 				description: "Displays top 10 server members.",
 				usage: "leaderboard",
 				aliases: "board, list"
+			},{
+				name: "achievements",
+				description: "Shows you or someone's achievements.",
+				usage: "achievements [@user]",
+				aliases: "ac, achieve"
 			}]
 		},{
 			name: "Economy",
