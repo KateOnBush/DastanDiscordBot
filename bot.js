@@ -5,6 +5,92 @@ const request = require('request');
 const dbLink = process.env.DBLINK;
 const eventChannelID="742579924149338212";
 
+const achievements = {
+	progress: async function(member,id,steps){
+		let data=await info.load(member.id);
+		if(!data.achievements) data.achievements=[];
+		if(!this.list.find(c=>c.id===id)) throw new ReferenceError("Achievement with ID "+id+" doesn't exist"); 
+		if(!data.achievements.find(ac=>ac.id===id)) data.achievements.push({ id: id, steps: 0 });
+		if(data.achievements.find(ac=>ac.id===id).steps>=this.list.find(c=>c.id===id).steps) return false;
+		data.achievements.find(ac=>ac.id===id).steps+=steps;
+		if(data.achievements.find(ac=>ac.id===id).steps>=this.list.find(c=>c.id===id).steps){
+		let acc=this.list.find(c=>c.id===id);
+		data.gold+=acc.reward;
+		return (member.lastMessage.channel||member.guild.channels.cache.get("728025726556569631")).send(new Discord.MessageEmbed().setColor("GREEN").setDescription("🔓 Achievement unlocked: **"+acc.name+"**\n"+acc.description+"\n"+member.toString()+", you received **"+acc.reward+"** gold!"));
+		}
+		await info.save(member.id,data);
+		return false;
+	},
+	getDone: async function(member){
+		let data=await info.load(member.id);
+		if(!data.achievements) data.achievements=[];
+		return this.list.filter((ac,i)=>{
+			let a=data.achievements.find(t=>t.id==ac.id);
+			if(a&&a.steps>=ac.steps) return true;
+			return false;
+		})
+		
+	},
+	getActive: async function(member){
+		let data=await info.load(member.id);
+		if(!data.achievements) data.achievements=[];
+		return this.list.filter((ac,i)=>{
+			let a=data.achievements.find(t=>t.id==ac.id);
+			if(a&&a.steps>=(ac.steps/2)) return true;
+			return false;
+		})
+		
+	},
+      	list: [{
+		name: "Roles!",
+		description: "Assign 10 roles to yourself!",
+		id: "ROLES",
+		steps: 10,
+		reward: 80
+	},{
+		name: "Level up!",
+		description: "Level up the first time!",
+		id: "LEVEL_UP",
+		steps: 1,
+		reward: 50
+	},{
+		name: "Colorful world!",
+		description: "Change your color the first time!",
+		id: "COLOR",
+		steps: 1,
+		reward: 50
+	},{
+		name: "Talkative!",
+		description: "Spend 1 hour in VC!",
+		id: "VC1",
+		steps: 60,
+		reward: 100
+	},{
+		name: "Public speaker!",
+		description: "Spend 10 hours in VC!",
+		id: "VC2",
+		steps: 600,
+		reward: 1000
+	},{
+		name: "TALKING MACHINE!",
+		description: "Spend 100 hours in VC!",
+		id: "VC3",
+		steps: 6000,
+		reward: 10000
+	},{
+		name: "Activity go brrr!",
+		description: "Get the <@&728035417441697794> role by being active!",
+		id: "ACTIVE",
+		steps: 1,
+		reward: 1200
+	},{
+		name: "Music lover!",
+		description: "Listen to music for the first time!",
+		id: "MUSIC",
+		steps: 1,
+		reward: 1200
+	}]
+}
 const colors=["black","silver","gray","white","maroon","red","purple","fuchsia","green","lime","olive","yellow","navy","blue","teal","aqua","orange","aliceblue","antiquewhite","aquamarine","azure","beige","bisque","blanchedalmond","blueviolet","brown","burlywood","cadetblue","chartreuse","chocolate","coral","cornflowerblue","cornsilk","crimson","cyan","darkblue","darkcyan","darkgoldenrod","darkgray","darkgreen","darkgrey","darkkhaki","darkmagenta","darkolivegreen","darkorange","darkorchid","darkred","darksalmon","darkseagreen","darkslateblue","darkslategray","darkslategrey","darkturquoise","darkviolet","deeppink","deepskyblue","dimgray","dimgrey","dodgerblue","firebrick","floralwhite","forestgreen","gainsboro","ghostwhite","gold","goldenrod","greenyellow","grey","honeydew","hotpink","indianred","indigo","ivory","khaki","lavender","lavenderblush","lawngreen","lemonchiffon","lightblue","lightcoral","lightcyan","lightgoldenrodyellow","lightgray","lightgreen","lightgrey","lightpink","lightsalmon","lightseagreen","lightskyblue","lightslategray","lightslategrey","lightsteelblue","lightyellow","limegreen","linen","magenta","mediumaquamarine","mediumblue","mediumorchid","mediumpurple","mediumseagreen","mediumslateblue","mediumspringgreen","mediumturquoise","mediumvioletred","midnightblue","mintcream","mistyrose","moccasin","navajowhite","oldlace","olivedrab","orangered","orchid","palegoldenrod","palegreen","paleturquoise","palevioletred","papayawhip","peachpuff","peru","pink","plum","powderblue","rosybrown","royalblue","saddlebrown","salmon","sandybrown","seagreen","seashell","sienna","skyblue","slateblue","slategray","slategrey","snow","springgreen","steelblue","tan","thistle","tomato","turquoise","violet","wheat","whitesmoke","yellowgreen","rebeccapurple"];
 let addRecord = async function(subject,event){
 	let data=await info.load(subject.id);
@@ -582,7 +668,8 @@ client.on('raw',async event=>{
 				member.roles.remove(roleToAdd);
 			} else if((react.emoji.name=="0️⃣")&&(first!=undefined)){
 				member.roles.remove(message.mentions.roles).then(m=>{
-					member.roles.add(roleToAdd);	
+					member.roles.add(roleToAdd);
+					achievements.progress(member,"ROLES",1)
 				});
 			
 			} else {
@@ -590,8 +677,10 @@ client.on('raw',async event=>{
 				if(!react.message.content.includes("!multiple")){
 					member.roles.remove(react.message.mentions.roles.array().filter(r=>r.id!==roleToAdd))
 					member.roles.add(roleToAdd);
+					achievements.progress(member,"ROLES",1)
 				} else {
 					member.roles.add(roleToAdd);
+					achievements.progress(member,"ROLES",1)
 				}
 			}
 		});
@@ -2102,6 +2191,15 @@ client.on('message',async message=>{
 		.addField("Region",message.guild.region,true)
 		.addField("Memory Usage",(process.memoryUsage().heapUsed / 1024 / 1024|0) + " MB",true);
 		message.channel.send(embed);
+		
+	}else if(["achievements","achieve","ac"].includes(args[0])){
+		
+		let user=(message.mentions.members.array()[0]||message.member);
+		if(user.bot) user=message.member;
+		let acs=await achievements.getDone(user);
+		let acs_=await achievements.getActive(user);
+		let acst=acs.map(a=>"✅ **"+a.name+"** `"+a.description+"`").join("\n")+"\n"+acs_.map(a=>"🕑 **"+a.name+"** `"+a.description+"`").join("\n");
+		message.channel.send(new Discord.MessageEmbed().setColor("BLUE").setDescription(user.toString()+"'s achivements: \n\n"+(acst=="\n" ? "`No achievements yet`" : acst)))
 		
 	}else if(args[0]=="help"){
 	
