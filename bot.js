@@ -125,6 +125,48 @@ const achievements = {
 		id: "MUTE",
 		steps: 1,
 		reward: 0
+	},{
+		name: "Gambler!",
+		description: "Gamble 10 times.",
+		id: "GAMBLE1",
+		steps: 10,
+		reward: 300
+	},{
+		name: "Amateur Gambler!",
+		description: "Gamble 50 times.",
+		id: "GAMBLE2",
+		steps: 50,
+		reward: 1000
+	},{
+		name: "Professional Gambler!",
+		description: "Gamble 100 times.",
+		id: "GAMBLE3",
+		steps: 100,
+		reward: 5000
+	},{
+		name: "Good worker!",
+		description: "Make 1000 gold from jobs.",
+		id: "JOB1",
+		steps: 1000,
+		reward: 200
+	},{
+		name: "Money maker!",
+		description: "Make 10000 gold from jobs.",
+		id: "JOB2",
+		steps: 10000,
+		reward: 2000
+	},{
+		name: "What a great deal",
+		description: "Purchase your first item from the shop",
+		id: "SHOP1",
+		steps: 1,
+		reward: 120
+	},{
+		name: "Shop shop shop!",
+		description: "Purchase 10 items from the shop",
+		id: "SHOP2",
+		steps: 10,
+		reward: 120
 	}]
 }
 const colors=["black","silver","gray","white","maroon","red","purple","fuchsia","green","lime","olive","yellow","navy","blue","teal","aqua","orange","aliceblue","antiquewhite","aquamarine","azure","beige","bisque","blanchedalmond","blueviolet","brown","burlywood","cadetblue","chartreuse","chocolate","coral","cornflowerblue","cornsilk","crimson","cyan","darkblue","darkcyan","darkgoldenrod","darkgray","darkgreen","darkgrey","darkkhaki","darkmagenta","darkolivegreen","darkorange","darkorchid","darkred","darksalmon","darkseagreen","darkslateblue","darkslategray","darkslategrey","darkturquoise","darkviolet","deeppink","deepskyblue","dimgray","dimgrey","dodgerblue","firebrick","floralwhite","forestgreen","gainsboro","ghostwhite","gold","goldenrod","greenyellow","grey","honeydew","hotpink","indianred","indigo","ivory","khaki","lavender","lavenderblush","lawngreen","lemonchiffon","lightblue","lightcoral","lightcyan","lightgoldenrodyellow","lightgray","lightgreen","lightgrey","lightpink","lightsalmon","lightseagreen","lightskyblue","lightslategray","lightslategrey","lightsteelblue","lightyellow","limegreen","linen","magenta","mediumaquamarine","mediumblue","mediumorchid","mediumpurple","mediumseagreen","mediumslateblue","mediumspringgreen","mediumturquoise","mediumvioletred","midnightblue","mintcream","mistyrose","moccasin","navajowhite","oldlace","olivedrab","orangered","orchid","palegoldenrod","palegreen","paleturquoise","palevioletred","papayawhip","peachpuff","peru","pink","plum","powderblue","rosybrown","royalblue","saddlebrown","salmon","sandybrown","seagreen","seashell","sienna","skyblue","slateblue","slategray","slategrey","snow","springgreen","steelblue","tan","thistle","tomato","turquoise","violet","wheat","whitesmoke","yellowgreen","rebeccapurple"];
@@ -993,6 +1035,8 @@ client.on('message',async message=>{
 						item.buy(message.member);
 						
 					});
+					achievements.progress(message.member,"SHOP1",1);
+					achievements.progress(message.member,"SHOP1",2);
 					message.channel.send(new Discord.MessageEmbed().setDescription("You have successfully bought **"+item.name+"** for **"+item.price+"** gold!").setColor("GREEN"));
 				}
 			})	
@@ -1066,9 +1110,9 @@ client.on('message',async message=>{
 	message.member.messageCombo++;
 	if(message.member.messageCombo>=10){
 		message.member.messageCombo=0;
-		await achievements.progress(message.member,"MSG1",10)
-		await achievements.progress(message.member,"MSG2",10)
-		await achievements.progress(message.member,"MSG2",10)
+		achievements.progress(message.member,"MSG1",10)
+		achievements.progress(message.member,"MSG2",10)
+		achievements.progress(message.member,"MSG3",10)
 		await updateProfile(message.member,10);
 	}
 	
@@ -2032,6 +2076,8 @@ client.on('message',async message=>{
 					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You already worked this hour, please come back in "+msToString(data.lastWorked+3600*1000-Date.now())+"."));
 				} else {
 					data.gold+=jobs[data.job].salary;
+					achievements.progress(message.member,"JOB1",jobs[data.job].salary);
+					achievements.progress(message.member,"JOB2",jobs[data.job].salary);
 					data.lastWorked=Date.now();
 					data.workedToday+=1;
 					data.lastDayWorked=new Date().toLocaleDateString();
@@ -2084,6 +2130,8 @@ client.on('message',async message=>{
 				message.channel.send(new Discord.MessageEmbed().setDescription("You have already gambled 5 times today, come back later!").setColor("RED"));
 			} else if(amount>data.gold){
 				message.channel.send(new Discord.MessageEmbed().setDescription("You do not have enough gold.").setColor("RED"));	
+			} else if(amount<100){
+				message.channel.send(new Discord.MessageEmbed().setDescription("You should gamble at least **100** gold.").setColor("RED"));
 			} else {
 				let f=Math.random()*Math.random();
 				let gambled = f*2*amount|0;
@@ -2092,6 +2140,9 @@ client.on('message',async message=>{
 				data.gamblesToday+=1;
 				let embed = new Discord.MessageEmbed().setDescription("Gambling **"+amount+"** ...");
 				let msg=await message.channel.send(embed)
+				achievements.progress(message.member,"GAMBLE1",1);
+				achievements.progress(message.member,"GAMBLE2",1);
+				achievements.progress(message.member,"GAMBLE3",1);
 				await wait(3000);
 				data = await info.load(message.member.id);
 				if(gambled<0){
@@ -2099,7 +2150,7 @@ client.on('message',async message=>{
 				}else if(gambled<amount){
 					embed = new Discord.MessageEmbed().setDescription("**☄️ Lucky!** <@!"+message.author.id+">, You gained **"+ gambled+"** gold.").setColor("AQUA");		
 				}else{
-					embed = new Discord.MessageEmbed().setDescription("**🍀 Four-leaf clover!!** <@!"+message.author.id+">, You gained **"+ gambled+"** gold.").setColor("GREEN");		
+					embed = new Discord.MessageEmbed().setDescription("**🍀 Four-leaf clover!** <@!"+message.author.id+">, You gained **"+ gambled+"** gold.").setColor("GREEN");		
 				}
 				data.gold+=gambled;
 				await info.save(message.member.id,data);
@@ -2243,7 +2294,7 @@ client.on('message',async message=>{
 		if(user.bot) user=message.member;
 		let acs=await achievements.getDone(user);
 		let acs_=await achievements.getActive(user);
-		let acst=acs.map(a=>"✅ **"+a.name+"** "+a.description).join("\n")+"\n"+acs_.map(a=>"🕑 **"+a.name+"** "+a.description).join("\n");
+		let acst=acs.map(a=>"<:yes:733721073731764417> **"+a.name+"** "+a.description).join("\n")+"\n"+acs_.map(a=>"🕑 **"+a.name+"** "+a.description).join("\n");
 		message.channel.send(new Discord.MessageEmbed().setColor("BLUE").setDescription(user.toString()+"'s achievements: \n\n"+(acst=="\n" ? "`No achievements yet`" : acst)))
 		
 	}else if(args[0]=="help"){
