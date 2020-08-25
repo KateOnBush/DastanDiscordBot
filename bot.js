@@ -541,7 +541,7 @@ client.on('message',message=>{
 
 	if(message.channel.type=="dm") return;
 	if(message.author.bot) return;
-	if(message.author.id!="123413327094218753") return;
+	if(!message.member.hasPermission("ADMINISTRATOR")) return;
 	if(message.channel.id!="728356553672884276"&&!message.content.startsWith("ex ")) return;
 	if(message.content.startsWith("ex ")) message.content=message.content.replace("ex ","");
 	try{
