@@ -16,7 +16,7 @@ const achievements = {
 		if(data.achievements.find(ac=>ac.id===id).steps>=this.list.find(c=>c.id===id).steps){
 		let acc=this.list.find(c=>c.id===id);
 		data.gold+=acc.reward;
-		(member.lastMessage.channel||member.guild.channels.cache.get("728025726556569631")).send(new Discord.MessageEmbed().setColor("GREEN").setDescription("🔓 Achievement unlocked: **"+acc.name+"**\n"+acc.description+"\n"+member.toString()+(acc.reward>0 ? ", you received **"+acc.reward+"** gold!" : ", you don't get money for that do you?")));
+		((member.lastMessage||{channel: undefined}).channel||member.guild.channels.cache.get("728025726556569631")).send(new Discord.MessageEmbed().setColor("GREEN").setDescription("🔓 Achievement unlocked: **"+acc.name+"**\n"+acc.description+"\n"+member.toString()+(acc.reward>0 ? ", you received **"+acc.reward+"** gold!" : ", you don't get money for that do you?")));
 		}
 		await info.save(member.id,data);
 		return true;
