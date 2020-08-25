@@ -73,10 +73,34 @@ const achievements = {
 		reward: 1000
 	},{
 		name: "TALKING MACHINE!",
-		description: "Spend 100 hours in VC!",
+		description: "Spend 50 hours in VC!",
 		id: "VC3",
+		steps: 3000,
+		reward: 6000
+	},{
+		name: "EMINEM!",
+		description: "Spend 100 hours in VC!",
+		id: "VC4",
 		steps: 6000,
-		reward: 10000
+		reward: 15000
+	},{
+		name: "Spammer!",
+		description: "Send 1 000 messages!",
+		id: "MSG1",
+		steps: 1000,
+		reward: 500
+	},{
+		name: "Rapper!",
+		description: "Send 10 000 messages!",
+		id: "MSG2",
+		steps: 10000,
+		reward: 5000
+	},{
+		name: "Dominator!",
+		description: "Send 100 000 messages!",
+		id: "MSG3",
+		steps: 100000,
+		reward: 50000
 	},{
 		name: "Activity go brrr!",
 		description: "Get the <@&728035417441697794> role by being active!",
@@ -89,6 +113,12 @@ const achievements = {
 		id: "MUSIC",
 		steps: 1,
 		reward: 80
+	},{
+		name: "Events!",
+		description: "Participate in your first event!",
+		id: "EVENT",
+		steps: 1,
+		reward: 150
 	},{
 		name: "Bad guy!",
 		description: "Get muted for the first time.",
@@ -1036,6 +1066,9 @@ client.on('message',async message=>{
 	message.member.messageCombo++;
 	if(message.member.messageCombo>=10){
 		message.member.messageCombo=0;
+		await achievements.progress(message.member,"MSG1",10)
+		await achievements.progress(message.member,"MSG2",10)
+		await achievements.progress(message.member,"MSG2",10)
 		await updateProfile(message.member,10);
 	}
 	
@@ -1158,6 +1191,7 @@ client.on('message',async message=>{
 								data.gold+=500;
 								await info.save(t,data);
 								}
+								achievements.progress(g,"EVENT",1);
 								g.send(new Discord.MessageEmbed().setDescription("Event **"+current.name+"** has ended! You have gained a bit more xp!").setColor("ORANGE"))
 							})
 							let m=undefined;
@@ -2209,7 +2243,7 @@ client.on('message',async message=>{
 		if(user.bot) user=message.member;
 		let acs=await achievements.getDone(user);
 		let acs_=await achievements.getActive(user);
-		let acst=acs.map(a=>"✅ **"+a.name+"** `"+a.description+"`").join("\n")+"\n"+acs_.map(a=>"🕑 **"+a.name+"** "+a.description+"").join("\n");
+		let acst=acs.map(a=>"✅ **"+a.name+"** "+a.description).join("\n")+"\n"+acs_.map(a=>"🕑 **"+a.name+"** "+a.description).join("\n");
 		message.channel.send(new Discord.MessageEmbed().setColor("BLUE").setDescription(user.toString()+"'s achievements: \n\n"+(acst=="\n" ? "`No achievements yet`" : acst)))
 		
 	}else if(args[0]=="help"){
@@ -2416,11 +2450,12 @@ client.on("voiceStateUpdate",async (o,n)=>{
 		clearInterval(n.member.timer);
 		n.member.timer = setInterval(function(){
 		if((n.member.guild.members.cache.get(n.member.id).voice.channel==null)||(n.member.guild.members.cache.get(n.member.id).voice.channel.id=="728037836774703235")) clearInterval(n.member.timer); 
-		info.load(n.member.id).then(data=>{
+		info.load(n.member.id).then(async data=>{
 			updateProfile(n.member,Math.random()*10|0);
-			achievements.progress(n.member,"VC1",1)
-			achievements.progress(n.member,"VC2",1)
-			achievements.progress(n.member,"VC3",1)
+			await achievements.progress(n.member,"VC1",1);
+			await achievements.progress(n.member,"VC2",1);
+			await achievements.progress(n.member,"VC3",1);
+			await achievements.progress(n.member,"VC4",1);
 		});
 		},60000)
 	} 
