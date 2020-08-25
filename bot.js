@@ -16,7 +16,7 @@ const achievements = {
 		if(data.achievements.find(ac=>ac.id===id).steps>=this.list.find(c=>c.id===id).steps){
 		let acc=this.list.find(c=>c.id===id);
 		data.gold+=acc.reward;
-		(member.lastMessage.channel||member.guild.channels.cache.get("728025726556569631")).send(new Discord.MessageEmbed().setColor("GREEN").setDescription("🔓 Achievement unlocked: **"+acc.name+"**\n"+acc.description+"\n"+member.toString()+", you received **"+acc.reward+"** gold!"));
+		(member.lastMessage.channel||member.guild.channels.cache.get("728025726556569631")).send(new Discord.MessageEmbed().setColor("GREEN").setDescription("🔓 Achievement unlocked: **"+acc.name+"**\n"+acc.description+"\n"+member.toString()+(acc.reward>0 ? ", you received **"+acc.reward+"** gold!" : ", you don't get money for that do you?")));
 		}
 		await info.save(member.id,data);
 		return true;
@@ -89,6 +89,12 @@ const achievements = {
 		id: "MUSIC",
 		steps: 1,
 		reward: 80
+	},{
+		name: "Bad guy!",
+		description: "Get muted for the first time.",
+		id: "MUTE",
+		steps: 1,
+		reward: 0
 	}]
 }
 const colors=["black","silver","gray","white","maroon","red","purple","fuchsia","green","lime","olive","yellow","navy","blue","teal","aqua","orange","aliceblue","antiquewhite","aquamarine","azure","beige","bisque","blanchedalmond","blueviolet","brown","burlywood","cadetblue","chartreuse","chocolate","coral","cornflowerblue","cornsilk","crimson","cyan","darkblue","darkcyan","darkgoldenrod","darkgray","darkgreen","darkgrey","darkkhaki","darkmagenta","darkolivegreen","darkorange","darkorchid","darkred","darksalmon","darkseagreen","darkslateblue","darkslategray","darkslategrey","darkturquoise","darkviolet","deeppink","deepskyblue","dimgray","dimgrey","dodgerblue","firebrick","floralwhite","forestgreen","gainsboro","ghostwhite","gold","goldenrod","greenyellow","grey","honeydew","hotpink","indianred","indigo","ivory","khaki","lavender","lavenderblush","lawngreen","lemonchiffon","lightblue","lightcoral","lightcyan","lightgoldenrodyellow","lightgray","lightgreen","lightgrey","lightpink","lightsalmon","lightseagreen","lightskyblue","lightslategray","lightslategrey","lightsteelblue","lightyellow","limegreen","linen","magenta","mediumaquamarine","mediumblue","mediumorchid","mediumpurple","mediumseagreen","mediumslateblue","mediumspringgreen","mediumturquoise","mediumvioletred","midnightblue","mintcream","mistyrose","moccasin","navajowhite","oldlace","olivedrab","orangered","orchid","palegoldenrod","palegreen","paleturquoise","palevioletred","papayawhip","peachpuff","peru","pink","plum","powderblue","rosybrown","royalblue","saddlebrown","salmon","sandybrown","seagreen","seashell","sienna","skyblue","slateblue","slategray","slategrey","snow","springgreen","steelblue","tan","thistle","tomato","turquoise","violet","wheat","whitesmoke","yellowgreen","rebeccapurple"];
@@ -995,6 +1001,7 @@ client.on('message',async message=>{
 				reason: "Spam",
 				mod: client.user.id
 			});
+			achievements.progress(message.member,"MUTE",1)
 			let data=await info.load(message.member.id);
 			data.mute=Date.now()+3600*1000;
 			await info.save(message.member.id,data);
@@ -1536,6 +1543,7 @@ client.on('message',async message=>{
 							reason: reason,
 							mod: message.member.id
 						});
+						achievements.progress(m,"MUTE",1)
 						let data=await info.load(m.id);
 						data.mute=Date.now()+seconds*1000;
 						await info.save(m.id,data);
@@ -2201,8 +2209,8 @@ client.on('message',async message=>{
 		if(user.bot) user=message.member;
 		let acs=await achievements.getDone(user);
 		let acs_=await achievements.getActive(user);
-		let acst=acs.map(a=>"✅ **"+a.name+"** `"+a.description+"`").join("\n")+"\n"+acs_.map(a=>"🕑 **"+a.name+"** `"+a.description+"`").join("\n");
-		message.channel.send(new Discord.MessageEmbed().setColor("BLUE").setDescription(user.toString()+"'s achivements: \n\n"+(acst=="\n" ? "`No achievements yet`" : acst)))
+		let acst=acs.map(a=>"✅ **"+a.name+"** `"+a.description+"`").join("\n")+"\n"+acs_.map(a=>"🕑 **"+a.name+"** "+a.description+"").join("\n");
+		message.channel.send(new Discord.MessageEmbed().setColor("BLUE").setDescription(user.toString()+"'s achievements: \n\n"+(acst=="\n" ? "`No achievements yet`" : acst)))
 		
 	}else if(args[0]=="help"){
 	
@@ -2329,7 +2337,7 @@ client.on('message',async message=>{
 			cmd=(cat.commands.find(t=>(t.name==args[1]))||cmd);
 		})
 		if(!cmd) commands.forEach(cat=>{
-			cmd=(cat.commands.find(t=>{if(t.aliases) return t.aliases.includes(args[1]);})||cmd);
+			cmd=(cat.commands.find(t=>{if(t.aliases) return (t.aliases.includes(" "+args[1])||t.aliases.includes(args[1]+","));})||cmd);
 		});
 		if(["",undefined].includes(args[1])){
 			var embeds=[new Discord.MessageEmbed().setColor("AQUA").setTitle("Command list").setDescription("Use `help <command>` for specific command help")];
@@ -2524,7 +2532,7 @@ async function musicMessage(message){
 			if(isPlaying){
 				chosenclient.player.addToQueue(message.guild.id,message.content.replace(args_case[0],""),"<@!"+message.member.id+">").then(songPlayer=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("**Added to queue:** "+songPlayer.song.name+" (Requested by "+songPlayer.song.requestedBy+")").setColor("AQUA"))
-					achievements.progress(message.member,"MUSIC",1)
+					achievements.progress(client.guilds.cache.array()[0].member(member.id),"MUSIC",1)
 					message.channel.stopTyping();
 				}).catch(err=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't find the song, maybe try with more details?").setColor("RED"))
@@ -2533,7 +2541,7 @@ async function musicMessage(message){
 			} else {
 				chosenclient.player.play(message.member.voice.channel,message.content.replace(args_case[0],""),"<@!"+message.member.id+">").then(song=>{
 				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.song.name + " (Requested by " + song.song.requestedBy+")"))
-				achievements.progress(message.member,"MUSIC",1)
+				achievements.progress(client.guilds.cache.array()[0].member(member.id),"MUSIC",1)
 				message.channel.stopTyping();
 				chosenclient.player.songStarted=Date.now()/1000;
 				if(message.guild.id=="728008557244448788") chosenclient.user.setPresence({
