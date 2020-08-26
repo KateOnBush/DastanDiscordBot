@@ -2618,7 +2618,7 @@ async function musicMessage(message){
 			if(isPlaying){
 				chosenclient.player.addToQueue(message.guild.id,message.content.replace(args_case[0],""),"<@!"+message.member.id+">").then(songPlayer=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("**Added to queue:** "+songPlayer.song.name+" (Requested by "+songPlayer.song.requestedBy+")").setColor("AQUA"))
-					achievements.progress(client.guilds.cache.array()[0].member(member.id),"MUSIC",1)
+					achievements.progress(client.guilds.cache.array()[0].member(message.member.id),"MUSIC",1)
 					message.channel.stopTyping();
 				}).catch(err=>{
 					message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't find the song, maybe try with more details?").setColor("RED"))
@@ -2627,7 +2627,7 @@ async function musicMessage(message){
 			} else {
 				chosenclient.player.play(message.member.voice.channel,message.content.replace(args_case[0],""),"<@!"+message.member.id+">").then(song=>{
 				message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Now playing: **" +song.song.name + " (Requested by " + song.song.requestedBy+")"))
-				achievements.progress(client.guilds.cache.array()[0].member(member.id),"MUSIC",1)
+				achievements.progress(client.guilds.cache.array()[0].member(message.member.id),"MUSIC",1)
 				message.channel.stopTyping();
 				chosenclient.player.songStarted=Date.now()/1000;
 				if(message.guild.id=="728008557244448788") chosenclient.user.setPresence({
