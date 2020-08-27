@@ -963,8 +963,7 @@ client.on('message',async message=>{
 		}
 		
 	} else if(["store","s","shop","list"].includes(args[0])){
-		let boost = false;
-		if(message.member.roles.cache.array().find(r=>r.id==="748584004181033030")) boost=true;
+		let boost = !!message.member.roles.cache.array().find(r=>r.id==="748584004181033030");
 		if(!["",undefined].includes(args[1])&&items.find(cat=>cat.subcommand==args[1])!=undefined){
 			let cat=items.find(cat=>cat.subcommand==args[1]);
 			if(!["",undefined].includes(args[2])&&cat.items.find(item=>item.id==parseInt(args[2]))!=undefined){
@@ -1041,6 +1040,7 @@ client.on('message',async message=>{
 				} else if(data.items.includes(item.id)&&item.multiple!=true){ 
 					message.channel.send(new Discord.MessageEmbed().setDescription("You already have this item!").setColor("RED"));
 				} else {
+					let boost = !!message.member.roles.cache.array().find(r=>r.id==="748584004181033030");
 					let price=(boost ? item.price*0.75|0 : item.price)
 					data.gold-=price;
 					if(item.inventory==true) data.items.push(item.id)
