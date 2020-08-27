@@ -167,6 +167,12 @@ const achievements = {
 		id: "SHOP2",
 		steps: 10,
 		reward: 120
+	},{
+		name: "Epic booster!",
+		description: "Boost the server!",
+		id: "BOOST",
+		steps: 1,
+		reward: 20000
 	}]
 }
 const colors=["black","silver","gray","white","maroon","red","purple","fuchsia","green","lime","olive","yellow","navy","blue","teal","aqua","orange","aliceblue","antiquewhite","aquamarine","azure","beige","bisque","blanchedalmond","blueviolet","brown","burlywood","cadetblue","chartreuse","chocolate","coral","cornflowerblue","cornsilk","crimson","cyan","darkblue","darkcyan","darkgoldenrod","darkgray","darkgreen","darkgrey","darkkhaki","darkmagenta","darkolivegreen","darkorange","darkorchid","darkred","darksalmon","darkseagreen","darkslateblue","darkslategray","darkslategrey","darkturquoise","darkviolet","deeppink","deepskyblue","dimgray","dimgrey","dodgerblue","firebrick","floralwhite","forestgreen","gainsboro","ghostwhite","gold","goldenrod","greenyellow","grey","honeydew","hotpink","indianred","indigo","ivory","khaki","lavender","lavenderblush","lawngreen","lemonchiffon","lightblue","lightcoral","lightcyan","lightgoldenrodyellow","lightgray","lightgreen","lightgrey","lightpink","lightsalmon","lightseagreen","lightskyblue","lightslategray","lightslategrey","lightsteelblue","lightyellow","limegreen","linen","magenta","mediumaquamarine","mediumblue","mediumorchid","mediumpurple","mediumseagreen","mediumslateblue","mediumspringgreen","mediumturquoise","mediumvioletred","midnightblue","mintcream","mistyrose","moccasin","navajowhite","oldlace","olivedrab","orangered","orchid","palegoldenrod","palegreen","paleturquoise","palevioletred","papayawhip","peachpuff","peru","pink","plum","powderblue","rosybrown","royalblue","saddlebrown","salmon","sandybrown","seagreen","seashell","sienna","skyblue","slateblue","slategray","slategrey","snow","springgreen","steelblue","tan","thistle","tomato","turquoise","violet","wheat","whitesmoke","yellowgreen","rebeccapurple"];
@@ -488,6 +494,10 @@ async function updateProfile(member,points){
 			} else {
 				mult=3;
 			}
+		}
+		if(member.roles.cache.array().find(rl=>rl.id=="748584004181033030")){
+			achievements.progress(member,"BOOST",1);
+			mult=mult*2;	
 		}
 		c.messagesSentToday+=points;
 		c.messagesEverSent+=points*mult*serverMult;
@@ -953,20 +963,22 @@ client.on('message',async message=>{
 		}
 		
 	} else if(["store","s","shop","list"].includes(args[0])){
+		let boost = false;
+		if(message.member.roles.cache.array().find(r=>r.id==="748584004181033030")) boost=true;
 		if(!["",undefined].includes(args[1])&&items.find(cat=>cat.subcommand==args[1])!=undefined){
 			let cat=items.find(cat=>cat.subcommand==args[1]);
 			if(!["",undefined].includes(args[2])&&cat.items.find(item=>item.id==parseInt(args[2]))!=undefined){
 				let item=cat.items.find(item=>item.id==parseInt(args[2]));
 				let embed=new Discord.MessageEmbed().setColor("YELLOW").setTitle("Item: "+item.name);
 				embed.setDescription(item.longDescription||item.description);
-				embed.addField("Price",item.price,true);
+				embed.addField("Price",boost ? ("~~"+item.price+"~~ **"+(item.price*0.75|0)+"**") : item.price,true);
 				embed.addField("ID",item.id,true);
-				embed.setFooter("Use (buy "+item.id+") to buy this item.")
+				embed.setFooter("Use (buy "+item.id+") to buy this item." + (boost ? " You are a booster, you have a 25% discount!" : ""))
 				message.channel.send(embed);
 			} else {
-				let embed=new Discord.MessageEmbed().setColor("YELLOW").setTitle("Category: "+cat.name).setDescription(cat.description).setFooter("Use (store "+cat.subcommand+" <item ID>) to see a specific item.");
+				let embed=new Discord.MessageEmbed().setColor("YELLOW").setTitle("Category: "+cat.name).setDescription(cat.description).setFooter("Use (store "+cat.subcommand+" <item ID>) to see a specific item."+(boost ? " You are a booster, you have a 25% discount!" : ""));
 				cat.items.forEach(item=>{
-					embed.addField(item.name,"**Price:** "+item.price+"\n**ID:** "+item.id,true);
+					embed.addField(item.name,"**Price:** "+(boost ? ("~~"+item.price+"~~ **"+(item.price*0.75|0)+"**") : item.price)+"\n**ID:** "+item.id,true);
 				})
 				message.channel.send(embed);
 			}
@@ -1029,15 +1041,16 @@ client.on('message',async message=>{
 				} else if(data.items.includes(item.id)&&item.multiple!=true){ 
 					message.channel.send(new Discord.MessageEmbed().setDescription("You already have this item!").setColor("RED"));
 				} else {
-					data.gold-=item.price;
+					let price=(boost ? item.price*0.75|0 : item.price)
+					data.gold-=price;
 					if(item.inventory==true) data.items.push(item.id)
 					info.save(message.member.id,data).then(()=>{
 						item.buy(message.member);
 						
 					});
 					achievements.progress(message.member,"SHOP1",1);
-					achievements.progress(message.member,"SHOP1",2);
-					message.channel.send(new Discord.MessageEmbed().setDescription("You have successfully bought **"+item.name+"** for **"+item.price+"** gold!").setColor("GREEN"));
+					achievements.progress(message.member,"SHOP2",2);
+					message.channel.send(new Discord.MessageEmbed().setDescription("You have successfully bought **"+item.name+"** for **"+price+"** gold!").setColor("GREEN"));
 				}
 			})	
 		}
@@ -2119,6 +2132,7 @@ client.on('message',async message=>{
 			await info.save(message.member.id,data)
 		}
 	} else if(args[0]=="gamble"){
+		let boost = !!message.member.roles.cache.array().find(r=>r.id==="748584004181033030");
 		let data = await info.load(message.member.id);
 		args=args.join(" ").replace("all",data.gold).replace("half",data.gold/2|0).replace("quarter",data.gold/4|0).replace("third",data.gold/3|0).split(" ");
 		if(!parseInt(args[1])||["",undefined].includes(args[1])||parseInt(args[1])==0){
@@ -2126,8 +2140,9 @@ client.on('message',async message=>{
 		} else {
 			let amount = parseInt(args[1].split("-").join(""))|0;
 			if(data.gamblesToday==undefined) data.gamblesToday=0;
-			if(data.gamblesToday==5){
-				message.channel.send(new Discord.MessageEmbed().setDescription("You have already gambled 5 times today, come back later!").setColor("RED"));
+			let limit = (boost ? 10 : 5);
+			if(data.gamblesToday==limit){
+				message.channel.send(new Discord.MessageEmbed().setDescription("You have already gambled "+limit+" times today, come back later!").setColor("RED"));
 			} else if(amount>data.gold){
 				message.channel.send(new Discord.MessageEmbed().setDescription("You do not have enough gold.").setColor("RED"));	
 			} else if(amount<100){
