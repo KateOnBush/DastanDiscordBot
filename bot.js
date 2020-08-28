@@ -925,6 +925,12 @@ client.on('message',async message=>{
 			}
 		}]
 	}]
+	
+	//Discount
+	let boost = !!message.member.roles.cache.array().find(r=>r.id==="748584004181033030");
+	let discount = 0;
+	if(boost) discount+=25;
+	
 	if(args[0]=="help"){
 		
 		const commands = [{
@@ -963,21 +969,20 @@ client.on('message',async message=>{
 		}
 		
 	} else if(["store","s","shop","list"].includes(args[0])){
-		let boost = !!message.member.roles.cache.array().find(r=>r.id==="748584004181033030");
 		if(!["",undefined].includes(args[1])&&items.find(cat=>cat.subcommand==args[1])!=undefined){
 			let cat=items.find(cat=>cat.subcommand==args[1]);
 			if(!["",undefined].includes(args[2])&&cat.items.find(item=>item.id==parseInt(args[2]))!=undefined){
 				let item=cat.items.find(item=>item.id==parseInt(args[2]));
 				let embed=new Discord.MessageEmbed().setColor("YELLOW").setTitle("Item: "+item.name);
 				embed.setDescription(item.longDescription||item.description);
-				embed.addField("Price",boost ? ("~~"+item.price+"~~ **"+(item.price*0.75|0)+"**") : item.price,true);
+				embed.addField("Price",discount>0 ? ("~~"+item.price+"~~ **"+(item.price*(100-discount)/100|0)+"**") : item.price,true);
 				embed.addField("ID",item.id,true);
-				embed.setFooter("Use (buy "+item.id+") to buy this item." + (boost ? " You are a booster, you have a 25% discount!" : ""))
+				embed.setFooter("Use (buy "+item.id+") to buy this item." + (discount>0 ? "You have a "+discount+"% discount!" : ""))
 				message.channel.send(embed);
 			} else {
-				let embed=new Discord.MessageEmbed().setColor("YELLOW").setTitle("Category: "+cat.name).setDescription(cat.description).setFooter("Use (store "+cat.subcommand+" <item ID>) to see a specific item."+(boost ? " You are a booster, you have a 25% discount!" : ""));
+				let embed=new Discord.MessageEmbed().setColor("YELLOW").setTitle("Category: "+cat.name).setDescription(cat.description).setFooter("Use (store "+cat.subcommand+" <item ID>) to see a specific item."+(discount>0 ? " You have a "+discount+"% discount!" : ""));
 				cat.items.forEach(item=>{
-					embed.addField(item.name,"**Price:** "+(boost ? ("~~"+item.price+"~~ **"+(item.price*0.75|0)+"**") : item.price)+"\n**ID:** "+item.id,true);
+					embed.addField(item.name,"**Price:** "+(discount>0 ? ("~~"+item.price+"~~ **"+(item.price*(100-discount)/100|0)+"**") : item.price)+"\n**ID:** "+item.id,true);
 				})
 				message.channel.send(embed);
 			}
@@ -1040,8 +1045,7 @@ client.on('message',async message=>{
 				} else if(data.items.includes(item.id)&&item.multiple!=true){ 
 					message.channel.send(new Discord.MessageEmbed().setDescription("You already have this item!").setColor("RED"));
 				} else {
-					let boost = !!message.member.roles.cache.array().find(r=>r.id==="748584004181033030");
-					let price=(boost ? item.price*0.75|0 : item.price)
+					let price=item.price*(100-discount)/100
 					data.gold-=price;
 					if(item.inventory==true) data.items.push(item.id)
 					info.save(message.member.id,data).then(()=>{
@@ -1242,7 +1246,7 @@ client.on('message',async message=>{
 								let g=message.guild.member(t);
 								if(!g) return;
 								g.roles.remove("730056362029219911");
-								await updateProfile(g,300);
+								await updateProfile(g,200);
 								if(g.roles.cache.get("743622344211300481")){
 								let data=await info.load(t);
 								data.gold+=500;
