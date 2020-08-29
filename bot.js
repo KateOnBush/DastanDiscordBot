@@ -1439,7 +1439,7 @@ client.on('message',async message=>{
 					await msg.react("733721073731764417");
 					await msg.react("733721075631915068");
 					await wait(10000);
-					if(!msg.approval.done) msg.edit(msg.approval.deny());
+					if(!msg.approval.done) msg.edit(await msg.approval.deny());
 				} else {
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct member.").setColor("RED"));	
 				}
