@@ -716,9 +716,11 @@ client.on('raw',async event=>{
 			if(message.approval&&message.author.id==client.user.id&&message.approval.id==member.id){
 				if(message.approval.done==false){
 					if(react.emoji.id=="733721073731764417"){
+						message.approval.done=true;
 						await message.edit(await message.approval.approve());
 						message.reactions.removeAll();
 					} else if(react.emoji.id=="733721075631915068"){
+						message.approval.done=true;
 						await message.edit(await message.approval.deny());
 						message.reactions.removeAll();
 					}
@@ -1200,7 +1202,11 @@ client.on('message',async message=>{
 		},{
 			name: "record",
 			description: "Show a member's record.",
-			usage: "record <@user>"
+			usage: "mod record <@user>"
+		},{
+			name: "clearrecord",
+			description: "Clear a member's records.",
+			usage: "mod clearrecord <@user>"
 		},{
 			name: "kick",
 			description: "Kick a member.",
@@ -1413,7 +1419,7 @@ client.on('message',async message=>{
 				
 			} else if(["clearrecord","clearrecords","clearrec","crec","crecs"].includes(args[1])){
 				let m=(message.mentions.members.first()||message.guild.member(args[2]));
-				if(dataStorage.find(i=>i.id==args[2])) m={id: args[2], user:{bot: false}};
+				if(dataStorage.find(i=>i.id==args[2])&&args[2]) m={id: args[2], user:{bot: false}};
 				if(m&&!m.user.bot){
 					let msg=await message.channel.send(new Discord.MessageEmbed().setColor("BLUE").setDescription("You are about to clear <@!"+m.id+">'s records.\n**Are you sure?**"))
 					msg.approval = {
@@ -1423,6 +1429,7 @@ client.on('message',async message=>{
 							let data = await info.load(m.id);
 							data.records=[];
 							await info.save(m.id,data);
+							adminlog("Records clear",message.member,"Cleared records.",m);
 							return new Discord.MessageEmbed().setDescription("<@!"+m.id+">'s records has been cleared successfully!").setColor("GREEN");
 						},
 						deny: async function(msg){
@@ -1432,13 +1439,13 @@ client.on('message',async message=>{
 					await msg.react("733721073731764417");
 					await msg.react("733721075631915068");
 					await wait(10000);
-					if(!msg.approval.done) msg.approval.deny();
+					if(!msg.approval.done) msg.edit(msg.approval.deny());
 				} else {
 					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct member.").setColor("RED"));	
 				}
 			} else if(["record","records","rec"].includes(args[1])){
 				let m=(message.mentions.members.first()||message.guild.member(args[2]));
-				if(dataStorage.find(i=>i.id==args[2])) m={id: args[2], user:{bot: false}};
+				if(dataStorage.find(i=>i.id==args[2])&&args[2]) m={id: args[2], user:{bot: false}};
 				if(m&&!m.user.bot){
 					adminlog("Records Check",message.member,"Checked records.",m);
 					let data = await info.load(m.id);
