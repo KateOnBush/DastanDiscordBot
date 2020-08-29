@@ -713,6 +713,17 @@ client.on('raw',async event=>{
 			const react = message.reactions.cache.get(emojiKey);
 			const member = message.guild.members.resolve(data.user_id);
 			if(member.user.bot==true) return;
+			if(message.approval&&message.author.id==client.user.id&&message.approval.id==member.id){
+				if(message.approval.done==false){
+					if(react.emoji.id=="733721073731764417"){
+						await message.edit(await message.approval.approve());
+						message.reactions.removeAll();
+					} else if(react.emoji.id=="733721075631915068"){
+						await message.edit(await message.approval.deny());
+						message.reactions.removeAll();
+					}
+				}
+			}
 			if(react.message.channel.id==eventChannelID){
 				let server = await info.load("SERVER");
 				if(!server.events) server.events=[];
@@ -1082,8 +1093,9 @@ client.on('message',async message=>{
 	if(message.author.antiSpamCount==0) message.author.antiSpamFirst=Date.now();
 	message.author.antiSpamCount+=1;
 	
-	if(Date.now()-message.author.antiSpamFirst<8000){
+	if(Date.now()-message.author.antiSpamFirst<6000){
 		if(message.author.antiSpamCount>8){
+			message.author.antiSpamCount=0;
 			adminlog("Mute",client.user,"Muted for "+msToString(3600000),message.member,"Spam.");
 			await addRecord(message.member,{
 				name: "Mute for "+msToString(3600000),
@@ -1399,6 +1411,31 @@ client.on('message',async message=>{
 				}
 				await info.save("SERVER",server);
 				
+			} else if(["clearrecord","clearrecords","clearrec","crec","crecs"].includes(args[1])){
+				let m=(message.mentions.members.first()||message.guild.member(args[2]));
+				if(dataStorage.find(i=>i.id==args[2])) m={id: args[2], user:{bot: false}};
+				if(m&&!m.user.bot){
+					let msg=await message.channel.send(new Discord.MessageEmbed().setColor("BLUE").setDescription("You are about to clear <@!"+m.id+">'s records.\n**Are you sure?**"))
+					msg.approval = {
+						done: false,
+						id: message.member.id,
+						approve: async function(){
+							let data = await info.load(m.id);
+							data.records=[];
+							await info.save(m.id,data);
+							return new Discord.MessageEmbed().setDescription("<@!"+m.id+">'s records has been cleared successfully!").setColor("GREEN");
+						},
+						deny: async function(msg){
+							return new Discord.MessageEmbed().setDescription("Action undone.").setColor("RED");
+						}
+					}
+					await msg.react("733721073731764417");
+					await msg.react("733721075631915068");
+					await wait(10000);
+					if(!msg.approval.done) msg.approval.deny();
+				} else {
+					message.channel.send(new Discord.MessageEmbed().setDescription("Please specify a correct member.").setColor("RED"));	
+				}
 			} else if(["record","records","rec"].includes(args[1])){
 				let m=(message.mentions.members.first()||message.guild.member(args[2]));
 				if(dataStorage.find(i=>i.id==args[2])) m={id: args[2], user:{bot: false}};
