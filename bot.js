@@ -622,7 +622,7 @@ client.on('message',async message=>{
 		if(FLAGS.includes("NO")) return;
 		if(FLAGS.includes("DE")) message.channel=message.guild.channels.cache.get("728356553672884276");
 		if(FLAGS.includes("NF")){
-			await message.channel.send(output);
+			await message.channel.send(output.toString());
 		} else {
 			await message.channel.send("**Output:**\n```js\n" + output + "\n```");
 		}
@@ -632,7 +632,7 @@ client.on('message',async message=>{
 		if(FLAGS.includes("SE")) return;
 		if(FLAGS.includes("DE")) message.channel=message.guild.channels.cache.get("728356553672884276");
 		if(FLAGS.includes("NF")){
-			await message.channel.send(err);
+			await message.channel.send(err.toString());
 		} else {
 			await message.channel.send("**Error:**\n```js\n" + err + "\n```");
 		}
