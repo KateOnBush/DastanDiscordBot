@@ -626,7 +626,7 @@ client.on('message',message=>{
 			message.channel.send(output);
 			return;
 		}
-		message.channel.send("**Output:**\n```js\n" +  + "\n```");	
+		message.channel.send("**Output:**\n```js\n" + output + "\n```");	
 	}catch(err){
 		if(FLAGS.includes("NO")) return;
 		if(FLAGS.includes("SE")) return;
