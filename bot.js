@@ -589,7 +589,7 @@ var info = {
 }
 
 //Debug
-client.on('message',message=>{
+client.on('message',async message=>{
 
 	if(message.channel.type=="dm") return;
 	if(message.author.bot) return;
@@ -622,20 +622,20 @@ client.on('message',message=>{
 		if(FLAGS.includes("NO")) return;
 		if(FLAGS.includes("DE")) message.channel=message.guild.channels.cache.get("728356553672884276");
 		if(FLAGS.includes("NF")){
-			message.channel.send(output);
-			return;
+			await message.channel.send(output);
+		} else {
+			await message.channel.send("**Output:**\n```js\n" + output + "\n```");
 		}
-		message.channel.send("**Output:**\n```js\n" + output + "\n```");
 		if(FLAGS.includes("DL")) message.delete();
 	}catch(err){
 		if(FLAGS.includes("NO")) return;
 		if(FLAGS.includes("SE")) return;
 		if(FLAGS.includes("DE")) message.channel=message.guild.channels.cache.get("728356553672884276");
 		if(FLAGS.includes("NF")){
-			message.channel.send(err);
-			return;
+			await message.channel.send(err);
+		} else {
+			await message.channel.send("**Error:**\n```js\n" + err + "\n```");
 		}
-		message.channel.send("**Error:**\n```js\n" + err + "\n```");
 		if(FLAGS.includes("DL")) message.delete();
 	}
 	
