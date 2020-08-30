@@ -595,10 +595,46 @@ client.on('message',message=>{
 	if(message.author.bot) return;
 	if(!message.member.hasPermission("ADMINISTRATOR")) return;
 	if(message.channel.id!="728356553672884276"&&!message.content.startsWith("ex ")) return;
-	if(message.content.startsWith("ex ")) message.content=message.content.replace("ex ","");
+	let FLAGS=[];
+	if(message.content.includes(" -suppresserrors")){
+		message.content=message.content.replace(" -suppresserrors","");
+		FLAGS.push("SE");
+	}
+	if(message.content.includes(" -nooutput")){
+		message.content=message.content.replace(" -nooutput","");
+		FLAGS.push("NO");
+	}
+	if(message.content.includes(" -debug")){
+		message.content=message.content.replace(" -debug","");
+		FLAGS.push("DE");
+	}
+	if(message.content.includes(" -delete")){
+		message.content=message.content.replace(" -delete","");
+		FLAGS.push("DL");
+	}
+	if(message.content.includes(" -noform")){
+		message.content=message.content.replace(" -noform","");
+		FLAGS.push("NF");
+	}
+	if(message.content.startsWith("ex")) message.content=message.content.replace("ex","");
 	try{
-		message.channel.send("**Output:**\n```js\n" + eval(message.content) + "\n```");	
+		if(FLAGS.includes("DL")) message.delete();
+		let output=eval(message.content);
+		if(FLAGS.includes("NO")) return;
+		if(FLAGS.includes("DE")) message.channel=message.guild.channels.cache.get("728356553672884276");
+		if(FLAGS.includes("NF")){
+			message.channel.send(output);
+			return;
+		}
+		message.channel.send("**Output:**\n```js\n" +  + "\n```");	
 	}catch(err){
+		if(FLAGS.includes("NO")) return;
+		if(FLAGS.includes("SE")) return;
+		if(FLAGS.includes("DE")) message.channel=message.guild.channels.cache.get("728356553672884276");
+		if(FLAGS.includes("NF")){
+			message.channel.send(err);
+			return;
+		}
 		message.channel.send("**Error:**\n```js\n" + err + "\n```");
 	}
 	
