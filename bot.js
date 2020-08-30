@@ -618,7 +618,6 @@ client.on('message',message=>{
 	}
 	if(message.content.startsWith("ex")) message.content=message.content.replace("ex","");
 	try{
-		if(FLAGS.includes("DL")) message.delete();
 		let output=eval(message.content);
 		if(FLAGS.includes("NO")) return;
 		if(FLAGS.includes("DE")) message.channel=message.guild.channels.cache.get("728356553672884276");
@@ -626,7 +625,8 @@ client.on('message',message=>{
 			message.channel.send(output);
 			return;
 		}
-		message.channel.send("**Output:**\n```js\n" + output + "\n```");	
+		message.channel.send("**Output:**\n```js\n" + output + "\n```");
+		if(FLAGS.includes("DL")) message.delete();
 	}catch(err){
 		if(FLAGS.includes("NO")) return;
 		if(FLAGS.includes("SE")) return;
@@ -636,6 +636,7 @@ client.on('message',message=>{
 			return;
 		}
 		message.channel.send("**Error:**\n```js\n" + err + "\n```");
+		if(FLAGS.includes("DL")) message.delete();
 	}
 	
 });
