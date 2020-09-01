@@ -483,7 +483,7 @@ async function updateProfile(member,points){
 					});
 				}	
 			}
-		let serverMult=2; //Server Multiplier (xp weeks)
+		let serverMult=1; //Server Multiplier (xp weeks)
 		let mult=1;
 		if(member.roles.cache.array().find(rl=>rl.id=="732234963310608426")!=undefined){
 			mult=2;
