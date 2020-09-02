@@ -286,8 +286,8 @@ async function loadProfile(member){
 	}
 	for(var u=0;u<badges.length;u++){
 		let img=await Canvas.resolveImage(badges[u]);
-		let int=u*(15+20);
-		canvas = canvas.printImage(img,500-48-int,40,500-28-int,60);
+		let int=u*35;
+		canvas = canvas.printImage(img,500-48-int,40,20,20);
 	}
 	canvas = canvas.setTextFont('20px Impact').setTextAlign('right').setColor(member.displayHexColor).setTextFont('10px Impact').setShadowBlur(4).printText((xpc*100|0)+"%",500-28,75).setTextAlign('left').setShadowBlur(4).setColor("#ffffff").setTextFont('12px Impact')
     	.printText("Rank: #"+rank, 120, 62)
