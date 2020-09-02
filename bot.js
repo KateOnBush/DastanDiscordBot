@@ -34,11 +34,11 @@ const code = {
 			code.used=true;
 			await info.save("SERVER",server);
 		}
-		return {
+		return (!!code ? {
 			gold: code.gold,
 			discount: code.discount,
 			uses: code.uses
-		};
+		} : undefined);
 	}
 }
 const achievements = {
