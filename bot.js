@@ -252,7 +252,7 @@ async function loadProfile(member){
 		badges.push("src/hammer.png")
 	}
 	if(member.roles.cache.get("748584004181033030")){ //Boost
-		badges.push("hsrc/EWdeUeHXkAQgJh7.png");	
+		badges.push("src/EWdeUeHXkAQgJh7.png");	
 	}
 	if(rank<11){
 		badges.push("src/top10.png");
