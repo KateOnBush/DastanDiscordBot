@@ -244,6 +244,19 @@ async function loadProfile(member){
 	let backgroundImg=undefined;
 	let backgroundCol=undefined;
 	let bio = data.bio;
+	let badges=[];
+	if(member.guild.owner.id==member.id){
+		badges.push("https://github.com/DarkZYT/aouab/blob/master/src/crown.png?raw=true")
+	}
+	if(member.hasPermission("ADMINISTRATOR")||member.roles.cache.get("728034751780356096")){
+		badges.push("https://github.com/DarkZYT/aouab/blob/master/src/hammer.png?raw=true")
+	}
+	if(member.roles.cache.get("748584004181033030")){ //Boost
+		badges.push("https://github.com/DarkZYT/aouab/blob/master/src/EWdeUeHXkAQgJh7.png?raw=true");	
+	}
+	if(rank<11){
+		badges.push("https://github.com/DarkZYT/aouab/blob/master/src/top10.png?raw=true")	
+	}
 	if(data.bio!=undefined&&(data.bio.split("\n").length-1)>2) data.bio = data.bio.split("\n").join(" ");
 	if(data.back!=undefined){
 		if(validURL(data.back)){
@@ -266,8 +279,18 @@ async function loadProfile(member){
 	.setColor(stat).printCircle(91.5,91.5,11).setShadowBlur(10)
 .setColor(member.displayHexColor).printRoundedRectangle(124,83,(500-120-24-8)*xpc,17,12.5);
 	let tg = canvas.measureText(name);
-	canvas = canvas.printText(name, 120, 45).setGlobalAlpha(0.9).setTextFont('12px Impact').printText(tag,120+tg.width,45).setGlobalAlpha(1).setTextFont('20px Impact').setTextAlign('right').setColor("#cfc402").setShadowBlur(0).printText("#"+rank,500-28,45).setColor(member.displayHexColor).setTextFont('10px Impact').setShadowBlur(4).printText((xpc*100|0)+"%",500-28,75).setTextAlign('left').setShadowBlur(4).setColor("#ffffff").setTextFont('12px Impact')
-    	.printText((data.pname||""), 120, 62)
+	if(data.pname){
+	canvas = canvas.printText(data.pname, 120, 45).setGlobalAlpha(0.9).setGlobalAlpha(1);
+	} else {
+	canvas = canvas.printText(name, 120, 45).setGlobalAlpha(0.9).setTextFont('12px Impact').printText(tag,120+tg.width,45).setGlobalAlpha(1);	
+	}
+	for(var u=0;u<badges.length;u++){
+		let img=await Canvas.resolveImage(badges[u]);
+		let int=u*(15+20);
+		canvas = canvas.printImage(img,500-48-int,40,500-28-int,60);
+	}
+	canvas = canvas.setTextFont('20px Impact').setTextAlign('right').setColor(member.displayHexColor).setTextFont('10px Impact').setShadowBlur(4).printText((xpc*100|0)+"%",500-28,75).setTextAlign('left').setShadowBlur(4).setColor("#ffffff").setTextFont('12px Impact')
+    	.printText("Rank: #"+rank, 120, 62)
 	.setShadowBlur(6).setTextFont('12px Impact')
 	.setColor("white").printText("Bio:",24,126).setColor(member.displayHexColor).printWrappedText((data.bio||"No bio set."), 70, 126,500-24-70)
 	.setColor("white").printText("Level:",24,180).setColor(member.displayHexColor).printText(data.level+"", 70, 180)
