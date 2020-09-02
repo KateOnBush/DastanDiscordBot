@@ -246,16 +246,16 @@ async function loadProfile(member){
 	let bio = data.bio;
 	let badges=[];
 	if(member.guild.owner.id==member.id){
-		badges.push("https://github.com/DarkZYT/aouab/blob/master/src/crown.png?raw=true")
+		badges.push("src/crown.png")
 	}
 	if(member.hasPermission("ADMINISTRATOR")||member.roles.cache.get("728034751780356096")){
-		badges.push("https://github.com/DarkZYT/aouab/blob/master/src/hammer.png?raw=true")
+		badges.push("src/hammer.png")
 	}
 	if(member.roles.cache.get("748584004181033030")){ //Boost
-		badges.push("https://github.com/DarkZYT/aouab/blob/master/src/EWdeUeHXkAQgJh7.png?raw=true");	
+		badges.push("hsrc/EWdeUeHXkAQgJh7.png");	
 	}
 	if(rank<11){
-		badges.push("https://github.com/DarkZYT/aouab/blob/master/src/top10.png?raw=true")	
+		badges.push("src/top10.png");
 	}
 	if(data.bio!=undefined&&(data.bio.split("\n").length-1)>2) data.bio = data.bio.split("\n").join(" ");
 	if(data.back!=undefined){
@@ -614,6 +614,7 @@ var info = {
 //Debug
 client.on('message',async message=>{
 
+	let c=message;
 	if(message.channel.type=="dm") return;
 	if(message.author.bot) return;
 	if(!message.member.hasPermission("ADMINISTRATOR")) return;
@@ -642,25 +643,23 @@ client.on('message',async message=>{
 	if(message.content.startsWith("ex")) message.content=message.content.replace("ex","");
 	try{
 		let output=eval(message.content);
-		if(FLAGS.includes("NO")) return;
 		if(FLAGS.includes("DE")) message.channel=message.guild.channels.cache.get("728356553672884276");
-		if(FLAGS.includes("NF")){
+		if(FLAGS.includes("NF")&&!FLAGS.includes("NO")){
 			await message.channel.send(output.toString());
-		} else {
+		} else if(!FLAGS.includes("NO")){
 			await message.channel.send("**Output:**\n```js\n" + output + "\n```");
 		}
 		if(FLAGS.includes("DL")) message.delete();
 	}catch(err){
-		if(FLAGS.includes("NO")) return;
-		if(FLAGS.includes("SE")) return;
 		if(FLAGS.includes("DE")) message.channel=message.guild.channels.cache.get("728356553672884276");
-		if(FLAGS.includes("NF")){
+		if(FLAGS.includes("NF")&&!FLAGS.includes("NO")&&!FLAGS.includes("SE")){
 			await message.channel.send(err.toString());
-		} else {
+		} else if(!FLAGS.includes("NO")&&!FLAGS.includes("SE")){
 			await message.channel.send("**Error:**\n```js\n" + err + "\n```");
 		}
 		if(FLAGS.includes("DL")) message.delete();
 	}
+	message=c;
 	
 });
 client.on('error',err=>{
