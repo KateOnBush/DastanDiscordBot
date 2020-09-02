@@ -286,11 +286,11 @@ async function loadProfile(member){
 	}
 	for(var u=0;u<badges.length;u++){
 		let img=await Canvas.resolveImage(badges[u]);
-		let int=u*35;
-		canvas = canvas.printImage(img,500-48-int,40,20,20);
+		let int=u*40;
+		canvas = canvas.setShadowBlur(1).printImage(img,500-28-34-int,24,34,34).setShadowBlur(4);
 	}
 	canvas = canvas.setTextFont('20px Impact').setTextAlign('right').setColor(member.displayHexColor).setTextFont('10px Impact').setShadowBlur(4).printText((xpc*100|0)+"%",500-28,75).setTextAlign('left').setShadowBlur(4).setColor("#ffffff").setTextFont('12px Impact')
-    	.printText("Rank: #"+rank, 120, 62)
+    	.printText("Rank: "+rank, 120, 62)
 	.setShadowBlur(6).setTextFont('12px Impact')
 	.setColor("white").printText("Bio:",24,126).setColor(member.displayHexColor).printWrappedText((data.bio||"No bio set."), 70, 126,500-24-70)
 	.setColor("white").printText("Level:",24,180).setColor(member.displayHexColor).printText(data.level+"", 70, 180)
