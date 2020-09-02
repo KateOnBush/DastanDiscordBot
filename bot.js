@@ -25,10 +25,10 @@ const code = {
 		await info.save("SERVER",server);
 		return code.join("-")
 	},
-	redeem: async function(code){
+	redeem: async function(dd){
 		let server=await info.load("SERVER");
 		if(!server.codes) server.codes=[];
-		let code=server.codes.find(c=>c.code===code);
+		let code=server.codes.find(c=>c.code===dd);
 		if(code){
 			if(code.used) return;
 			code.used=true;
