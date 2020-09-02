@@ -1154,7 +1154,7 @@ client.on('message',async message=>{
 				d.gold+=redeemed.gold;
 				d.discounts=(d.discounts||[]).push({discount: redeemed.discount, uses: redeemed.uses});
 				await info.save(message.member.id,d);
-				msg.edit(new Discord.MessageEmbed().setDescription("Code redeemed successfully!\n"+(redeemed.gold>0 ? "You received **"+redeemed.gold+"** gold!\n" : "")+(redeemed.discount ? "You received a **"+redeemed.discount+"%** discount that you can use "+(redeemed.uses==-1 ? "unlimited" : redeemed.uses)+" times!" : "")).setColor("GREEN"))
+				msg.edit(new Discord.MessageEmbed().setDescription("Code redeemed successfully!\n"+(redeemed.gold>0 ? "You received **"+redeemed.gold+"** gold!\n" : "")+(redeemed.discount ? ("You received a **"+redeemed.discount+"%** discount that you can use "+(redeemed.uses==-1 ? "unlimited" : redeemed.uses)+" times!") : "")).setColor("GREEN"))
 			} else {
 				msg.edit(new Discord.MessageEmbed().setDescription("Incorrect code, please try again or contact an administrator.").setColor("RED"))	
 			}
