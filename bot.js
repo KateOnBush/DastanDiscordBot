@@ -35,9 +35,9 @@ const code = {
 			await info.save("SERVER",server);
 		}
 		return (!!code ? {
-			gold: code.gold,
-			discount: code.discount,
-			uses: code.uses
+			gold: (code.gold||0),
+			discount: (code.discount||0),
+			uses: (code.uses||-1)
 		} : undefined);
 	}
 }
