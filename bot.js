@@ -1148,7 +1148,7 @@ client.on('message',async message=>{
 			message.delete();
 			let msg=await message.channel.send(new Discord.MessageEmbed().setDescription("Redeeming your code..."));
 			await wait(4000);
-			let redeemed=code.redeem(args_case[1]);
+			let redeemed=await code.redeem(args_case[1]);
 			if(redeemed){
 				let d=await info.load(message.member.id);
 				d.gold+=redeemed.gold;
