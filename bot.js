@@ -286,8 +286,9 @@ async function loadProfile(member){
 	}
 	for(var u=0;u<badges.length;u++){
 		let img=await Canvas.resolveImage(badges[u]);
-		let int=u*40;
-		canvas = canvas.setShadowBlur(1).printImage(img,500-28-34-int,24,34,34).setShadowBlur(4);
+		let size=26;
+		let int=u*(size*5/4);
+		canvas = canvas.setGlobalAlpha(0.75).setShadowBlur(2.5).printImage(img,500-28-size-int,24,size,size).setGlobalAlpha(1).setShadowBlur(4);
 	}
 	canvas = canvas.setTextFont('20px Impact').setTextAlign('right').setColor(member.displayHexColor).setTextFont('10px Impact').setShadowBlur(4).printText((xpc*100|0)+"%",500-28,75).setTextAlign('left').setShadowBlur(4).setColor("#ffffff").setTextFont('12px Impact')
     	.printText("Rank: "+rank, 120, 62)
