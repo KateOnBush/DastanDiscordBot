@@ -34,7 +34,7 @@ const code = {
 			code.used=true;
 			await info.save("SERVER",server);
 		}
-		return (!!code ? {
+		return (code ? {
 			gold: (code.gold||0),
 			discount: (code.discount||0),
 			uses: (code.uses||-1)
@@ -1152,7 +1152,8 @@ client.on('message',async message=>{
 			if(redeemed){
 				let d=await info.load(message.member.id);
 				d.gold+=redeemed.gold;
-				d.discounts=(d.discounts||[]).push({discount: redeemed.discount, uses: redeemed.uses});
+				if(!d.discounts) d.discounts=[];
+				d.discounts.push({discount: redeemed.discount, uses: redeemed.uses});
 				await info.save(message.member.id,d);
 				msg.edit(new Discord.MessageEmbed().setDescription("Code redeemed successfully!\n"+(redeemed.gold>0 ? "You received **"+redeemed.gold+"** gold!\n" : "")+(redeemed.discount ? ("You received a **"+redeemed.discount+"%** discount that you can use "+(redeemed.uses==-1 ? "unlimited" : redeemed.uses)+" times!") : "")).setColor("GREEN"))
 			} else {
