@@ -5,6 +5,42 @@ const request = require('request');
 const dbLink = process.env.DBLINK;
 const eventChannelID="742579924149338212";
 
+
+const code = {
+	generate: async function(gold,discount,uses){
+		let chars="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+		let rchar = ()=>chars[Math.random()*chars.length|0];
+		let code=[];
+		for(var i=0;i<5;i++){
+			code.push(rchar()+rchar()+rchar()+rchar());
+		}
+		let server=await info.load("SERVER");
+		if(!server.codes) server.codes=[];
+		server.codes.push({
+			code: code.join("-"),
+			gold: gold,
+			discount: discount,
+			uses: uses
+		})
+		await info.save("SERVER",server);
+		return code.join("-")
+	},
+	redeem: async function(code){
+		let server=await info.load("SERVER");
+		if(!server.codes) server.codes=[];
+		let code=server.codes.find(c=>c.code===code);
+		if(code){
+			if(code.used) return;
+			code.used=true;
+			await info.save("SERVER",server);
+		}
+		return {
+			gold: code.gold,
+			discount: code.discount,
+			uses: code.uses
+		};
+	}
+}
 const achievements = {
 	progress: async function(member,id,steps){
 		let data=await info.load(member.id);
@@ -1020,6 +1056,10 @@ client.on('message',async message=>{
 			description: "Buy an item.",
 			longDescription: "Purchase an item using its ID, check `store` for item IDs.",
 			usage: "buy <item id>"
+		},{
+			name: "redeem",
+			description: "Redeem a code.",
+			usage: "redeem <code>"
 		}];
 		
 		if(["",undefined].includes(args[1])){
@@ -1100,7 +1140,26 @@ client.on('message',async message=>{
 			info.load(userToFind.id).then(data=>{
 				message.channel.send(new Discord.MessageEmbed().setDescription("<@!"+userToFind.id+"> has " + data.gold + " gold!").setColor("GOLD"));
 			})
-		}	
+		}
+	} else if(args[0]==="redeem"){
+		if(!args[1]){
+			message.channel.send(new Discord.MessageEmbed().setDescription("Please specifiy a code.").setColor("RED"));
+		} else {
+			message.delete();
+			let msg=await message.channel.send(new Discord.MessageEmbed().setDescription("Redeeming your code..."));
+			await wait(4000);
+			let redeemed=code.redeem(args_case[1]);
+			if(redeemed){
+				let d=await info.load(message.member.id);
+				d.gold+=redeemed.gold;
+				d.discounts=(d.discounts||[]).push({discount: redeemed.discount, uses: redeemed.uses});
+				await info.save(message.member.id,d);
+				msg.edit(new Discord.MessageEmbed().setDescription("Code redeemed successfully!\n"+(redeemed.gold>0 ? "You received **"+redeemed.gold+"** gold!\n" : "")+(redeemed.discount ? "You received a **"+redeemed.discount+"%** discount that you can use "+(redeemed.uses==-1 ? "unlimited" : redeemed.uses)+" times!" : "")).setColor("GREEN"))
+			} else {
+				msg.edit(new Discord.MessageEmbed().setDescription("Incorrect code, please try again or contact an administrator.").setColor("RED"))	
+			}
+		}
+		
 	} else if(["buy","purchase","get"].includes(args[0])){
 		let item=undefined;
 		items.forEach(cat=>{
