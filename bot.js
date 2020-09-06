@@ -390,6 +390,7 @@ function msToString(ms,hold="**",secs=false){
 	s.push(`${hours>0 ? `${hold}${hours}${hold} hour${hours>1 ? `s` : ``}` : '' }`);
 	s.push(`${minutes>0 ? `${hold}${minutes}${hold} minute${minutes>1 ? `s` : ``}` : '' }`)
 	s.push((secs||ms<60*1000) ? `${hold}${seconds}${hold} second${seconds>1 ? `s` : ``}` : "");
+	s=s.filter(t=>t!=="");
 	let str="";
 	if(s.length>1){
 		let pop=s.pop();
