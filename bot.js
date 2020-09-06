@@ -374,7 +374,7 @@ function dropChest(){
 	
 }
 
-function msToString(ms){
+function msToString(ms,hold="**",secs=false){
 	var years=(ms/1000)/31536000|0;
 	var months=((ms/1000)-(years*31536000))/2678400|0;
 	var weeks=((ms/1000)-(years*31536000)-(months*2678400))/604800|0;
@@ -382,8 +382,22 @@ function msToString(ms){
 	var hours=((ms/1000)-(years*31536000)-(months*2678400)-(weeks*604800)-(days*86400))/3600|0;
 	var minutes=((ms/1000)-(years*31536000)-(months*2678400)-(weeks*604800)-(days*86400)-(hours*3600))/60|0;
 	var seconds=((ms/1000)-(years*31536000)-(months*2678400)-(weeks*604800)-(days*86400)-(hours*3600)-(minutes*60))|0;
-	let s = `${years>0 ? `**${years}** year${years>1 ? `s` : ``}, ` : '' }` + `${months>0 ? `**${months}** month${months>1 ? `s` : ``}, ` : '' }` + `${weeks>0 ? `**${weeks}** week${weeks>1 ? `s` : ``}, ` : '' }` + `${days>0 ? `**${days}** day${days>1 ? `s` : ``}, ` : '' }` + `${hours>0 ? `**${hours}** hour${hours>1 ? `s` : ``}, ` : '' }` + `${minutes>0 ? `**${minutes}** minute${minutes>1 ? `s` : ``} and ` : '' }` + `**${seconds}** second${seconds>1 ? `s` : ``}`;
-	return s.replace(" and **0** second","").replace(", **0** second","");
+	let s = [];
+	s.push(`${years>0 ? `${hold}${years}${hold} year${years>1 ? `s` : ``}` : '' }`);
+	s.push(`${months>0 ? `${hold}${months}${hold} month${months>1 ? `s` : ``}` : '' }`);
+	s.push(`${weeks>0 ? `${hold}${weeks}${hold} week${weeks>1 ? `s` : ``}` : '' }`);
+	s.push(`${days>0 ? `${hold}${days}${hold} day${days>1 ? `s` : ``}` : '' }`);
+	s.push(`${hours>0 ? `${hold}${hours}${hold} hour${hours>1 ? `s` : ``}` : '' }`);
+	s.push(`${minutes>0 ? `${hold}${minutes}${hold} minute${minutes>1 ? `s` : ``}` : '' }`)
+	s.push((secs||ms<60*1000) ? `${hold}${seconds}${hold} second${seconds>1 ? `s` : ``}` : "");
+	let str="";
+	if(s.length>1){
+		let pop=s.pop();
+		str=s.join(", ")+" and "+pop;
+	} else {
+		str=s.join(", ");
+	}
+	return str;
 }
 function timeformatToSeconds(f){
 	return eval(f.replace("s","+").replace("m","*60+").replace("h","*3600+").replace("d","*3600*24+").replace("w","*3600*24*7+").replace("mo","*3600*24*30+").replace("y","*3600*24*365+")+"0");	
@@ -1891,7 +1905,7 @@ client.on('message',async message=>{
 					message.channel.send(embed);
 				})
 			} else {
-				let embed=new Discord.MessageEmbed().setColor("RED").setDescription("🕙 Come back in "+msToString(data.dailyReward+3600*24*1000-Date.now())+" to claim your daily reward!");	
+				let embed=new Discord.MessageEmbed().setColor("RED").setDescription("🕙 Come back in "+msToString(data.dailyReward+3600*24*1000-Date.now(),"**",true)+" to claim your daily reward!");	
 				message.channel.send(embed)
 			}
 		})
