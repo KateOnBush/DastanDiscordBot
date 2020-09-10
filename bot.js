@@ -342,8 +342,9 @@ async function loadProfile(member){
 }
 
 //Logs
-function log(d){
-	client.channels.resolve("729155101746528286").send(d);
+async function log(d){
+	let ccc=await client.channels.fetch("729155101746528286");
+	ccc.send(d);
 }
 function adminlog(event,mod,content,subject,reason){
 	client.channels.resolve("729744865776107550").send(new Discord.MessageEmbed().setDescription("**Event:** "+event).addField("Mod/Admin","<@!"+mod.id+">",true).addField("Action/Content",content,true).addField("Subject","<@!"+subject.id+">",true).setTimestamp().setColor("BLUE").addField("Reason",(reason||"Unspecified")));
