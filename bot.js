@@ -3110,10 +3110,13 @@ async function handleErrors(){
 
 aura.on('ready', async () => {
     await runStream();
+    await wait(30000)
     handleErrors();
 })
 
 aura.login("NzUzNjA1MjkzMjI0NDkzMDc4.X1onnw.v-EjO1I4YtntLtRWTZbIsDbNqF0");
+
+setInterval(handleErrors,3*3600*1000)
 
 process.on("unhandledRejection", error => {
 	log(new Discord.MessageEmbed().setColor("RED").setDescription("**Unhandled Promise Rejection:**\n```js\n"+error.stack+"\n```").setTimestamp());
