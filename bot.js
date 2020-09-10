@@ -3099,7 +3099,7 @@ pitch.login(process.env.MUSIC1);
 
 const aura = new Discord.Client();
 const DJ = require('djs-channel-player');
-const streamer = new DJ.player(aura, process.env.YOUTUBE_KEY , '753611906882732142', 'https://www.youtube.com/playlist?list=PLn9WbbeNCOyewpjGRPINHtlZCKcJtTSyp');
+const streamer = new DJ(aura, process.env.YOUTUBE_KEY , '753611906882732142', 'https://www.youtube.com/playlist?list=PLn9WbbeNCOyewpjGRPINHtlZCKcJtTSyp');
 aura.on('ready', async () => {
     streamer.play(); 
 })
