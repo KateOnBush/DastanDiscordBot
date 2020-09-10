@@ -3105,13 +3105,16 @@ const streamer = new DJ(aura, process.env.YOUTUBEKEY , '753724334715174953', 'ht
 async function runStream(){
 	await streamer.play()
 }
+async function handleErrors(){
+	aura.voice.connections.array().forEach(async voiceConnection=>{
+		voiceConnection.on("error",runStream);
+		voiceConnection.dispatcher.on("error",runStream);
+	})	
+}
 
 aura.on('ready', async () => {
     await runStream();
-    aura.voice.connections.array().forEach(async voiceConnection=>{
-		voiceConnection.on("error",runStream);
-		voiceConnection.dispatcher.on("error",runStream);
-	})
+    handleErrors();
 })
 
 aura.login("NzUzNjA1MjkzMjI0NDkzMDc4.X1onnw.v-EjO1I4YtntLtRWTZbIsDbNqF0");
