@@ -3077,10 +3077,6 @@ async function musicMessage(message){
 		}
 	}
 }
-process.on("unhandledRejection", error => {
-	log(new Discord.MessageEmbed().setColor("RED").setDescription("**Unhandled Promise Rejection:**\n```js\n"+error.stack+"\n```").setTimestamp());
-});
-
 let dataStorage=[];
 request.get({
         url: dbLink+'?limit=1000',
@@ -3103,12 +3099,12 @@ const DJ = require('djs-channel-player');
 const streamer = new DJ(aura, process.env.YOUTUBEKEY , '753724334715174953', 'https://www.youtube.com/playlist?list=PLn9WbbeNCOyewpjGRPINHtlZCKcJtTSyp');
 
 async function runStream(){
-	await streamer.play()
+	await streamer.play();
 }
 async function handleErrors(){
-	aura.voice.connections.array().forEach(async voiceConnection=>{
+	if(aura.voice) aura.voice.connections.array().forEach(async voiceConnection=>{
 		voiceConnection.on("error",runStream);
-		voiceConnection.dispatcher.on("error",runStream);
+		if(voiceConnection.dispatcher) voiceConnection.dispatcher.on("error",runStream);
 	})	
 }
 
@@ -3118,5 +3114,10 @@ aura.on('ready', async () => {
 })
 
 aura.login("NzUzNjA1MjkzMjI0NDkzMDc4.X1onnw.v-EjO1I4YtntLtRWTZbIsDbNqF0");
+
+process.on("unhandledRejection", error => {
+	log(new Discord.MessageEmbed().setColor("RED").setDescription("**Unhandled Promise Rejection:**\n```js\n"+error.stack+"\n```").setTimestamp());
+});
+
 
 
