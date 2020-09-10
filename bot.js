@@ -3098,7 +3098,7 @@ request.get({
 treble.login(process.env.MUSIC2);
 pitch.login(process.env.MUSIC1);
 
-const aura = new Discord.Client();
+/*const aura = new Discord.Client();
 const DJ = require('djs-channel-player');
 const streamer = new DJ(aura, process.env.YOUTUBE_KEY , '753611906882732142', 'https://www.youtube.com/playlist?list=PLn9WbbeNCOyewpjGRPINHtlZCKcJtTSyp');
 
@@ -3106,6 +3106,6 @@ aura.on('ready', async () => {
     streamer.play(); 
 })
 
-aura.login("NzUzNjA1MjkzMjI0NDkzMDc4.X1onnw.v-EjO1I4YtntLtRWTZbIsDbNqF0");
+aura.login("NzUzNjA1MjkzMjI0NDkzMDc4.X1onnw.v-EjO1I4YtntLtRWTZbIsDbNqF0");*/
 
 
