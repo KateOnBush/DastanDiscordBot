@@ -13,6 +13,7 @@
     "@discordjs/opus": "0.3.2",
     "canvas":"2.6.1",
     "canvas-constructor": "4.0.0",
-    "djs-channel-player": "2.0.0"
+    "djs-channel-player": "2.0.0",
+    "ytdl-core": "latest"
   }
 }
