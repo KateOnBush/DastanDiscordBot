@@ -3101,22 +3101,14 @@ const streamer = new DJ(aura, process.env.YOUTUBEKEY , '753724334715174953', 'ht
 async function runStream(){
 	await streamer.play();
 }
-async function handleErrors(){
-	if(aura.voice) aura.voice.connections.array().forEach(async voiceConnection=>{
-		voiceConnection.on("error",runStream);
-		if(voiceConnection.dispatcher) voiceConnection.dispatcher.on("error",runStream);
-	})	
-}
 
 aura.on('ready', async () => {
     await runStream();
-    await wait(30000)
-    handleErrors();
 })
 
 aura.login("NzUzNjA1MjkzMjI0NDkzMDc4.X1onnw.v-EjO1I4YtntLtRWTZbIsDbNqF0");
 
-setInterval(handleErrors,3*3600*1000)
+setInterval(runStream,2*3600*1000)
 
 process.on("unhandledRejection", error => {
 	log(new Discord.MessageEmbed().setColor("RED").setDescription("**Unhandled Promise Rejection:**\n```js\n"+error.stack+"\n```").setTimestamp());
