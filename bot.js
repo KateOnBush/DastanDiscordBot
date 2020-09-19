@@ -3096,7 +3096,7 @@ pitch.login(process.env.MUSIC1);
 
 
 
-const aura = new Discord.Client();
+/*const aura = new Discord.Client();
 const DJ = require('djs-channel-player');
 const streamer = new DJ(aura, process.env.YOUTUBEKEY , '753724334715174953', 'https://www.youtube.com/playlist?list=PLn9WbbeNCOyewpjGRPINHtlZCKcJtTSyp');
 
@@ -3117,7 +3117,7 @@ aura.on('ready', async () => {
 })
 
 aura.login("NzUzNjA1MjkzMjI0NDkzMDc4.X1onnw.v-EjO1I4YtntLtRWTZbIsDbNqF0");
-
+*/
 process.on("unhandledRejection", error => {
 	log(new Discord.MessageEmbed().setColor("RED").setDescription("**Unhandled Promise Rejection:**\n```js\n"+error.stack+"\n```").setTimestamp());
 });
