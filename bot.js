@@ -3083,7 +3083,7 @@ request.get({
         headers: {
             'Content-Type': 'application/json',
         }
-        },(err,r,body)=>{
+        },async (err,r,body)=>{
 	if (!err) console.log("Data loaded, no error");
 	dataStorage=JSON.parse(body);
 	dataStorage.forEach(dat=>console.log(dat.id))
