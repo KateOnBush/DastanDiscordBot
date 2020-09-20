@@ -3094,7 +3094,18 @@ request.get({
 treble.login(process.env.MUSIC2);
 pitch.login(process.env.MUSIC1);
 
+client.on("debug",d=>{
+	console.log("[AOUABOT]"+d)
+})
 
+
+pitch.on("debug",d=>{
+	console.log("[PITCH]"+d)
+})
+
+treble.on("debug",d=>{
+	console.log("[TREBLE]"+d)
+})
 
 /*const aura = new Discord.Client();
 const DJ = require('djs-channel-player');
