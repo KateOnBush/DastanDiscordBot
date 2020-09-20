@@ -221,7 +221,8 @@ let addRecord = async function(subject,event){
 }
 function getURL(url,h){
 	return new Promise((resolve,reject)=>{
-		request.get({
+		request({
+			type: "get",
 			url: url,
 			headers: (h||{})
 		},(err,r,body)=>{
@@ -455,8 +456,9 @@ function restart(){
 	var token = '47e28c9c-9dd4-47b7-9219-d3c0d65ee334';
 	var appName = 'manic353-bot';
 	var dynoName = 'worker';
-	request.delete(
+	request(
 	    {
+		type: "delete",
 		url: 'https://api.heroku.com/apps/' + appName + '/dynos/',
 		headers: {
 		    'Content-Type': 'application/json',
@@ -605,8 +607,9 @@ var info = {
 		return new Promise((resolve,reject)=>{
 			console.log("Initiating data");
 			dataStorage.push(data);
-			request.post(
+			request(
 				{
+					type: "post",
 					url: dbLink,
 					headers: {
 					    'Content-Type': 'application/json',
@@ -625,8 +628,9 @@ var info = {
 		if(userdata!=undefined){
 			return new Promise((resolve,reject)=>{
 				dataStorage[dataStorage.findIndex(d=>d.id==id)]=data;
-				request.put(
+				request(
 					{
+					type: "put",
 					url: dbLink+'/'+userdata._id+'/',
 					headers: {
 					    'Content-Type': 'application/json',
@@ -2141,7 +2145,8 @@ client.on('message',async message=>{
 		let embed=new Discord.MessageEmbed().setDescription("Reloading database...").setColor("RED");
 		log(new Discord.MessageEmbed().setColor("ORANGE").setDescription("Reloading database.."))
 		message.channel.send(embed).then(msg=>{
-			request.get({
+			request({
+				type: "get",
 				url: dbLink+'?limit=1000',
 				headers: {
 				    'Content-Type': 'application/json',
@@ -2155,7 +2160,8 @@ client.on('message',async message=>{
 		});
 		  
 	} else if(["tronald","donald","trump","donaldtrump"].includes(args[0])){
-		request.get({
+		request({
+			type: "get",
 			url: "https://www.tronalddump.io/random/quote",
 			headers: {
 				'Accept': 'application/json',
@@ -2166,7 +2172,8 @@ client.on('message',async message=>{
 				message.channel.send(new Discord.MessageEmbed().setColor("#72d7e0").setTitle("Donald trump once tweeted:").setDescription(meme.value).setURL(meme._embedded.source[0].url).setFooter(meme._links.self.href));
 			})
 	} else if(["randommeme","meme","rmeme"].includes(args[0])){
-		request.get({
+		request({
+			type: "get",
 			url: "https://meme-api.herokuapp.com/gimme",
 			headers: {
 				'Content-Type': 'application/json',
@@ -3078,20 +3085,21 @@ async function musicMessage(message){
 	}
 }
 let dataStorage=[];
-request.get({
+request({
+	type: "get",
         url: dbLink+'?limit=1000',
         headers: {
             'Content-Type': 'application/json',
         }
         },async (err,r,body)=>{
 	if (!err) console.log("Data loaded, no error");
+	client.login(process.env.BOT_TOKEN);
 	dataStorage=JSON.parse(body);
 	dataStorage.forEach(dat=>console.log(dat.id))
 	
 });
 
 // THIS  MUST  BE  THIS  WAY
-client.login(process.env.BOT_TOKEN);
 treble.login(process.env.MUSIC2);
 pitch.login(process.env.MUSIC1);
 
