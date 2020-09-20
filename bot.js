@@ -3087,10 +3087,11 @@ request.get({
 	if (!err) console.log("Data loaded, no error");
 	dataStorage=JSON.parse(body);
 	dataStorage.forEach(dat=>console.log(dat.id))
-	client.login(process.env.BOT_TOKEN);
+	
 });
 
 // THIS  MUST  BE  THIS  WAY
+client.login(process.env.BOT_TOKEN);
 treble.login(process.env.MUSIC2);
 pitch.login(process.env.MUSIC1);
 
