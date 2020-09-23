@@ -607,9 +607,8 @@ var info = {
 		return new Promise((resolve,reject)=>{
 			console.log("Initiating data");
 			dataStorage.push(data);
-			request(
+			request.post(
 				{
-					type: "post",
 					url: dbLink,
 					headers: {
 					    'Content-Type': 'application/json',
@@ -628,9 +627,8 @@ var info = {
 		if(userdata!=undefined){
 			return new Promise((resolve,reject)=>{
 				dataStorage[dataStorage.findIndex(d=>d.id==id)]=data;
-				request(
+				request.put(
 					{
-					type: "put",
 					url: dbLink+'/'+userdata._id+'/',
 					headers: {
 					    'Content-Type': 'application/json',
