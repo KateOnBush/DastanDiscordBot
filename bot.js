@@ -222,8 +222,8 @@ let addRecord = async function(subject,event){
 function getURL(url,h){
 	return new Promise((resolve,reject)=>{
 		request({
-			type: "get",
-			url: url,
+			method: "GET",
+			uri: url,
 			headers: (h||{})
 		},(err,r,body)=>{
 			if (err) reject(err);
@@ -458,8 +458,8 @@ function restart(){
 	var dynoName = 'worker';
 	request(
 	    {
-		type: "delete",
-		url: 'https://api.heroku.com/apps/' + appName + '/dynos/',
+		method: "DELETE",
+		uri: 'https://api.heroku.com/apps/' + appName + '/dynos/',
 		headers: {
 		    'Content-Type': 'application/json',
 		    'Accept': 'application/vnd.heroku+json; version=3',
@@ -607,13 +607,14 @@ var info = {
 		return new Promise((resolve,reject)=>{
 			console.log("Initiating data");
 			dataStorage.push(data);
-			request.post(
+			request(
 				{
-					url: dbLink,
+					method: "POST",
+					uri: dbLink,
 					headers: {
 					    'Content-Type': 'application/json',
 					},
-					formData: data
+					json: data
 				},(err,re,body)=>{
 					dataStorage[dataStorage.findIndex(d=>d.id==data.id)] = body;
 					if(!err) resolve(body);
@@ -627,13 +628,14 @@ var info = {
 		if(userdata!=undefined){
 			return new Promise((resolve,reject)=>{
 				dataStorage[dataStorage.findIndex(d=>d.id==id)]=data;
-				request.put(
+				request(
 					{
+					method: "PUT",
 					url: dbLink+'/'+userdata._id+'/',
 					headers: {
 					    'Content-Type': 'application/json',
 					},
-					formData: data
+					json: data
 					},(err,re,body)=>{
 					if(err) reject(err);
 					if(!err) resolve(body)
@@ -3084,8 +3086,8 @@ async function musicMessage(message){
 }
 let dataStorage=[];
 request({
-	type: "get",
-        url: dbLink+'?limit=1000',
+	method: "GET",
+        uri: dbLink+'?limit=1000',
         headers: {
             'Content-Type': 'application/json',
         }
