@@ -613,7 +613,7 @@ var info = {
 					headers: {
 					    'Content-Type': 'application/json',
 					},
-					json: data
+					formData: data
 				},(err,re,body)=>{
 					dataStorage[dataStorage.findIndex(d=>d.id==data.id)] = body;
 					if(!err) resolve(body);
@@ -633,7 +633,7 @@ var info = {
 					headers: {
 					    'Content-Type': 'application/json',
 					},
-					json: data
+					formData: data
 					},(err,re,body)=>{
 					if(err) reject(err);
 					if(!err) resolve(body)
