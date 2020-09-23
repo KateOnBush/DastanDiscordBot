@@ -3091,11 +3091,9 @@ request({
         headers: {
             'Content-Type': 'application/json',
         }
-        },async (err,r,body)=>{
+        },(err,r,body)=>{
 	if (!err) console.log("Data loaded, no error");
 	dataStorage=JSON.parse(body);
-	dataStorage.forEach(dat=>console.log(dat.id))
-	
 });
 
 // THIS  MUST  BE  THIS  WAY
