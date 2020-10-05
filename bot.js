@@ -3140,5 +3140,34 @@ process.on("unhandledRejection", error => {
 	log(new Discord.MessageEmbed().setColor("RED").setDescription("**Unhandled Promise Rejection:**\n```js\n"+error.stack+"\n```").setTimestamp());
 });
 
+let among = new Discord.Client();
 
+among.on("message",async msg=>{
+	if(msg.toLowerCase()=="a!muteall"){
+		if(!msg.member.hasPermission("MUTE_MEMBERS")){
+			msg.channel.send("You need the mute members permission!")
+		} else if(msg.member.voice.channel){
+			msg.member.voice.channel.members.every(member=>{
+				member.voice.setMute(true)
+			})
+			msg.channel.send("All members muted!");
+		}else{
+			msg.channel.send("You are not in a channel!")	
+		}
+	} else if(msg.toLowerCase()=="a!unmuteall"){
+		if(!msg.member.hasPermission("MUTE_MEMBERS")){
+			msg.channel.send("You need the mute members permission!")
+		} else if(msg.member.voice.channel){
+			msg.member.voice.channel.members.every(member=>{
+				member.voice.setMute(false)
+			})
+			msg.channel.send("All members unmuted!");
+		}else{
+			msg.channel.send("You are not in a channel!")	
+		}
+	} else if(msg.toLowerCase()=="a!info"){
+		msg.channel.send("I'm among us bot, a bot made by **Aouab#5854** to make your Among Us experience better!")	
+	}
+})
 
+among.login("NzYyNzMyNzU3NDUzMTExMzI2.X3tcPA.SqY_gpfsExOgg6X0nuEIcJxcLwE")
