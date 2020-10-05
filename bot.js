@@ -3147,7 +3147,7 @@ among.on("message",async msg=>{
 		if(!msg.member.hasPermission("MUTE_MEMBERS")){
 			msg.channel.send("You need the mute members permission!")
 		} else if(msg.member.voice.channel){
-			msg.member.voice.channel.members.every(member=>{
+			msg.member.voice.channel.members.array().forEach(async member=>{
 				member.voice.setMute(true)
 			})
 			msg.channel.send("All members muted!");
@@ -3158,7 +3158,7 @@ among.on("message",async msg=>{
 		if(!msg.member.hasPermission("MUTE_MEMBERS")){
 			msg.channel.send("You need the mute members permission!")
 		} else if(msg.member.voice.channel){
-			msg.member.voice.channel.members.every(member=>{
+			msg.member.voice.channel.members.array().forEach(async member=>{
 				member.voice.setMute(false)
 			})
 			msg.channel.send("All members unmuted!");
