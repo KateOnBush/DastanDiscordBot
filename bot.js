@@ -3143,7 +3143,7 @@ process.on("unhandledRejection", error => {
 let among = new Discord.Client();
 
 among.on("message",async msg=>{
-	if(msg.toLowerCase()=="a!muteall"){
+	if(msg.content.toLowerCase()=="a!muteall"){
 		if(!msg.member.hasPermission("MUTE_MEMBERS")){
 			msg.channel.send("You need the mute members permission!")
 		} else if(msg.member.voice.channel){
@@ -3154,7 +3154,7 @@ among.on("message",async msg=>{
 		}else{
 			msg.channel.send("You are not in a channel!")	
 		}
-	} else if(msg.toLowerCase()=="a!unmuteall"){
+	} else if(msg.content.toLowerCase()=="a!unmuteall"){
 		if(!msg.member.hasPermission("MUTE_MEMBERS")){
 			msg.channel.send("You need the mute members permission!")
 		} else if(msg.member.voice.channel){
@@ -3165,7 +3165,7 @@ among.on("message",async msg=>{
 		}else{
 			msg.channel.send("You are not in a channel!")	
 		}
-	} else if(msg.toLowerCase()=="a!info"){
+	} else if(msg.content.toLowerCase()=="a!info"){
 		msg.channel.send("I'm among us bot, a bot made by **Aouab#5854** to make your Among Us experience better!")	
 	}
 })
