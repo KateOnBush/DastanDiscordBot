@@ -2153,15 +2153,8 @@ client.on('message',async message=>{
 		let embed=new Discord.MessageEmbed().setDescription("Reloading database...").setColor("RED");
 		log(new Discord.MessageEmbed().setColor("ORANGE").setDescription("Reloading database.."))
 		message.channel.send(embed).then(msg=>{
-			request({
-				type: "get",
-				url: dbLink+'?limit=1000',
-				headers: {
-				    'Content-Type': 'application/json',
-				}
-				},(err,r,body)=>{
-				if (!err) console.log("Data loaded, no error");
-				dataStorage=JSON.parse(body);
+			database.load().then(()=>{
+				console.log("Data loaded, no error");
 				msg.edit(new Discord.MessageEmbed().setDescription("Database reloaded!").setColor("GREEN"));
 				log(new Discord.MessageEmbed().setColor("GREEN").setDescription("Database Reloaded!"))
 			});
@@ -2196,7 +2189,7 @@ client.on('message',async message=>{
 		message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("**Meow!**").setImage("http://placekitten.com/"+width+"/"+height+"/"));
 	} else if(["leaderboard","board","list"].includes(args[0])){
 		sortMembers();
-		let embed=new Discord.MessageEmbed().setColor("AQUA").addField("Leaderboard",dataStorage.map((it,i)=>{if(i<10) return (["🥇","🥈","🥉","**4**","**5**","**6**","**7**","**8**","**9**","**10**"])[i] + " — <@!"+it.id+"> " + numberBeautifier(it.messagesEverSent,",")+" pts. (Level "+it.level+")\n"}).join(""),true);
+		let embed=new Discord.MessageEmbed().setColor("AQUA").addField("Leaderboard",dataStorage.filter(t=>message.guild.member(t.id)&&t.id!=="SERVER").map((it,i)=>{if(i<10) return (["🥇","🥈","🥉","**4**","**5**","**6**","**7**","**8**","**9**","**10**"])[i] + " — <@!"+it.id+"> " + numberBeautifier(it.messagesEverSent,",")+" pts. (Level "+it.level+")\n"}).join(""),true);
 		message.channel.send(embed)
 	} else if(args[0]==="job"||args[0]==="jobs"||args[0]==="work"||args[0]==="j"){
 		let jobs=[{
@@ -3093,16 +3086,7 @@ async function musicMessage(message){
 	}
 }
 let dataStorage=[];
-request({
-	method: "GET",
-        uri: dbLink,
-        headers: {
-            'Content-Type': 'application/json',
-        }
-        },(err,r,body)=>{
-	if (!err) console.log("Data loaded, no error");
-	dataStorage=JSON.parse(body);
-});
+database.load();
 
 // THIS  MUST  BE  THIS  WAY
 client.login(process.env.BOT_TOKEN);
