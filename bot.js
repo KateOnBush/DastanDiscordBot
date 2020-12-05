@@ -614,7 +614,7 @@ const database =  {
 					}
 				},(err,re,body)=>{
 					var bod=body;
-					if(typeof body == "String") bod=JSON.parse(body);
+					if(typeof body == "string") bod=JSON.parse(body);
 					dataStorage = bod;
 					if(!err) resolve(bod);
 					if(err) reject(err);
