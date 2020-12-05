@@ -601,53 +601,62 @@ async function updateProfile(member,points){
 		return true;
 }
 
-var info = {
-	exists: false,
-	init: async function(data){
+const database =  {
+	load: async function(){
 		return new Promise((resolve,reject)=>{
-			console.log("Initiating data");
-			dataStorage.push(data);
+			console.log("Loading database...");
 			request(
 				{
-					method: "POST",
+					method: "GET",
 					uri: dbLink,
 					headers: {
 					    'Content-Type': 'application/json',
-					},
-					json: data
+					}
 				},(err,re,body)=>{
-					dataStorage[dataStorage.findIndex(d=>d.id==data.id)] = body;
-					if(!err) resolve(body);
+					var bod=body;
+					if(typeof body == "String") bod=JSON.parse(body);
+					dataStorage = bod;
+					if(!err) resolve(bod);
 					if(err) reject(err);
 				});
 		});
 	},
-	save: async function(id,data){
-		
-		let userdata = dataStorage.find(d=>d.id==id);
-		if(userdata!=undefined){
-			return new Promise((resolve,reject)=>{
-				dataStorage[dataStorage.findIndex(d=>d.id==id)]=data;
-				request(
-					{
+	save: async function(){
+		return new Promise((resolve,reject)=>{
+			console.log("Loading database...");
+			request(
+				{
 					method: "PUT",
-					url: dbLink+'/'+userdata._id+'/',
+					uri: dbLink,
 					headers: {
 					    'Content-Type': 'application/json',
 					},
-					json: data
-					},(err,re,body)=>{
+					body: JSON.stringify(dataStorage)
+				},(err,re,body)=>{
+					if(!err) resolve(body);
 					if(err) reject(err);
-					if(!err) resolve(body)
-					});
-			});
+				});
+		});	
+	}
+}
+
+var info = {
+	exists: false,
+	init: async function(data){
+		dataStorage.push(data);
+		return await database.save();
+	},
+	save: async function(id,data){
+		let userdata = dataStorage.find(d=>d.id==id);
+		if(userdata!=undefined){
+			userdata = data;
+			return await database.save();
 		} else{
 			return this.init(data);	
 		}
 		
 	},
 	load: async function(id){
-		
 		let userdata = dataStorage.find(d=>d.id==id);
 		if(userdata!=undefined){
 			return userdata;	
@@ -664,7 +673,6 @@ var info = {
 			this.init(data);
 			return data;
 		}
-
 	}
 }
 
@@ -3087,7 +3095,7 @@ async function musicMessage(message){
 let dataStorage=[];
 request({
 	method: "GET",
-        uri: dbLink+'?limit=1000',
+        uri: dbLink,
         headers: {
             'Content-Type': 'application/json',
         }
@@ -3100,19 +3108,6 @@ request({
 client.login(process.env.BOT_TOKEN);
 treble.login(process.env.MUSIC2);
 pitch.login(process.env.MUSIC1);
-
-client.on("debug",d=>{
-	console.log("[AOUABOT]"+d)
-})
-
-
-pitch.on("debug",d=>{
-	console.log("[PITCH]"+d)
-})
-
-treble.on("debug",d=>{
-	console.log("[TREBLE]"+d)
-})
 
 const aura = new Discord.Client();
 const DJ = require('djs-channel-player');
