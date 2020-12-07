@@ -2544,19 +2544,19 @@ client.on('message',async message=>{
 					check = (c,num)=>["red","black"].includes(c);
 				} 
 				if(message.channel.roulettePlayers==undefined) message.channel.roulettePlayers=[];
-				if(!message.channel.roulette) message.channel.roulette=Date.now();
+				if(!message.channel.roulette) message.channel.roulette=0;
 				let time = Date.now()-message.channel.roulette;
 				let started = false;
 				if(message.channel.roulettePlayers.find(i=>i.id==message.member.id)){
 					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You've already joined this roulette!"))
 					return;
 				} else if(time<30*1000){
-					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("You set a bet of **"+amount+"** on `"+args[2]+"`.").setFooter((time/1000)|0 + " seconds remaining.").setTitle("You joined the roulette!"))
+					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("You set a bet of **"+amount+"** on `"+args[2]+"`.").setFooter(((time/1000)|0) + " seconds remaining.").setTitle("You joined the roulette!"))
 				} else {
 					message.channel.roulette=Date.now();
 					message.channel.roulettePlayers=[];
 					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("You set a bet of **"+amount+"** on `"+args[2]+"`.").setFooter("30 seconds remaining.").setTitle("You started a roulette!"))
-					let starter = true;
+					starter = true;
 				}
 				message.channel.roulettePlayers.push({
 					id: message.author.id,
