@@ -1199,25 +1199,22 @@ client.on('message',async message=>{
 		} else if(item==undefined){
 			message.channel.send(new Discord.MessageEmbed().setDescription("Couldn't find any item with that ID :(").setColor("RED"));	
 		} else {
-			info.load(message.member.id).then(data=>{
-				if(data.items==undefined) data.items=[];
-				if(data.gold<item.price){
-					message.channel.send(new Discord.MessageEmbed().setDescription("You need **"+(item.price-data.gold)+"** more gold to buy this item.").setColor("RED"));
-				} else if(data.items.includes(item.id)&&item.multiple!=true){ 
-					message.channel.send(new Discord.MessageEmbed().setDescription("You already have this item!").setColor("RED"));
-				} else {
-					let price=item.price*(100-discount)/100
-					data.gold-=price;
-					if(item.inventory==true) data.items.push(item.id)
-					info.save(message.member.id,data).then(()=>{
-						item.buy(message.member);
-						
-					});
-					achievements.progress(message.member,"SHOP1",1);
-					achievements.progress(message.member,"SHOP2",2);
-					message.channel.send(new Discord.MessageEmbed().setDescription("You have successfully bought **"+item.name+"** for **"+price+"** gold!").setColor("GREEN"));
-				}
-			})	
+			let data = await info.load(message.member.id);
+			if(data.items==undefined) data.items=[];
+			if(data.gold<item.price){
+				message.channel.send(new Discord.MessageEmbed().setDescription("You need **"+(item.price-data.gold)+"** more gold to buy this item.").setColor("RED"));
+			} else if(data.items.includes(item.id)&&item.multiple!=true){ 
+				message.channel.send(new Discord.MessageEmbed().setDescription("You already have this item!").setColor("RED"));
+			} else {
+				let price=item.price*(100-discount)/100
+				data.gold-=price;
+				if(item.inventory==true) data.items.push(item.id)
+				await info.save(message.member.id,data);
+				item.buy(message.member);	
+				achievements.progress(message.member,"SHOP1",1);
+				achievements.progress(message.member,"SHOP2",2);
+				message.channel.send(new Discord.MessageEmbed().setDescription("You have successfully bought **"+item.name+"** for **"+price+"** gold!").setColor("GREEN"));
+			}	
 		}
 		
 	}
