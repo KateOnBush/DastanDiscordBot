@@ -2507,6 +2507,95 @@ client.on('message',async message=>{
 		let acst=acs.map(a=>"<:yes:733721073731764417> **"+a.name+"** "+a.description).join("\n")+"\n"+acs_.map(a=>"🕑 **"+a.name+"** "+a.description).join("\n");
 		message.channel.send(new Discord.MessageEmbed().setColor("BLUE").setDescription(user.toString()+"'s achievements: \n\n"+(acst=="\n" ? "`No achievements yet`" : acst)))
 		
+	} else if(["roulette","roul","rl"].includes(args[0])){
+		let data = await info.load(message.member.id);
+		if(!data.rouletteTimes) data.rouletteTimes=0;
+		if(data.rouletteTimes>5){
+			message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You already used the roulette 5 times today!"))	
+		} else if(parseInt(args[1])){
+			let amount = parseInt(args[1]);
+			if(amount>data.gold){
+				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You need **" + (amount-data.gold) + "** to use the roulette."))	
+			} else if(args[2].match(/^([0-9]{1,2})-([0-9]{1,2})$/)||parseInt(args[2])||["red","black"].includes(args[2])){
+				let chances = 0;
+				let check = ()=>{};
+				if(args[2].match(/^([0-9]{1,2})-([0-9]{1,2})$/)){
+					let inp = args[2].match(/^([0-9]{1,2})-([0-9]{1,2})$/);
+					let f = parseInt(inp[1]);
+					let s = parseInt(inp[2]);
+					if(f>s||s>30){
+						message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("The range should be between 1 and 30. Example `8-18`."))	
+						return;
+					} else {
+						chances = (s-f)/30;
+						check = (c,n)=>n>f&&s<n;
+					}
+				} else if(parseInt(args[2])){
+					let n = parseInt(args[2]);
+					if(n>30||n<1){
+						message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("The number should be between 1 and 30."));
+						return;
+					} else {
+						chances = 1/30;
+						check = (c,num)=>num==n;
+					}
+				} else if(["red","black"].includes(args[2])){
+					chances = 1/2;
+					check = (c,num)=>["red","black"].includes(c);
+				} 
+				if(message.channel.roulettePlayers==undefined) message.channel.roulettePlayers=[];
+				if(!message.channel.roulette) message.channel.roulette=Date.now();
+				let time = Date.now()-message.channel.roulette;
+				let started = false;
+				if(message.channel.roulettePlayers.find(i=>i.id==message.member.id)){
+					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You've already joined this roulette!"))
+					return;
+				} else if(time<30*1000){
+					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("You set a bet of **"+amount+"** on `"+args[2]+"`.").setFooter((time/1000)|0 + " seconds remaining.").setTitle("You joined the roulette!"))
+				} else {
+					message.channel.roulette=Date.now();
+					message.channel.roulettePlayers=[];
+					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("You set a bet of **"+amount+"** on `"+args[2]+"`.").setFooter("30 seconds remaining.").setTitle("You started a roulette!"))
+					let starter = true;
+				}
+				message.channel.roulettePlayers.push({
+					id: message.author.id,
+					check: check,
+					chances: chances,
+					amount: amount
+				})
+				data.gold-=amount;
+				await info.save(message.member.id,data);
+				if(starter){
+					await wait(31*1000);
+					let number = Math.ceil(Math.random()*30);
+					let color = ["red","black"][Math.round(Math.random())];
+					let winners = [];
+					message.channel.roulettePlayers.forEach(user=>{
+						if(user.check(color,number)){
+							info.load(user.id).then(async data=>{
+								data.gold+=user.amount*1/chances|0;
+								await info.save(user.id,data);
+							})
+						}
+						winners.push({
+							id: user.id,
+							amount: user.amount*1/chances|0;
+						});
+					})
+					if(winners.length==0){
+						message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("No winners :("))
+					} else {
+						message.channel.send(new Discord.MessageEmbed().setColor("CYAN").setDescription(winners.map(t=>"<@"+t.id+"> won **"+t.amount+"** gold!").join("\n")));
+					} 
+				}
+				
+			} else {
+				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a color (red/black) or a range of numbers from 1 to 30."));	
+			} 
+		} else {
+			message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify an amount of gold."))	
+		}
 	}else if(args[0]=="help"){
 	
 		const commands = [{
