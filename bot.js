@@ -535,6 +535,7 @@ async function updateProfile(member,points){
 			c.firstMessage=Date.now();
 			var t=(c.messageAveragePerDay*0.7+c.messagesSentToday*0.3);
 			c.gamblesToday=0;
+			c.rouletteTimes=0;
 			c.messageAveragePerDay=t|0;
 			c.messagesSentToday=0;
 				
@@ -2508,9 +2509,10 @@ client.on('message',async message=>{
 		message.channel.send(new Discord.MessageEmbed().setColor("BLUE").setDescription(user.toString()+"'s achievements: \n\n"+(acst=="\n" ? "`No achievements yet`" : acst)))
 		
 	} else if(["roulette","roul","rl"].includes(args[0])){
+		let boost = !!message.member.roles.cache.array().find(r=>r.id==="748584004181033030");
 		let data = await info.load(message.member.id);
 		if(!data.rouletteTimes) data.rouletteTimes=0;
-		if(data.rouletteTimes>5){
+		if(data.rouletteTimes>5&&!(boost&&data.rouletteTimes<10)){
 			message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You already used the roulette 5 times today!"))	
 		} else if(parseInt(args[1])){
 			let amount = parseInt(args[1]);
@@ -2547,16 +2549,16 @@ client.on('message',async message=>{
 				if(!message.channel.roulette) message.channel.roulette=0;
 				let time = Date.now()-message.channel.roulette;
 				let started = false;
-				if(message.channel.roulettePlayers.find(i=>i.id==message.member.id)){
-					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You've already joined this roulette!"))
-					return;
-				} else if(time<30*1000){
-					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("You set a bet of **"+amount+"** on `"+args[2]+"`.").setFooter(((time/1000)|0) + " seconds remaining.").setTitle("You joined the roulette!"))
-				} else {
+				if(time>30*1000) {
 					message.channel.roulette=Date.now();
 					message.channel.roulettePlayers=[];
 					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("You set a bet of **"+amount+"** on `"+args[2]+"`.").setFooter("30 seconds remaining.").setTitle("You started a roulette!"))
 					starter = true;
+				} else if(message.channel.roulettePlayers.find(i=>i.id==message.member.id)){
+					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You've already joined this roulette!"))
+					return;
+				} else {
+					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("You set a bet of **"+amount+"** on `"+args[2]+"`.").setFooter(((time/1000)|0) + " seconds remaining.").setTitle("You joined the roulette!"))
 				}
 				message.channel.roulettePlayers.push({
 					id: message.author.id,
@@ -2584,9 +2586,9 @@ client.on('message',async message=>{
 						});
 					})
 					if(winners.length==0){
-						message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setDescription("No winners :("))
+						message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setTitle("The ball landed on `"+color+" "+number+"`").setDescription("No winners :("))
 					} else {
-						message.channel.send(new Discord.MessageEmbed().setColor("CYAN").setDescription(winners.map(t=>"<@"+t.id+"> won **"+t.amount+"** gold!").join("\n")));
+						message.channel.send(new Discord.MessageEmbed().setColor("AQUA").setTitle("The ball landed on `"+color+" "+number+"`").setDescription(winners.map(t=>"<@"+t.id+"> won **"+t.amount+"** gold!").join("\n")));
 					} 
 				}
 				
