@@ -7,7 +7,7 @@
     "start": "node bot.js"
   },
   "dependencies": {
-    "discord.js": "12.2.0",
+    "discord.js": "latest",
     "request": "latest",
     "discord-music-player": "4.0.8",
     "@discordjs/opus": "0.3.2",
