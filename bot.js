@@ -2580,7 +2580,7 @@ client.on('message',async message=>{
 						}
 						winners.push({
 							id: user.id,
-							amount: user.amount*1/chances|0;
+							amount: user.amount*1/chances|0
 						});
 					})
 					if(winners.length==0){
