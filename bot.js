@@ -647,9 +647,9 @@ var info = {
 		return await database.save();
 	},
 	save: async function(id,data){
-		let userdata = dataStorage.find(d=>d.id==id);
+		let userind = dataStorage.findIndex(d=>d.id==id);
 		if(userdata!=undefined){
-			userdata = data;
+			dataStorage[userind] = data;
 			return await database.save();
 		} else{
 			return this.init(data);	
@@ -932,6 +932,7 @@ client.on('message',async message=>{
 			longDescription: "With this upgrade, whenever a new event is announced, this will allow you to automatically join it, you will then unlock the command `autoevent <on/off>`, which will give you the ability to enable/disable this perk at any time!",
 			price: 300,
 			id: 1,
+			inventory: true,
 			multiple: false,
 			buy: function(member){
 				member.roles.add("731828010923065405");
@@ -956,6 +957,7 @@ client.on('message',async message=>{
 			name: "Double XP - 6 hours",
 			description: "With this upgrade you get doubled xp for 6 hours!",
 			price: 120,
+			inventory: true,
 			id: 3,
 			multiple: true,
 			buy: function(member){
@@ -1208,9 +1210,9 @@ client.on('message',async message=>{
 			} else {
 				let price=item.price*(100-discount)/100
 				data.gold-=price;
-				if(item.inventory==true) data.items.push(item.id)
+				if(item.inventory==true) data.items.push(item.id);
 				await info.save(message.member.id,data);
-				item.buy(message.member);	
+				item.buy(message.member);
 				achievements.progress(message.member,"SHOP1",1);
 				achievements.progress(message.member,"SHOP2",2);
 				message.channel.send(new Discord.MessageEmbed().setDescription("You have successfully bought **"+item.name+"** for **"+price+"** gold!").setColor("GREEN"));
