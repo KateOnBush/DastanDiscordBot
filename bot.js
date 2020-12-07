@@ -648,7 +648,7 @@ var info = {
 	},
 	save: async function(id,data){
 		let userind = dataStorage.findIndex(d=>d.id==id);
-		if(userdata!=undefined){
+		if(userind!=-1){
 			dataStorage[userind] = data;
 			return await database.save();
 		} else{
