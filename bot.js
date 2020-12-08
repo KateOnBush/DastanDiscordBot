@@ -2530,7 +2530,7 @@ client.on('message',async message=>{
 						return;
 					} else {
 						chances = (s-f)/30;
-						check = (c,n)=>n>f&&s<n;
+						check = (c,n)=>{return (n>f&&s<n)};
 					}
 				} else if(parseInt(args[2])){
 					let n = parseInt(args[2]);
@@ -2539,16 +2539,16 @@ client.on('message',async message=>{
 						return;
 					} else {
 						chances = 1/30;
-						check = (c,num)=>num==n;
+						check = (c,num)=>{return num==n};
 					}
 				} else if(["red","black"].includes(args[2])){
 					chances = 1/2;
-					check = (c,num)=>["red","black"].includes(c);
+					check = (c,num)=>{return ["red","black"].includes(c)};
 				} 
 				if(message.channel.roulettePlayers==undefined) message.channel.roulettePlayers=[];
 				if(!message.channel.roulette) message.channel.roulette=0;
 				let time = Date.now()-message.channel.roulette;
-				let started = false;
+				let starter = false;
 				if(time>30*1000) {
 					message.channel.roulette=Date.now();
 					message.channel.roulettePlayers=[];
@@ -2558,7 +2558,7 @@ client.on('message',async message=>{
 					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You've already joined this roulette!"))
 					return;
 				} else {
-					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("You set a bet of **"+amount+"** on `"+args[2]+"`.").setFooter(((time/1000)|0) + " seconds remaining.").setTitle("You joined the roulette!"))
+					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("You set a bet of **"+amount+"** on `"+args[2]+"`.").setFooter(Math.round(time/1000) + " seconds remaining.").setTitle("You joined the roulette!"))
 				}
 				message.channel.roulettePlayers.push({
 					id: message.author.id,
@@ -2571,7 +2571,7 @@ client.on('message',async message=>{
 				if(starter){
 					await wait(31*1000);
 					let number = Math.ceil(Math.random()*30);
-					let color = ["red","black"][Math.round(Math.random())];
+					let color = ["red","black"][Math.ceil(Math.random()*2)-1];
 					let winners = [];
 					message.channel.roulettePlayers.forEach(user=>{
 						if(user.check(color,number)){
