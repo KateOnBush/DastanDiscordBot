@@ -2525,11 +2525,11 @@ client.on('message',async message=>{
 					let inp = args[2].match(/^([0-9]{1,2})-([0-9]{1,2})$/);
 					let fi = parseInt(inp[1]);
 					let se = parseInt(inp[2]);
-					if(f>s||s>30){
+					if(fi>se||se>30){
 						message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("The range should be between 1 and 30. Example `8-18`."))	
 						return;
 					} else {
-						chances = (s-f)/30;
+						chances = (se-fi)/30;
 						check = (c,n)=>{return (n>=fi&&se>=n)};
 					}
 				} else if(parseInt(args[2])){
