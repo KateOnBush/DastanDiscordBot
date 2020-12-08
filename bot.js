@@ -2511,6 +2511,7 @@ client.on('message',async message=>{
 	} else if(["roulette","roul","rl"].includes(args[0])){
 		let boost = !!message.member.roles.cache.array().find(r=>r.id==="748584004181033030");
 		let data = await info.load(message.member.id);
+		if(args[1]) args[1]=args[1].replace("all",data.gold).replace("half",data.gold/2|0).replace("third",data.gold/3|0).replace("quarter",data.gold/4|0)
 		if(!data.rouletteTimes) data.rouletteTimes=0;
 		if(data.rouletteTimes>5&&!(boost&&data.rouletteTimes<10)){
 			message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You already used the roulette 5 times today!"))	
@@ -2560,6 +2561,7 @@ client.on('message',async message=>{
 				} else {
 					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("You set a bet of **"+amount+"** on `"+args[2]+"`.").setFooter(Math.round(time/1000) + " seconds remaining.").setTitle("You joined the roulette!"))
 				}
+				data.rouletteTimes+=1;
 				message.channel.roulettePlayers.push({
 					id: message.author.id,
 					check: check,
@@ -2669,6 +2671,12 @@ client.on('message',async message=>{
 				name: "gamble",
 				description: "Gamble and if you're lucky enough, double your money :)",
 				usage: "gamble <amount>"
+			},{
+				name: "roulette",
+				description: "Start or join a game of roulette with your friends, and whoever gets it right doubles his money!",
+				longDescription: "Start or join a game of roulette with your friends, and whoever gets the right bet multiplies his money depending on his initial chances, for example: if you bet on 1 to 15, you have 1 out of 2 chances of winning, therefore if you win, you get 2 times your bet.",
+				usage: "roulette <amount> <color/number/range of numbers>",
+				aliases: "rl, roul"
 			},{
 				name: "job",
 				description: "Get a job, work, get paid!",
