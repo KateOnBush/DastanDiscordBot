@@ -2543,7 +2543,7 @@ client.on('message',async message=>{
 					}
 				} else if(["red","black"].includes(args[2])){
 					chances = 1/2;
-					check = (c,num)=>{return ["red","black"].includes(c)};
+					check = (c,num)=>{return c==args[2]};
 				} 
 				if(message.channel.roulettePlayers==undefined) message.channel.roulettePlayers=[];
 				if(!message.channel.roulette) message.channel.roulette=0;
@@ -2579,11 +2579,11 @@ client.on('message',async message=>{
 								data.gold+=user.amount*1/chances|0;
 								await info.save(user.id,data);
 							})
+							winners.push({
+								id: user.id,
+								amount: user.amount*1/chances|0
+							});
 						}
-						winners.push({
-							id: user.id,
-							amount: user.amount*1/chances|0
-						});
 					})
 					if(winners.length==0){
 						message.channel.send(new Discord.MessageEmbed().setColor("ORANGE").setTitle("The ball landed on `"+color+" "+number+"`").setDescription("No winners :("))
