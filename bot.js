@@ -2519,11 +2519,11 @@ client.on('message',async message=>{
 			let amount = parseInt(args[1]);
 			if(amount>data.gold){
 				message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You need **" + (amount-data.gold) + "** to use the roulette."))	
-			} else if(args[2].match(/^([0-9]{1,2})-([0-9]{1,2})$/)||parseInt(args[2])||["red","black"].includes(args[2])){
+			} else if(args[2].match(/(^[0-9]{1,2})-([0-9]{1,2}$)/)||parseInt(args[2])||["red","black"].includes(args[2])){
 				let chances = 0;
 				let check = ()=>{};
-				if(args[2].match(/^([0-9]{1,2})-([0-9]{1,2})$/)){
-					let inp = args[2].match(/^([0-9]{1,2})-([0-9]{1,2})$/);
+				if(args[2].match(/(^[0-9]{1,2})-([0-9]{1,2}$)/)){
+					let inp = args[2].match(/(^[0-9]{1,2})-([0-9]{1,2}$)/);
 					let fi = parseInt(inp[1]);
 					let se = parseInt(inp[2]);
 					if(fi>se||se>30){
@@ -2559,7 +2559,7 @@ client.on('message',async message=>{
 					message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You've already joined this roulette!"))
 					return;
 				} else {
-					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("You set a bet of **"+amount+"** on `"+args[2]+"`.").setFooter(Math.round(time/1000) + " seconds remaining.").setTitle("You joined the roulette!"))
+					message.channel.send(new Discord.MessageEmbed().setColor("GREEN").setDescription("You set a bet of **"+amount+"** on `"+args[2]+"`.").setFooter(Math.round(30-time/1000) + " seconds remaining.").setTitle("You joined the roulette!"))
 				}
 				data.rouletteTimes+=1;
 				message.channel.roulettePlayers.push({
@@ -2578,12 +2578,12 @@ client.on('message',async message=>{
 					message.channel.roulettePlayers.forEach(user=>{
 						if(user.check(color,number)){
 							info.load(user.id).then(async data=>{
-								data.gold+=user.amount*1/chances|0;
+								data.gold+=user.amount*1/user.chances|0;
 								await info.save(user.id,data);
 							})
 							winners.push({
 								id: user.id,
-								amount: user.amount*1/chances|0
+								amount: user.amount*1/user.chances|0
 							});
 						}
 					})
