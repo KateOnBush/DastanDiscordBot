@@ -2513,7 +2513,7 @@ client.on('message',async message=>{
 		let data = await info.load(message.member.id);
 		if(args[1]) args[1]=args[1].replace("all",data.gold).replace("half",data.gold/2|0).replace("third",data.gold/3|0).replace("quarter",data.gold/4|0)
 		if(!data.rouletteTimes) data.rouletteTimes=0;
-		if(data.rouletteTimes>5&&!(boost&&data.rouletteTimes<10)){
+		if(data.rouletteTimes>10&&!(boost&&data.rouletteTimes<20)){
 			message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You already used the roulette 5 times today!"))	
 		} else if(parseInt(args[1])){
 			let amount = parseInt(args[1]);
@@ -2526,11 +2526,11 @@ client.on('message',async message=>{
 					let inp = args[2].match(/(^[0-9]{1,2})-([0-9]{1,2}$)/);
 					let fi = parseInt(inp[1]);
 					let se = parseInt(inp[2]);
-					if(fi>se||se>30){
+					if(fi>=se||se>30){
 						message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("The range should be between 1 and 30. Example `8-18`."))	
 						return;
 					} else {
-						chances = (se-fi)/30;
+						chances = (se-fi+1)/30;
 						check = (c,n)=>{return (n>=fi&&se>=n)};
 					}
 				} else if(parseInt(args[2])){
@@ -3199,14 +3199,6 @@ async function runStream(){
 	await streamer.play();
 }
 
-let _error = console.error;
-console.error = function(er){
-	if(typeof er==="string"&&er.includes("[ERROR:STREAMING]")){
-		runStream();	
-	}
-	_error(er);
-}
-
 aura.on('ready', async () => {
     await runStream();
 })
@@ -3214,7 +3206,12 @@ aura.on('ready', async () => {
 aura.login("NzUzNjA1MjkzMjI0NDkzMDc4.X1onnw.v-EjO1I4YtntLtRWTZbIsDbNqF0");
 
 process.on("unhandledRejection", error => {
-	log(new Discord.MessageEmbed().setColor("RED").setDescription("**Unhandled Promise Rejection:**\n```js\n"+error.stack+"\n```").setTimestamp());
+	if(error.stack){
+		log(new Discord.MessageEmbed().setColor("RED").setDescription("**Unhandled Promise Rejection:**\n```js\n"+error.stack+"\n```").setTimestamp());
+	} else {
+		log(new Discord.MessageEmbed().setColor("RED").setDescription("**Unhandled Promise Rejection:**\n```js\n"+error.toString()+"\n```").setTimestamp());	
+	}
+	
 });
 
 let among = new Discord.Client();
