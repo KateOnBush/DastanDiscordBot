@@ -3217,23 +3217,23 @@ process.on("unhandledRejection", error => {
 let among = new Discord.Client();
 
 among.on("message",async msg=>{
-	if(msg.content.toLowerCase()=="a!muteall"){
+	if(msg.content.toLowerCase()=="a!m"){
 		if(!msg.member.hasPermission("MUTE_MEMBERS")){
 			msg.channel.send("You need the mute members permission!")
 		} else if(msg.member.voice.channel){
 			msg.member.voice.channel.members.array().forEach(async member=>{
-				member.voice.setMute(true)
+				if(!member.user.bot) member.voice.setMute(true);
 			})
 			msg.channel.send("All members muted!");
 		}else{
 			msg.channel.send("You are not in a channel!")	
 		}
-	} else if(msg.content.toLowerCase()=="a!unmuteall"){
+	} else if(msg.content.toLowerCase()=="a!u"){
 		if(!msg.member.hasPermission("MUTE_MEMBERS")){
 			msg.channel.send("You need the mute members permission!")
 		} else if(msg.member.voice.channel){
 			msg.member.voice.channel.members.array().forEach(async member=>{
-				member.voice.setMute(false)
+				if(!member.user.bot) member.voice.setMute(false);
 			})
 			msg.channel.send("All members unmuted!");
 		}else{
