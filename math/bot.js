@@ -50,7 +50,7 @@ client.on("message",async(message)=>{
                 if(!args[1]){
                         message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a function."));
                 } else {
-                       let possible = ["(",")","sqrt","cbrt","power","ln","log","*","+","-","cos","sin","tan","pi","e"];
+                       let possible = ["(",")","sqrt","cbrt","power","ln","log","*","+","-","cos","sin","tan","pi","e","x"];
                        let s = args[1];
                        for(var t in possible){
                                s = s.split(t).join("");
