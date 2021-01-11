@@ -29,7 +29,7 @@ function graph(f,step){
             if(i%5==0) t.printText((i-25)*step/5,i*10-5,255+8)
             }
             t=t.setLineWidth(2).setStroke("#ff5d05").beginPath();
-            for(var i=0; i<50; i++){
+            for(var i=0; i<50; i+=1/4){
                 try{
                         var x1=(i-25)*step/5;
                         var fx1=f(x1);
@@ -39,8 +39,10 @@ function graph(f,step){
                         var fxm=f(xm);
                         function xr(x){ return 250+x*(5/step)*10; }
                         function yr(y){ return 250-y*(5/step)*10; }
-                        t=t.moveTo(xr(x1),yr(fx1)).bezierCurveTo(xr(xm),yr(fxm),xr(xm),yr(fxm),xr(x2),yr(fx2));
-                }catch(err){}
+                        if(yr(fx1)>50&&yr(fx2)<550){
+                            t=t.moveTo(xr(x1),yr(fx1)).bezierCurveTo(xr(xm),yr(fxm),xr(xm),yr(fxm),xr(x2),yr(fx2));
+                        }
+                  }catch(err){}
             }
             t=t.stroke();
             return t.toBuffer();
@@ -48,6 +50,9 @@ function graph(f,step){
 
 function toEvalFunction(string){
         string = string.split("power").join("Math.pow");
+        string = string.split("arccos").join("Math.acos");
+        string = string.split("arcsin").join("Math.asin");
+        string = string.split("arctan").join("Math.atan");
         string = string.split("cos").join("Math.cos");
         string = string.split("sin").join("Math.sin");
         string = string.split("tan").join("Math.tan");
@@ -69,7 +74,7 @@ client.on("message",async(message)=>{
                 if(!args[1]){
                         message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a function."));
                 } else {
-                       let possible = [".",",","/","(",")","sqrt","cbrt","power","ln","log","*","+","-","cos","sin","tan","pi","e","x","1","2","3","4","5","6","7","8","9","0"];
+                       let possible = [".",",","/","(",")","sqrt","cbrt","power","ln","log","*","+","-","arccos","arcsin","arctan","cos","sin","tan","pi","e","x","1","2","3","4","5","6","7","8","9","0"];
                        let s = args[1];
                        for(var t in possible){
                                s = s.split(possible[t]).join("");
@@ -83,8 +88,8 @@ client.on("message",async(message)=>{
                                 return message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Syntax error. Please check your function again."));      
                        }
                        let step=5;
-                       if(parseInt(args[2])) step=parseInt(args[2]);
-                       if(step===0) step=5;
+                       if(parseFloat(args[2])) step=parseFloat(args[2]);
+                       if(step<=0) step=5;
                        eval("function f(x){ return ("+toEvalFunction(args[1])+");}");
                        if(args[0]=="ddxgraph"){
                                message.channel.send("**Here's your graph:**",{files:[graph(derivative(f),step)]});  
