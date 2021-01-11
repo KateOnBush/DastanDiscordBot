@@ -21,10 +21,18 @@ function graph(f,step){
             if(i%5==0) t.printText((i-25)*step/5,i*10-5,255+8)
             }
             t=t.setLineWidth(2).setStroke("#ff5d05").beginPath();
-            for(var i=0; i<500/step; i++){
+            for(var i=0; i<50; i++){
                 try{
                 if(f(i-25)<150&&f(i-25)>-150){
-                        t=t.moveTo(250+(i-25)*10*5/step,250-10*f((i-25)*(5/step))).bezierCurveTo(250+10*(i+1/2-25)*5/step,250-10*f((i+1/2-25)*5/step),250+10*(i+1/2-25)*5/step,250-10*f((i+1/2-25)*5/step),250+10*(i+1-25)*step/5,250-10*f((i+1-25)*5/step));
+                        var x1=(i-25)*step/5;
+                        var fx1=f(x1);
+                        var x2=(i-25+1)*step/5;
+                        var fx2=f(x2)
+                        var xm=(x1+x2)/2;
+                        var fxm=f(xm);
+                        function xr(x){ return 250+x*step*10; }
+                        function yr(y){ return 250-y*step*10; }
+                        t=t.moveTo(xr(x1),yr(fx1)).bezierLineTo(xr(xm),yr(fxm),xr(xm),yr(fxm),xr(x2),yr(fx2));
                 }
                 }catch(err){}
             }
