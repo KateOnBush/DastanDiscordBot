@@ -20,11 +20,11 @@ function graph(f,step){
             t=t.printRectangle(i*10,247,2,6);
             if(i%5==0) t.printText((i-25)*step/5,i*10-5,255+8)
             }
-            t=t.setLineWidth(3).setStroke("#ff5d05").beginPath();
-            for(var i=0; i<50; i++){
+            t=t.setLineWidth(2).setStroke("#ff5d05").beginPath();
+            for(var i=0; i<500/step; i++){
                 try{
                 if(f(i-25)<150&&f(i-25)>-150){
-                        t=t.moveTo(250+(i-25)*10*step/5,250-10*f((i-25)*(step/5))).bezierCurveTo(250+10*(i-25+1/2)*step/5,250-10*f((i-25+1/2)*step/5),250+10*(i-25+1/2)*step/5,250-10*f((i-25+1/2)*step/5),250+10*(i-24)*step/5,250-10*f((i-24)*step/5));
+                        t=t.moveTo(250+(i-250/step)*10*step/5,250-10*f((i-25)*(step/5))).bezierCurveTo(250+10*(i+1/2-250/step)*step/5,250-10*f((i+1/2-250/step)*step/5),250+10*(i+1/2-250/step)*step/5,250-10*f((i+1/2-250/step)*step/5),250+10*(i+1-250/step)*step/5,250-10*f((i+1-250/step)*step/5));
                 }
                 }catch(err){}
             }
