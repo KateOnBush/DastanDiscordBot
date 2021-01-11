@@ -5,7 +5,7 @@ const prefix = "x";
 
 let derivative = function(f){
 return function(x){
-            let cl=0.0000000001;
+            let cl=0.0000001;
             let a=(f(x)-f(x-cl))/cl;
             let b=(f(x+cl)-f(x)/cl);
             return (a+b)/2;
@@ -20,6 +20,9 @@ function graph(f,step){
             if(i%5==0){
             t=t.printRectangle(i*10,0,2,500);
             t=t.printRectangle(0,i*10,500,2);
+            } else {
+            t=t.printRectangle(i*10,0,1,500);
+            t=t.printRectangle(0,i*10,500,1);              
             }
             t=t.setColor("BLACK");
             t=t.printRectangle(247,i*10,6,2);
@@ -53,7 +56,6 @@ function toEvalFunction(string){
         string = string.split("sqrt").join("Math.sqrt");
         string = string.split("cbrt").join("Math.cbrt");
         string = string.split("log").join("Math.log10");
-        string = string.split("ddx").join("derivative");
         string = string.split("ln").join("Math.log");
         string = string.split("e").join("(Math.E)");
         string = string.split("pi").join("(Math.pi)");
@@ -65,11 +67,11 @@ client.on("message",async(message)=>{
         if (!args[0].startsWith("x")) return;
         args[0] = args[0].substring(1);
          
-        if(args[0]=="graph"){
+        if(args[0]=="graph"||args[0]=="ddxgraph"||args[0]=="ddx2graph"){
                 if(!args[1]){
                         message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a function."));
                 } else {
-                       let possible = [".",",","/","(",")","sqrt","cbrt","power","ln","log","*","+","-","cos","sin","tan","pi","ddx","e","x","1","2","3","4","5","6","7","8","9","0"];
+                       let possible = [".",",","/","(",")","sqrt","cbrt","power","ln","log","*","+","-","cos","sin","tan","pi","e","x","1","2","3","4","5","6","7","8","9","0"];
                        let s = args[1];
                        for(var t in possible){
                                s = s.split(possible[t]).join("");
@@ -86,7 +88,13 @@ client.on("message",async(message)=>{
                        if(parseInt(args[2])) step=parseInt(args[2]);
                        if(step===0) step=5;
                        eval("function f(x){ return ("+toEvalFunction(args[1])+");}");
-                       message.channel.send("**Here's your graph:**",{files:[graph(f,step)]});
+                       if(args[0]=="ddxgraph"){
+                               message.channel.send("**Here's your graph:**",{files:[graph(derivative(f),step)]});  
+                       } else if(args[0]=="ddx2graph"){
+                               message.channel.send("**Here's your graph:**",{files:[graph(derivative(derivative(f)),step)]});  
+                       } else {
+                               message.channel.send("**Here's your graph:**",{files:[graph(f,step)]});
+                       }
                 }
         }
 })
