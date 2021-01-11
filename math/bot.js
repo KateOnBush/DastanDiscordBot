@@ -53,7 +53,7 @@ client.on("message",async(message)=>{
                        let possible = ["(",")","sqrt","cbrt","power","ln","log","*","+","-","cos","sin","tan","pi","e","x"];
                        let s = args[1];
                        for(var t in possible){
-                               s = s.split(t).join("");
+                               s = s.split(possible[t]).join("");
                        }
                        if(s!==""){
                                 return message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You're using illegal characters, please check your function again."));
