@@ -40,6 +40,9 @@ function graph(f,step){
 
 function toEvalFunction(string){
         string = string.split("power").join("Math.pow");
+        string = string.split("cos").join("Math.cos");
+        string = string.split("sin").join("Math.sin");
+        string = string.split("tan").join("Math.tan");
         string = string.split("sqrt").join("Math.sqrt");
         string = string.split("cbrt").join("Math.cbrt");
         string = string.split("log").join("Math.log10");
@@ -58,7 +61,7 @@ client.on("message",async(message)=>{
                 if(!args[1]){
                         message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a function."));
                 } else {
-                       let possible = [",","/","(",")","sqrt","cbrt","power","ln","log","*","+","-","cos","sin","tan","pi","e","x","1","2","3","4","5","6","7","8","9","0"];
+                       let possible = [".",",","/","(",")","sqrt","cbrt","power","ln","log","*","+","-","cos","sin","tan","pi","e","x","1","2","3","4","5","6","7","8","9","0"];
                        let s = args[1];
                        for(var t in possible){
                                s = s.split(possible[t]).join("");
