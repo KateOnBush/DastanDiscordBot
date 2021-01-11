@@ -63,6 +63,7 @@ client.on("message",async(message)=>{
                        }catch(err){
                                 return message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Syntax error. Please check your function again."));      
                        }
+                       let f = eval("function(x){ return ("+toEvalFunction(args[1])+");}");
                        message.channel.send("**Here's your graph:**",{files:[graph(f)]});
                 }
         }
