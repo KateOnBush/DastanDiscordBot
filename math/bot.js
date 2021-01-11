@@ -29,17 +29,17 @@ function graph(f,step){
             if(i%5==0) t.printText((i-25)*step/5,i*10-5,255+8)
             }
             t=t.setLineWidth(2).setStroke("#ff5d05").beginPath();
-            for(var i=0; i<50; i+=1/4){
+            for(var i=0; i<50; i+1/4){
                 try{
                         var x1=(i-25)*step/5;
                         var fx1=f(x1);
-                        var x2=(i-25+1)*step/5;
+                        var x2=(i-25+1/8)*step/5;
                         var fx2=f(x2)
                         var xm=(x1+x2)/2;
                         var fxm=f(xm);
                         function xr(x){ return 250+x*(5/step)*10; }
                         function yr(y){ return 250-y*(5/step)*10; }
-                        if(yr(fx1)>50&&yr(fx2)<550){
+                        if(yr(fx1)>-200&&yr(fx1)<700&&yr(fx2)>-200&&yr(fx2)<700){
                             t=t.moveTo(xr(x1),yr(fx1)).bezierCurveTo(xr(xm),yr(fxm),xr(xm),yr(fxm),xr(x2),yr(fx2));
                         }
                   }catch(err){}
