@@ -3,7 +3,14 @@ const Canvas = require('canvas-constructor');
 const client = new Discord.Client();
 const prefix = "x";
 
-let derivative = function(f){return function(x){return (f(x)-f(x-0.000001))/0.000001}}
+let derivative = function(f){
+return function(x){
+            let cl=0.0000000001;
+            let a=(f(x)-f(x-cl))/cl;
+            let b=(f(x+cl)-f(x)/cl);
+            return (a+b)/2;
+            }
+}
 
 function graph(f,step){
             let t=new Canvas.Canvas(500,500);
