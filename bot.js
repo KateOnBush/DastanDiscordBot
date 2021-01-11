@@ -241,7 +241,7 @@ if(event.time-Date.now()<5000){
 let peopleComing = (event.peopleComing.filter((f,i,t)=>t.indexOf(f)==i).map(t=>"<@!"+t+">").join(", ")||"No one.");
 return new Discord.MessageEmbed().setColor(color).setTitle(event.name).setDescription(event.desc)
 .addField("Host","<@!"+event.host+">",true).addField("Time",new Date(event.time).toString(),true)
-.addField("People coming",peopleComing).addField("Status",ti)
+.addField("People coming",peopleComing).addField("Status",ti) 
 .addField("How to join","React with 🎉 to join the event.\nReact with 🔔 to activate reminders.\nReact again to undo the action.").setTimestamp(event.time);	
 }
 
