@@ -5,10 +5,8 @@ const prefix = "x";
 
 let derivative = function(f){
 return function(x){
-            let cl=0.0000001;
-            let a=(f(x)-f(x-cl))/cl;
-            let b=(f(x+cl)-f(x)/cl);
-            return (a+b)/2;
+            let cl=0.000001;
+            return (f(x+cl)-f(x-cl))/(2*cl);
             }
 }
 
