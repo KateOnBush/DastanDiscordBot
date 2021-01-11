@@ -23,7 +23,6 @@ function graph(f,step){
             t=t.setLineWidth(2).setStroke("#ff5d05").beginPath();
             for(var i=0; i<50; i++){
                 try{
-                if(f(i-25)<150&&f(i-25)>-150){
                         var x1=(i-25)*step/5;
                         var fx1=f(x1);
                         var x2=(i-25+1)*step/5;
@@ -32,8 +31,7 @@ function graph(f,step){
                         var fxm=f(xm);
                         function xr(x){ return 250+x*step*10; }
                         function yr(y){ return 250-y*step*10; }
-                        t=t.moveTo(xr(x1),yr(fx1)).bezierLineTo(xr(xm),yr(fxm),xr(xm),yr(fxm),xr(x2),yr(fx2));
-                }
+                        t=t.moveTo(xr(x1),yr(fx1)).bezierCurveTo(xr(xm),yr(fxm),xr(xm),yr(fxm),xr(x2),yr(fx2));
                 }catch(err){}
             }
             t=t.stroke();
