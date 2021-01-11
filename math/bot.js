@@ -69,3 +69,4 @@ client.on("message",async(message)=>{
 })
 
 module.exports = client;
+client.login("Nzk4MjAyMDkwMTIzMDM0NzE2.X_xloA.VwZRJiPbrutDP0Ru-qvPLC5ccrs");
