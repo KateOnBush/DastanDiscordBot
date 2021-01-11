@@ -29,7 +29,7 @@ function graph(f,step){
             if(i%5==0) t.printText((i-25)*step/5,i*10-5,255+8)
             }
             t=t.setLineWidth(2).setStroke("#ff5d05").beginPath();
-            for(var i=0; i<50; i+1/4){
+            for(var i=0; i<50; i+=1/4){
                 try{
                         var x1=(i-25)*step/5;
                         var fx1=f(x1);
