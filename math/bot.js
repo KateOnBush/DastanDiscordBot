@@ -33,7 +33,7 @@ function graph(f,step){
                 try{
                         var x1=(i-25)*step/5;
                         var fx1=f(x1);
-                        var x2=(i-25+1/8)*step/5;
+                        var x2=(i-25+1/4)*step/5;
                         var fx2=f(x2)
                         var xm=(x1+x2)/2;
                         var fxm=f(xm);
