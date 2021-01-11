@@ -29,8 +29,8 @@ function graph(f,step){
                         var fx2=f(x2)
                         var xm=(x1+x2)/2;
                         var fxm=f(xm);
-                        function xr(x){ return 250+x*step*10; }
-                        function yr(y){ return 250-y*step*10; }
+                        function xr(x){ return 250+x*(5/step)*10; }
+                        function yr(y){ return 250-y*(5/step)*10; }
                         t=t.moveTo(xr(x1),yr(fx1)).bezierCurveTo(xr(xm),yr(fxm),xr(xm),yr(fxm),xr(x2),yr(fx2));
                 }catch(err){}
             }
