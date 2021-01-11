@@ -24,7 +24,7 @@ function graph(f,step){
             for(var i=0; i<500/step; i++){
                 try{
                 if(f(i-25)<150&&f(i-25)>-150){
-                        t=t.moveTo(250+(i-250/step)*10*step/5,250-10*f((i-25)*(step/5))).bezierCurveTo(250+10*(i+1/2-250/step)*step/5,250-10*f((i+1/2-250/step)*step/5),250+10*(i+1/2-250/step)*step/5,250-10*f((i+1/2-250/step)*step/5),250+10*(i+1-250/step)*step/5,250-10*f((i+1-250/step)*step/5));
+                        t=t.moveTo(250+(i-250/step)*10*step/5,250-10*f((i-250/step)*(step/5))).bezierCurveTo(250+10*(i+1/2-250/step)*step/5,250-10*f((i+1/2-250/step)*step/5),250+10*(i+1/2-250/step)*step/5,250-10*f((i+1/2-250/step)*step/5),250+10*(i+1-250/step)*step/5,250-10*f((i+1-250/step)*step/5));
                 }
                 }catch(err){}
             }
