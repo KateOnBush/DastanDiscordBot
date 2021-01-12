@@ -80,7 +80,7 @@ function getFunctionFromExp(exp){
                        }catch(err){
                                 return "Syntax error. Please check your function again.";      
                        }
-                       return eval("()=>("+toEvalFunction(exp)+")");
+                       return eval("(x)=>("+toEvalFunction(exp)+")");
 }
 
 client.on("message",async(message)=>{
