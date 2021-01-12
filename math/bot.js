@@ -51,12 +51,9 @@ function graph(f,step){
 
 function toEvalFunction(string){
         string = string.split("power").join("Math.pow");
-        string = string.split("cos").join("Math.cos");
-        string = string.split("sin").join("Math.sin");
-        string = string.split("tan").join("Math.tan");
-        string = string.split("arccos").join("Math.acos");
-        string = string.split("arcsin").join("Math.asin");
-        string = string.split("arctan").join("Math.atan");
+        string = string.split("arccos").join("ARCCOS").split("cos").join("Math.cos").split("ARCCOS").join("Math.acos");
+        string = string.split("arcsin").join("ARCSIN").split("sin").join("Math.sin").split("ARCSIN").join("Math.asin");
+        string = string.split("arctan").join("ARCTAN").split("tan").join("Math.tan").split("ARCTAN").join("Math.atan");
         string = string.split("sqrt").join("Math.sqrt");
         string = string.split("cbrt").join("Math.cbrt");
         string = string.split("log").join("Math.log10");
@@ -99,13 +96,21 @@ client.on("message",async(message)=>{
                        let step=5;
                        if(parseFloat(args[2])) step=parseFloat(args[2]);
                        if(step<=0) step=5;
+                       let emb=new Discord.MessageEmbed().setColor("BLUE").setTitle("`f(x)="+args[1]+"`");
+                       let g=()=>{};
+                       let type="";
                        if(args[0]=="ddxgraph"){
-                               message.channel.send("**Here's your graph:**",{files:[graph(derivative(f),step)]});  
+                               g=derivative(f);
+                               type="Derivative";
                        } else if(args[0]=="ddx2graph"){
-                               message.channel.send("**Here's your graph:**",{files:[graph(derivative(derivative(f)),step)]});  
+                               g=derivative(derivative(f));
+                               type="Second Derivative";
                        } else {
-                               message.channel.send("**Here's your graph:**",{files:[graph(f,step)]});
+                               g=f;
+                               type="Function";
                        }
+                       emb.setDescription("**Graph of :** "+type+".\n**Step :** "+step).attachFiles([graph(g,step)]);
+                       message.channel.send(emb);
                 }
         }
 })
