@@ -12,7 +12,7 @@ return function(x){
 
 function graph(f,step){
             let t=new Canvas.Canvas(500,500);
-            t=t.setColor("#232126").printRectangle(0,0,500,500).setColor("BLACK").printRectangle(249,0,2,500).printRectangle(0,249,500,2);
+            t=t.setColor("#232126").printRectangle(0,0,500,500).setColor("#e4ddeb").printRectangle(249,0,2,500).printRectangle(0,249,500,2);
             for(var i=0; i<50; i++){
             t=t.setColor("#343138");
             if(i%5==0){
@@ -51,12 +51,12 @@ function graph(f,step){
 
 function toEvalFunction(string){
         string = string.split("power").join("Math.pow");
-        string = string.split("arccos").join("Math.acos");
-        string = string.split("arcsin").join("Math.asin");
-        string = string.split("arctan").join("Math.atan");
         string = string.split("cos").join("Math.cos");
         string = string.split("sin").join("Math.sin");
         string = string.split("tan").join("Math.tan");
+        string = string.split("arccos").join("Math.acos");
+        string = string.split("arcsin").join("Math.asin");
+        string = string.split("arctan").join("Math.atan");
         string = string.split("sqrt").join("Math.sqrt");
         string = string.split("cbrt").join("Math.cbrt");
         string = string.split("log").join("Math.log10");
@@ -64,6 +64,23 @@ function toEvalFunction(string){
         string = string.split("e").join("(Math.E)");
         string = string.split("pi").join("(Math.pi)");
         return string;
+}
+
+function getFunctionFromExp(exp){
+                        let possible = [".",",","/","(",")","sqrt","cbrt","power","ln","log","*","+","-","arccos","arcsin","arctan","cos","sin","tan","pi","e","x","1","2","3","4","5","6","7","8","9","0"];
+                       let s = exp;
+                       for(var t in possible){
+                               s = s.split(possible[t]).join("");
+                       }
+                       if(s!==""){
+                                return "You're using illegal characters, please check your function again.";
+                       }
+                       try{
+                                eval("let g=function(x){ return ("+toEvalFunction(args[1])+");}");      
+                       }catch(err){
+                                return "Syntax error. Please check your function again.";      
+                       }
+                       eval("return function(x){ return ("+toEvalFunction(args[1])+");}");
 }
 
 client.on("message",async(message)=>{
@@ -75,23 +92,13 @@ client.on("message",async(message)=>{
                 if(!args[1]){
                         message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a function."));
                 } else {
-                       let possible = [".",",","/","(",")","sqrt","cbrt","power","ln","log","*","+","-","arccos","arcsin","arctan","cos","sin","tan","pi","e","x","1","2","3","4","5","6","7","8","9","0"];
-                       let s = args[1];
-                       for(var t in possible){
-                               s = s.split(possible[t]).join("");
-                       }
-                       if(s!==""){
-                                return message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("You're using illegal characters, please check your function again."));
-                       }
-                       try{
-                                eval("let f=function(x){ return ("+toEvalFunction(args[1])+");}");      
-                       }catch(err){
-                                return message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Syntax error. Please check your function again."));      
+                       let f=getFunctionFromExp(args[1]);
+                       if(typeof f === "string"){
+                            return message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription(f)); 
                        }
                        let step=5;
                        if(parseFloat(args[2])) step=parseFloat(args[2]);
                        if(step<=0) step=5;
-                       eval("function f(x){ return ("+toEvalFunction(args[1])+");}");
                        if(args[0]=="ddxgraph"){
                                message.channel.send("**Here's your graph:**",{files:[graph(derivative(f),step)]});  
                        } else if(args[0]=="ddx2graph"){
