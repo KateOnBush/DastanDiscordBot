@@ -51,7 +51,6 @@ function graph(f,step){
 
 function toEvalFunction(string){
         string = string.split("power").join("Math.pow");
-        string = string.split("ddx(").join("derivative(()=>");
         string = string.split("arccos").join("ARCCOS").split("cos").join("Math.cos").split("ARCCOS").join("Math.acos");
         string = string.split("arcsin").join("ARCSIN").split("sin").join("Math.sin").split("ARCSIN").join("Math.asin");
         string = string.split("arctan").join("ARCTAN").split("tan").join("Math.tan").split("ARCTAN").join("Math.atan");
@@ -65,7 +64,7 @@ function toEvalFunction(string){
 }
 
 function getFunctionFromExp(exp){
-                        let possible = ["ddx",".",",","/","(",")","sqrt","cbrt","power","ln","log","*","+","-","arccos","arcsin","arctan","cos","sin","tan","pi","e","x","1","2","3","4","5","6","7","8","9","0"];
+                        let possible = [".",",","/","(",")","sqrt","cbrt","power","ln","log","*","+","-","arccos","arcsin","arctan","cos","sin","tan","pi","e","x","1","2","3","4","5","6","7","8","9","0"];
                        let s = exp;
                        for(var t in possible){
                                s = s.split(possible[t]).join("");
@@ -111,7 +110,8 @@ client.on("message",async(message)=>{
                                type="Function";
                        }
                        emb.setDescription("**Graph of :** "+type+".\n**Step :** "+step);
-                       message.channel.send(emb,{files:[graph(g,step).toBuffer()]});
+                       message.channel.send(emb);
+                       message.channel.send("",{files:[graph(g,step).toBuffer()]});
                 }
         }
 })
