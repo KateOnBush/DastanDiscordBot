@@ -12,23 +12,24 @@ return function(x){
 
 function graph(f,step){
             let t=new Canvas.Canvas(500,500);
-            t=t.setColor("WHITE").printRectangle(0,0,500,500).setColor("BLACK").printRectangle(249,0,2,500).printRectangle(0,249,500,2);
+            t=t.setColor("#232126").printRectangle(0,0,500,500).setColor("BLACK").printRectangle(249,0,2,500).printRectangle(0,249,500,2);
             for(var i=0; i<50; i++){
-            t=t.setColor("LIGHTGRAY");
+            t=t.setColor("#343138");
             if(i%5==0){
             t=t.printRectangle(i*10,0,2,500);
             t=t.printRectangle(0,i*10,500,2);
             } else {
+            t=t.setColor("#2d2a30");
             t=t.printRectangle(i*10,0,1,500);
             t=t.printRectangle(0,i*10,500,1);              
             }
-            t=t.setColor("BLACK");
+            t=t.setColor("#e4ddeb");
             t=t.printRectangle(247,i*10,6,2);
             if(i%5==0) t.printText((25-i)*step/5,255,i*10+5)
             t=t.printRectangle(i*10,247,2,6);
             if(i%5==0) t.printText((i-25)*step/5,i*10-5,255+8)
             }
-            t=t.setLineWidth(2).setStroke("#ff5d05").beginPath();
+            t=t.setLineWidth(2).setStroke("#2375d9").beginPath();
             for(var i=0; i<50; i+=1/4){
                 try{
                         var x1=(i-25)*step/5;
