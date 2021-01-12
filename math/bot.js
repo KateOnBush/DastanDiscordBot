@@ -76,11 +76,11 @@ function getFunctionFromExp(exp){
                                 return "You're using illegal characters, please check your function again.";
                        }
                        try{
-                                eval("let g=function(x){ return ("+toEvalFunction(args[1])+");}");      
+                                eval("let g=function(x){ return ("+toEvalFunction(exp)+");}");      
                        }catch(err){
                                 return "Syntax error. Please check your function again.";      
                        }
-                       eval("return function(x){ return ("+toEvalFunction(args[1])+");}");
+                       eval("return function(x){ return ("+toEvalFunction(exp)+");}");
 }
 
 client.on("message",async(message)=>{
