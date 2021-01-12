@@ -46,7 +46,7 @@ function graph(f,step){
                   }catch(err){}
             }
             t=t.stroke();
-            return t.toBuffer();
+            return t;
 }
 
 function toEvalFunction(string){
@@ -109,7 +109,7 @@ client.on("message",async(message)=>{
                                g=f;
                                type="Function";
                        }
-                       emb.setDescription("**Graph of :** "+type+".\n**Step :** "+step).attachFiles([graph(g,step)]);
+                       emb.setDescription("**Graph of :** "+type+".\n**Step :** "+step).setImage(graph(g,step).toDataURL());
                        message.channel.send(emb);
                 }
         }
