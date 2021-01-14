@@ -74,7 +74,6 @@ function graph(f,step){
 }
 
 function toEvalFunction(string){
-        string = string.split("ddx(").join("derivative(a=>");
         string = string.split("power").join("Math.pow");
         string = string.split("arccos").join("ARCCOS").split("cos").join("Math.cos").split("ARCCOS").join("Math.acos");
         string = string.split("arcsin").join("ARCSIN").split("sin").join("Math.sin").split("ARCSIN").join("Math.asin");
@@ -86,6 +85,7 @@ function toEvalFunction(string){
         string = string.split("e").join("(Math.E)");
         string = string.split("pi").join("(Math.pi)");
         string = string.split("phi").join("((1+Math.sqrt(5))/2)");
+        string = string.split("ddx(").join("derivative(a=>");
         return string;
 }
 
