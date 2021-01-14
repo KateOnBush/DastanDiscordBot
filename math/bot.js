@@ -10,6 +10,30 @@ return function(x){
             }
 }
 
+function getInsideOfFunction(expression,fname){
+            let array = [];
+            let current = "";
+            let status=-1;
+            for(var t in expression){
+                let i = expression[t]
+                if((i===fname[fname.length-1])&&(expression.slice(t+1-fname.length).startsWith(fname)&&status==-1)){
+                   status=0;
+                }
+                if(status!==1){
+                    current+=i;   
+                }
+                if(i=="("){
+                   status++;   
+                }
+                if(i===")"){
+                   status--;
+                   if(status==0){
+                        return current;   
+                   }
+                }
+            }
+}
+
 function graph(f,step){
             let t=new Canvas.Canvas(500,500);
             t=t.setColor("#232126").printRectangle(0,0,500,500).setColor("#e4ddeb").printRectangle(249,0,2,500).printRectangle(0,249,500,2);
@@ -50,6 +74,7 @@ function graph(f,step){
 }
 
 function toEvalFunction(string){
+        string = string.split("ddx(").join("derivative(x=>");
         string = string.split("power").join("Math.pow");
         string = string.split("arccos").join("ARCCOS").split("cos").join("Math.cos").split("ARCCOS").join("Math.acos");
         string = string.split("arcsin").join("ARCSIN").split("sin").join("Math.sin").split("ARCSIN").join("Math.asin");
