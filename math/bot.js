@@ -89,7 +89,7 @@ function toEvalFunction(string){
 }
 
 function getFunctionFromExp(exp){
-                        let possible = [".",",","/","(",")","sqrt","cbrt","power","ln","log","*","+","-","arccos","arcsin","arctan","cos","sin","tan","pi","e","x","1","2","3","4","5","6","7","8","9","0"];
+                        let possible = ["ddx",".",",","/","(",")","sqrt","cbrt","power","ln","log","*","+","-","arccos","arcsin","arctan","cos","sin","tan","pi","e","x","1","2","3","4","5","6","7","8","9","0"];
                        let s = exp;
                        for(var t in possible){
                                s = s.split(possible[t]).join("");
