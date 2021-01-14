@@ -74,7 +74,7 @@ function graph(f,step){
 }
 
 function toEvalFunction(string){
-        string = string.split("ddx(").join("derivative(x=>");
+        string = string.split("ddx(").join("derivative(a=>");
         string = string.split("power").join("Math.pow");
         string = string.split("arccos").join("ARCCOS").split("cos").join("Math.cos").split("ARCCOS").join("Math.acos");
         string = string.split("arcsin").join("ARCSIN").split("sin").join("Math.sin").split("ARCSIN").join("Math.asin");
@@ -85,11 +85,12 @@ function toEvalFunction(string){
         string = string.split("ln").join("Math.log");
         string = string.split("e").join("(Math.E)");
         string = string.split("pi").join("(Math.pi)");
+        string = string.split("phi").join("((1+Math.sqrt(5))/2)");
         return string;
 }
 
 function getFunctionFromExp(exp){
-                        let possible = ["ddx",".",",","/","(",")","sqrt","cbrt","power","ln","log","*","+","-","arccos","arcsin","arctan","cos","sin","tan","pi","e","x","1","2","3","4","5","6","7","8","9","0"];
+                        let possible = ["ddx","a","phi",".",",","/","(",")","sqrt","cbrt","power","ln","log","*","+","-","arccos","arcsin","arctan","cos","sin","tan","pi","e","x","1","2","3","4","5","6","7","8","9","0"];
                        let s = exp;
                        for(var t in possible){
                                s = s.split(possible[t]).join("");
@@ -110,7 +111,7 @@ client.on("message",async(message)=>{
         if (!args[0].startsWith("x")) return;
         args[0] = args[0].substring(1);
          
-        if(args[0]=="graph"||args[0]=="ddxgraph"||args[0]=="ddx2graph"){
+        if(args[0]=="graph"){
                 if(!args[1]){
                         message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a function."));
                 } else {
@@ -124,20 +125,21 @@ client.on("message",async(message)=>{
                        let emb=new Discord.MessageEmbed().setColor("BLUE").setTitle("`f(x)="+args[1]+"`");
                        let g=()=>{};
                        let type="";
-                       if(args[0]=="ddxgraph"){
-                               g=derivative(f);
-                               type="Derivative";
-                       } else if(args[0]=="ddx2graph"){
-                               g=derivative(derivative(f));
-                               type="Second Derivative";
-                       } else {
-                               g=f;
-                               type="Function";
-                       }
+                       g=f;
+                       type="Function";
                        emb.setDescription("**Graph of :** "+type+".\n**Step :** "+step);
                        message.channel.send(emb);
                        message.channel.send("",{files:[graph(g,step).toBuffer()]});
                 }
+        } else if(args[0]=="howgraph"){
+                    let embed=new Discord.MessageEmbed().setColor("GREEN").setDescription("**How to draw a graph:**\nUse the command: `"+prefix+"graph (function formula) (step)`");
+                    embed.addField("Variable","Variable is named `x`.");
+                    embed.addField("Symbols","Use `*` for mutiplication, `/` for division, `+` for addition and `-` for subtraction.");
+                    embed.addField("Functions","You can use functions such as: `sqrt(x)`, `cbrt(x)`, `power(base,exponent)`, `tan(x)`...");
+                    embed.addField("Constants","You can also use constants such as: `pi`, `e`, `phi`...");
+                    embed.addField("Differentiation","To use the derivative of a function, please write your function like this: `ddx(f(a))(x)` where `f(a)` is the function. For example, `ddx(a*a)(x)` will show the curve of the derivative of `x*x`, which is `2x`.");
+                    message.channel.send(embed);
+                    
         }
 })
 
