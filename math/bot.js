@@ -60,7 +60,7 @@ function graph(fs,step){
             let colors=["#48f0e7","#af03ff","#e3004c","#3a9473","#6cb519","#fcbd74","#594226","#4d0f94","#c45a5a","#5917bd"];
             let letters="fghijklmnopqrstuvwxyzabcdeFGHIJKLMNOPQRSTUVWXYZABCDE";
             let color="#2375d9";
-            t=t.setColor(color).setLineWidth(2).setStroke(color).beginPath();
+            t=t.setColor(color).setLineWidth(2).setTextSize(26).setStroke(color).beginPath();
             for(var n in fs){
                 let f = fs[n];
                 let name = 15+Math.ceil(Math.random()*25);
@@ -83,14 +83,14 @@ function graph(fs,step){
                                 let _y=0;
                                 if(ddx(x1)==0){
                                     _x=x1;
-                                    _y=f(x1)-step/2;
+                                    _y=f(x1)-step;
                                 } else {
                                     function line(t){
                                         let rate=-1/ddx(x1);
                                         return rate*(t-x1)+f(x1);
                                     }
-                                    _x=x1+step/2;
-                                    _y=f(_x);
+                                    _x=x1+step;
+                                    _y=line(_x);
                                 }
                                 t=t.printText(letters[n],xr(_x),yr(_y));
                             }
@@ -105,10 +105,7 @@ function graph(fs,step){
 }
 
 function toEvalFunction(string){
-        let ds=getInside(string,"ddx");
-        for(var s in ds){
-            string=string.replace("ddx("+ds[s]+")","derivative(a=>("+ds[s].split("x").join("a")+"))");
-        }
+        string = string.split("ddx").join("DERIV");
         string = string.split("power").join("Math.pow");
         string = string.split("arccos").join("ARCCOS").split("cos").join("Math.cos").split("ARCCOS").join("Math.acos");
         string = string.split("arcsin").join("ARCSIN").split("sin").join("Math.sin").split("ARCSIN").join("Math.asin");
@@ -120,6 +117,11 @@ function toEvalFunction(string){
         string = string.split("e").join("(Math.E)");
         string = string.split("pi").join("(Math.pi)");
         string = string.split("phi").join("((1+Math.sqrt(5))/2)");
+        let ds=getInside(string,"DERIV");
+        for(var s in ds){
+            string=string.replace("DERIV("+ds[s]+")","derivative(a=>("+ds[s].split("x").join("a")+"))");
+            string=string.split("DERIV(","derivative(a=>");
+        }
         return string;
 }
 
