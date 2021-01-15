@@ -5,7 +5,7 @@ const prefix = "x";
 
 let derivative = function(f){
 return function(x){
-            let cl=0.000001;
+            let cl=0.00001;
             return (f(x+cl)-f(x-cl))/(2*cl);
             }
 }
@@ -19,17 +19,19 @@ function getInside(expression,fname){
                 if((i===fname[fname.length-1])&&(expression.slice(t+1-fname.length).startsWith(fname)&&status==-1)){
                    status=0;
                 }
-                if(status!==1){
-                    current+=i;   
-                }
-                if(i=="("){
+                
+                 if(i=="("){
                    status++;   
+                }
+                if(status>0||(status==0&&!["(",")"].includes(i))){
+                    current+=i;   
                 }
                 if(i===")"){
                    status--;
-                   if(status==0){
+                   if(status==-1){
                         status=-1;
-                        array.push(current);   
+                        array.push(current);
+                        current="";   
                    }
                 }
             }
@@ -140,9 +142,9 @@ function getFunctionFromExp(exp){
 
 client.on("message",async(message)=>{
         var args=message.content.toLowerCase().split(" ");
+        args = args.filter(t=>t!=="");
         if (!args[0].startsWith("x")) return;
         args[0] = args[0].substring(1);
-         
         if(args[0]=="graph"){
                 if(!args[1]){
                         message.channel.send(new Discord.MessageEmbed().setColor("RED").setDescription("Please specify a function."));
