@@ -83,13 +83,13 @@ function graph(fs,step){
                                 let _y=0;
                                 if(ddx(x1)==0){
                                     _x=x1;
-                                    _y=f(x1)-step;
+                                    _y=f(x1)-step/2;
                                 } else {
                                     function line(t){
                                         let rate=-1/ddx(x1);
                                         return rate*(t-x1)+f(x1);
                                     }
-                                    _x=x1+step;
+                                    _x=x1+step/2;
                                     _y=line(_x);
                                 }
                                 t=t.printText(letters[n],xr(_x),yr(_y));
@@ -120,8 +120,8 @@ function toEvalFunction(string){
         let ds=getInside(string,"DERIV");
         for(var s in ds){
             string=string.replace("DERIV("+ds[s]+")","derivative(a=>("+ds[s].split("x").join("a")+"))");
-            string=string.split("DERIV(","derivative(a=>");
         }
+        string=string.split("DERIV(","derivative(a=>");
         return string;
 }
 
@@ -187,6 +187,12 @@ client.on("message",async(message)=>{
                     embed.addField("Differentiation","To use the derivative of a function, please write your function like this: `ddx(f(x))(x)` where `f(a)` is the function. For example, `ddx(x*x)(x)` will show the curve of the derivative of `x*x`, which is `2x`.\n**Each derivative expression MUST be followed by (x) as it represent the input (it might also be replaced by any value), for instance, `ddx(x+2)(x)` is the derivative of `x+2`, while `ddx(ddx(x+2)(x))(x)` is the second derivative of `x+2`.");
                     message.channel.send(embed);
                     
+        } else if(args[0]=="eval"){
+                    try{
+                             await message.channel.send("**Output:** `"+eval(args.filter((t,i)=>i>0).join(" "))+"`")
+                    }catch(err){
+                             message.channel.send("**Error:** `"+err.toString()+"`")
+                    }
         }
 })
 
