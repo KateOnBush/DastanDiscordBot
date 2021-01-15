@@ -154,7 +154,7 @@ client.on("message",async(message)=>{
                        let emb=new Discord.MessageEmbed().setColor("BLUE");
                        let list=[];
                        for(var n in args){
-                            if(n!==0){
+                            if(n!=0){
                                 let ar=args[n];
                                 let mat=ar.match(/^step:(\d+(\.\d+)?$)/);
                                 if(mat){
