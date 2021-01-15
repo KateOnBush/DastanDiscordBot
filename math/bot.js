@@ -121,7 +121,7 @@ function toEvalFunction(string){
         for(var s in ds){
             string=string.replace("DERIV("+ds[s]+")","derivative(a=>("+ds[s].split("x").join("a")+"))");
         }
-        string=string.split("DERIV(","derivative(a=>");
+        string=string.split("DERIV(").join("derivative(a=>");
         return string;
 }
 
@@ -184,12 +184,12 @@ client.on("message",async(message)=>{
                     embed.addField("Symbols","Use `*` for mutiplication, `/` for division, `+` for addition and `-` for subtraction.");
                     embed.addField("Functions","You can use functions such as: `sqrt(x)`, `cbrt(x)`, `power(base,exponent)`, `tan(x)`...");
                     embed.addField("Constants","You can also use constants such as: `pi`, `e`, `phi`...");
-                    embed.addField("Differentiation","To use the derivative of a function, please write your function like this: `ddx(f(x))(x)` where `f(a)` is the function. For example, `ddx(x*x)(x)` will show the curve of the derivative of `x*x`, which is `2x`.\n**Each derivative expression MUST be followed by (x) as it represent the input (it might also be replaced by any value), for instance, `ddx(x+2)(x)` is the derivative of `x+2`, while `ddx(ddx(x+2)(x))(x)` is the second derivative of `x+2`.");
+                    embed.addField("Differentiation","To use the derivative of a function, please write your function like this: `ddx(f(x))(x)` where `f(x)` is the function. For example, `ddx(x*x)(x)` will show the curve of the derivative of `x*x`, which is `2x`.\n**Each derivative expression MUST be followed by `(x)` ** as it represent the input (it might also be replaced by any value), for instance, `ddx(x+2)(x)` is the derivative of `x+2`, while `ddx(ddx(x+2)(x))(x)` is the second derivative of `x+2`.");
                     message.channel.send(embed);
                     
         } else if(args[0]=="eval"){
                     try{
-                             await message.channel.send("**Output:** `"+eval(args.filter((t,i)=>i>0).join(" "))+"`")
+                             await message.channel.send("**Output:** `"+eval(message.content.split(" ").filter((t,i)=>i>0).join(" "))+"`")
                     }catch(err){
                              message.channel.send("**Error:** `"+err.toString()+"`")
                     }
