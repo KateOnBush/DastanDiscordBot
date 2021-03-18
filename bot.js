@@ -2931,20 +2931,6 @@ client.login(process.env.BOT_TOKEN);
 treble.login(process.env.MUSIC2);
 pitch.login(process.env.MUSIC1);
 
-const aura = new Discord.Client();
-const DJ = require('djs-channel-player');
-const streamer = new DJ(aura, process.env.YOUTUBEKEY , '753724334715174953', 'https://www.youtube.com/playlist?list=PLn9WbbeNCOyewpjGRPINHtlZCKcJtTSyp');
-
-async function runStream(){
-	await streamer.play();
-}
-
-aura.on('ready', async () => {
-    await runStream();
-})
-
-aura.login("NzUzNjA1MjkzMjI0NDkzMDc4.X1onnw.v-EjO1I4YtntLtRWTZbIsDbNqF0");
-
 process.on("unhandledRejection", error => {
 	if(error.stack){
 		log(new Discord.MessageEmbed().setColor("RED").setDescription("**Unhandled Promise Rejection:**\n```js\n"+error.stack+"\n```").setTimestamp());
