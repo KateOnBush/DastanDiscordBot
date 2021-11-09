@@ -143,6 +143,7 @@ function getFunctionFromExp(exp){
 }
 
 client.on("message",async(message)=>{
+        if(message.author.bot) return;
         var args=message.content.toLowerCase().split(" ");
         args = args.filter(t=>t!=="");
         if (!args[0].startsWith("x")) return;
