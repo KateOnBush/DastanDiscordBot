@@ -2864,7 +2864,7 @@ const { Player } = require("discord-music-player");
 const options = {
 	leaveOnEnd: false,
 	leaveOnEmpty: false,
-	leaveOnStop: false
+	leaveOnStop: false 
 }
 treble.player = new Player(treble, process.env.YOUTUBEKEY, options);
 pitch.player = new Player(pitch, process.env.YOUTUBEKEY, options);
