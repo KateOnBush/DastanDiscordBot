@@ -14,7 +14,7 @@ const code = {
 		for(var i=0;i<5;i++){
 			code.push(rchar()+rchar()+rchar()+rchar());
 		}
-		let server=await info.load("SERVER");
+		let server=await info.load("SERVER"); 
 		if(!server.codes) server.codes=[];
 		server.codes.push({
 			code: code.join("-"),
