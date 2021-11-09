@@ -624,7 +624,7 @@ const database =  {
 	},
 	save: async function(){
 		return new Promise((resolve,reject)=>{
-			if((lastSaveStart == 0)||(Date.now() - lastSaveStart > 5000)){
+			if((lastSaveStart == 0)||(Date.now() - lastSaveStart > 1000)){
 				lastSaveStart = Date.now();
 				setTimeout(()=>{
 					console.log("Saving database...");
@@ -640,7 +640,7 @@ const database =  {
 							if(!err) resolve(body);
 							if(err) reject(err);
 						});
-				},5000);
+				},1000);
 			}
 		});	
 	}
