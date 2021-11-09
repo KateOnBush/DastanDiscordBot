@@ -7,7 +7,7 @@
     "start": "node bot.js"
   },
   "engines": {
-    "node": "16.x"
+    "node": "15.x"
   },
   "dependencies": {
     "discord.js": "latest",
