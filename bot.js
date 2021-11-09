@@ -624,7 +624,7 @@ const database =  {
 	},
 	save: async function(){
 		return new Promise((resolve,reject)=>{
-			console.log("Loading database...");
+			console.log("Saving database...");
 			request(
 				{
 					method: "POST",
