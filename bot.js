@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const Canvas = require('canvas-constructor');
-const client = new Discord.Client();
+const client = new Discord.Client({intents: []});
 const request = require('request');
 const dbLink = "https://api.npoint.io/99b90a71fe37d563a2fa";
 const eventChannelID="742579924149338212"; 
@@ -2858,8 +2858,8 @@ client.on('guildMemberRemove',member=>{
 //
 // -------------------------------------------
 
-const treble = new Discord.Client();
-const pitch = new Discord.Client();
+const treble = new Discord.Client({intents: []});
+const pitch = new Discord.Client({intents: []});
 let math = require("./math/bot.js");
 
 math.login("Nzk4MjAyMDkwMTIzMDM0NzE2.X_xloA.VwZRJiPbrutDP0Ru-qvPLC5ccrs");
