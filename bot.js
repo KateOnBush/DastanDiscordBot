@@ -2860,12 +2860,8 @@ client.on('guildMemberRemove',member=>{
 
 const treble = new Discord.Client();
 const pitch = new Discord.Client();
-
-treble.on("message",(message)=>{musicMessage(message)});
-pitch.on("message",(message)=>{musicMessage(message)});
-
-let music = require("./modules/music.js");
 let math = require("./math/bot.js");
+
 math.login("Nzk4MjAyMDkwMTIzMDM0NzE2.X_xloA.VwZRJiPbrutDP0Ru-qvPLC5ccrs");
 
 async function musicMessage(message){
