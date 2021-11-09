@@ -601,7 +601,7 @@ async function updateProfile(member,points){
 		await levelUpdate(member);
 		return true;
 }
-
+var lastSaveStart = 0;
 const database =  {
 	load: async function(){
 		return new Promise((resolve,reject)=>{
@@ -624,19 +624,24 @@ const database =  {
 	},
 	save: async function(){
 		return new Promise((resolve,reject)=>{
-			console.log("Saving database...");
-			request(
-				{
-					method: "POST",
-					uri: dbLink,
-					headers: {
-					    'Content-Type': 'application/json',
-					},
-					body: JSON.stringify(dataStorage)
-				},(err,re,body)=>{
-					if(!err) resolve(body);
-					if(err) reject(err);
-				});
+			if((lastSaveStart == 0)||(Date.now() - lastSaveStart > 5000)){
+				lastSaveStart = Date.now();
+				setTimeout(()=>{
+					console.log("Saving database...");
+					request(
+						{
+							method: "POST",
+							uri: dbLink,
+							headers: {
+							    'Content-Type': 'application/json',
+							},
+							body: JSON.stringify(dataStorage)
+						},(err,re,body)=>{
+							if(!err) resolve(body);
+							if(err) reject(err);
+						});
+				},5000);
+			}
 		});	
 	}
 }
