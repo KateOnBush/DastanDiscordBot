@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node bot.js"
   },
-  "engine": {
+  "engines": {
     "node": "16.x"
   },
   "dependencies": {
