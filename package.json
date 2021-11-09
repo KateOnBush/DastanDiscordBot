@@ -6,9 +6,6 @@
   "scripts": {
     "start": "node bot.js"
   },
-  //"engines": {
-  //  "node": "15.x"
-  //},
   "dependencies": {
     "discord.js": "latest",
     "request": "latest",
