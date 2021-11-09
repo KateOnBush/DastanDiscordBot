@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 const Canvas = require('canvas-constructor');
 const client = new Discord.Client();
 const request = require('request');
-const dbLink = PROCESS.env.DBLINK;
+const dbLink = "https://api.npoint.io/99b90a71fe37d563a2fa";
 const eventChannelID="742579924149338212"; 
 
 
