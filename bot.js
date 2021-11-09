@@ -627,7 +627,7 @@ const database =  {
 			console.log("Loading database...");
 			request(
 				{
-					method: "PUT",
+					method: "POST",
 					uri: dbLink,
 					headers: {
 					    'Content-Type': 'application/json',
@@ -2939,35 +2939,3 @@ process.on("unhandledRejection", error => {
 	}
 	
 });
-
-let among = new Discord.Client();
-
-among.on("message",async msg=>{
-	if(msg.content.toLowerCase()=="a!m"){
-		if(!msg.member.hasPermission("MUTE_MEMBERS")){
-			msg.channel.send("You need the mute members permission!")
-		} else if(msg.member.voice.channel){
-			msg.member.voice.channel.members.array().forEach(async member=>{
-				if(!member.user.bot) member.voice.setMute(true);
-			})
-			msg.channel.send("All members muted!");
-		}else{
-			msg.channel.send("You are not in a channel!")	
-		}
-	} else if(msg.content.toLowerCase()=="a!u"){
-		if(!msg.member.hasPermission("MUTE_MEMBERS")){
-			msg.channel.send("You need the mute members permission!")
-		} else if(msg.member.voice.channel){
-			msg.member.voice.channel.members.array().forEach(async member=>{
-				if(!member.user.bot) member.voice.setMute(false);
-			})
-			msg.channel.send("All members unmuted!");
-		}else{
-			msg.channel.send("You are not in a channel!")	
-		}
-	} else if(msg.content.toLowerCase()=="a!info"){
-		msg.channel.send("I'm among us bot, a bot made by **Aouab#5854** to make your Among Us experience better!")	
-	}
-})
-
-among.login("NzYyNzMyNzU3NDUzMTExMzI2.X3tcPA.SqY_gpfsExOgg6X0nuEIcJxcLwE")
