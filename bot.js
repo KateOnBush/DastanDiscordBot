@@ -3,7 +3,7 @@ const Canvas = require('canvas-constructor');
 const client = new Discord.Client();
 const request = require('request');
 const dbLink = "https://api.npoint.io/b4d0220bb5ff019aecc7";
-const eventChannelID="742579924149338212";
+const eventChannelID="742579924149338212"; 
 
 
 const code = {
