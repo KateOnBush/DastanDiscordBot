@@ -13,6 +13,6 @@
     "discord.js": "latest",
     "request": "latest",
     "canvas":"latest",
-    "canvas-constructor": "latest"
+    "canvas-constructor": "4.1.0"
   }
 }
