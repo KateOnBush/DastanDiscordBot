@@ -2860,41 +2860,6 @@ client.on('guildMemberRemove',member=>{
 
 const treble = new Discord.Client();
 const pitch = new Discord.Client();
-const { Player } = require("discord-music-player");
-const options = {
-	leaveOnEnd: false,
-	leaveOnEmpty: false,
-	leaveOnStop: false 
-}
-treble.player = new Player(treble, process.env.YOUTUBEKEY, options);
-pitch.player = new Player(pitch, process.env.YOUTUBEKEY, options);
-
-treble.on("ready",()=>{
-	treble.channels.resolve("729155101746528286").send(new Discord.MessageEmbed().setColor("GREEN").setDescription("**Ready!**"));
-	treble.channels.cache.get("728030297911853176").join();
-	treble.channels.cache.get("733527587749363793").join();
-	treble.user.setPresence({
-						status: "online",
-						afk: false,
-						activity: {
-							name: "",
-							type: "PLAYING",
-							url: null
-						}});
-});
-pitch.on("ready",()=>{
-	pitch.channels.resolve("729155101746528286").send(new Discord.MessageEmbed().setColor("GREEN").setDescription("**Ready!**"));
-	pitch.channels.cache.get("728029167286878240").join();
-	pitch.channels.cache.get("733528421396643973").join();
-	pitch.user.setPresence({
-						status: "online",
-						afk: false,
-						activity: {
-							name: "",
-							type: "PLAYING",
-							url: null
-						}});
-});
 
 treble.on("message",(message)=>{musicMessage(message)});
 pitch.on("message",(message)=>{musicMessage(message)});
