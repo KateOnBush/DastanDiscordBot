@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const Canvas = require('canvas-constructor');
-const client = new Discord.Client();
+const client = new Discord.Client({intents: []});
 const prefix = "x";
 
 let derivative = function(f){
