@@ -371,8 +371,8 @@ function dropChest(){
 			c.chest.collected=true;
 			c.send(new Discord.MessageEmbed().setColor("RED").setDescription("**Oh no!** The chest has disappeared! Better luck next time!"))	
 		}
-	},5*60*1000)
-	setTimeout(dropChest,3600*1000+Math.random()*3*3600*1000|0)
+	},15*60*1000)
+	setTimeout(dropChest,3600*1000+Math.random()*5*3600*1000|0)
 	
 }
 
