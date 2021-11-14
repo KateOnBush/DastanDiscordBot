@@ -2848,7 +2848,9 @@ client.on('guildMemberAdd',async member=>{
 	var welcome_channel=member.guild.channels.cache.get("728008557911605340");
 	welcome_channel.send(new Discord.MessageEmbed().addField("Hey hey hey!","We've been waiting for you!").setTitle("Welcome " + member.displayName + "!").setThumbnail(member.user.displayAvatarURL()));
 	member.roles.add(startRoles);
-	member.send(new Discord.MessageEmbed().setTitle("Welcome " + member.displayName + " to " + member.guild.name + "!").setDescription("Make sure to read rules! Then you can customize your profile by choosing a color in #commands and picking some roles in #role-self-assign, have fun <3!").setColor("fafafa"));
+	let rol = member.guild.channels.cache.array().find(n=>n.id==="729298706188468234").name;
+	let com = member.guild.channels.cache.array().find(n=>n.id==="728025726556569631").name;
+	member.send(new Discord.MessageEmbed().setTitle("Welcome " + member.displayName + " to " + member.guild.name + "!").setDescription("Make sure to read rules! Then you can customize your profile by choosing a color in **#"+com+"** and picking some roles in **#"+rol+"**, have fun <3!").setColor("fafafa"));
 	
 });
 
